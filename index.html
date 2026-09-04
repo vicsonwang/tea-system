@@ -67,8 +67,8 @@
         .status-badge { background: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-left: 15px; display: inline-block; }
         
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal-box { background: white; padding: 30px; border-radius: 12px; width: 420px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .modal-box h3 { margin-top: 0; color: #2c3e50; font-size: 24px; margin-bottom: 20px; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 440px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal-box h3 { margin-top: 0; color: #2c3e50; font-size: 22px; margin-bottom: 15px; }
         .version-text { font-size: 12px; color: #7f8c8d; margin-bottom: 20px; display: block; }
         #userInfoDisplay { position: absolute; top: 85px; right: 25px; font-weight: bold; color: #2c3e50; font-size: 15px; background: white; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none; z-index: 90; }
         
@@ -112,10 +112,15 @@
         
         .focus-input { border: 1px solid #f39c12 !important; box-shadow: 0 0 5px rgba(243,156,18,0.5); }
 
-        /* ================= 手機版優化 (精簡視角版) ================= */
+        /* 金主選擇大按鈕容器 */
+        .host-grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .host-grid-btn { background: #e8f4f8; border: 2px solid #bce0ee; color: #2980b9; padding: 14px 8px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; box-sizing: border-box; }
+        .host-grid-btn:hover, .host-grid-btn:active { background: #3498db; color: white; border-color: #2980b9; transform: scale(0.98); }
+
+        /* ================= 手機版優化 (精簡比例視角版) ================= */
         @media (max-width: 768px) {
             body { padding: 5px; }
-            .modal-box { width: 90%; padding: 20px; box-sizing: border-box; }
+            .modal-box { width: 95%; padding: 15px; box-sizing: border-box; }
             
             .save-bar { flex-direction: column; padding: 10px; margin-bottom: 10px; gap: 8px; }
             .save-bar > div:first-child { width: 100%; display: flex; justify-content: space-between; align-items: center; }
@@ -135,8 +140,13 @@
             .tab-btn { border: 1px solid #ddd; border-radius: 6px; padding: 8px; width: 100%; font-size: 14px; }
             .tab-btn.active { border-bottom: 1px solid #3498db; background-color: #e8f4f8; }
 
-            /* 預設隱藏非必要欄位，讓表格剛好滿版不必滑動 */
             .hide-mobile { display: none !important; }
+
+            /* 🎯 關鍵調整：手機版精簡狀態下的欄位比例 (部門 22% + 姓名 28% = 50%，打勾欄 50%) */
+            .main-list table { table-layout: fixed !important; width: 100% !important; }
+            .mobile-compact-view th:nth-child(2), .mobile-compact-view td:nth-child(2) { width: 22% !important; min-width: 22% !important; max-width: 22% !important; }
+            .mobile-compact-view th:nth-child(3), .mobile-compact-view td:nth-child(3) { width: 28% !important; min-width: 28% !important; max-width: 28% !important; }
+            .mobile-compact-view th.mobile-active-host, .mobile-compact-view td.mobile-active-host { width: 50% !important; min-width: 50% !important; max-width: 50% !important; }
 
             .section-box { min-width: 100% !important; box-sizing: border-box; padding: 10px; }
             .flex-row { flex-direction: column; align-items: stretch; }
@@ -147,8 +157,8 @@
             #targetDropdown, #batchHostSelect, #distDropdown, #deptFilterSelect { width: 100% !important; }
             .custom-select-wrapper { width: 100%; margin-bottom: 10px; }
 
-            th, td { padding: 6px 4px; font-size: 14px; }
-            .inline-input, .inline-select { font-size: 14px; padding: 4px 2px; }
+            th, td { padding: 6px 2px; font-size: 13px; }
+            .inline-input, .inline-select { font-size: 13px; padding: 4px 1px; }
             .table-responsive { -webkit-overflow-scrolling: touch; }
 
             #tab-distribution > div:first-child { flex-direction: column; align-items: stretch; padding: 10px; }
@@ -179,13 +189,12 @@
     </div>
 </div>
 
-<!-- 選擇金主 Modal -->
+<!-- 選擇金主 Modal (大按鈕快速點擊版) -->
 <div id="loginUserModal" class="modal-overlay">
     <div class="modal-box">
-        <h3>👤 選擇金主視角</h3>
-        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">為防止誤觸，非您本人的格位將會被<strong style="color:#e74c3c;">🔒反灰鎖定</strong></p>
-        <select id="loginUserSelect" style="width: 100%; padding: 10px; margin-bottom: 20px; font-size: 16px;"></select>
-        <button class="success" style="width: 100%; font-size: 16px; padding: 12px;" onclick="window.confirmUserLogin()">✅ 確認進入</button>
+        <h3>👤 快速選擇金主視角</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">點擊您的名字即可快速登入（非您本人的欄位將被🔒鎖定）</p>
+        <div id="hostBtnGrid" class="host-grid-container"></div>
     </div>
 </div>
 
@@ -536,10 +545,10 @@
         document.getElementById('topProjectName').classList.remove('focus-input'); 
         document.getElementById('globalPrintTitle').value = data.projectName || "";
         
-        let select = document.getElementById('loginUserSelect');
-        select.innerHTML = '<option value="">-- 請選擇您的名字 --</option>' + data.hosts.map(h => `<option value="${h}">${h}</option>`).join('');
-        
+        // 生成大顆金主按鈕選單
+        const gridContainer = document.getElementById('hostBtnGrid');
         if (data.hosts.length > 0) {
+            gridContainer.innerHTML = data.hosts.map(h => `<button class="host-grid-btn" onclick="window.selectUserDirectly('${h}')">👤 ${h}</button>`).join('');
             document.getElementById('loginUserModal').style.display = 'flex';
         } else {
             window.confirmUserLogin(); 
@@ -549,10 +558,8 @@
         resetSaveStatus();
     }
 
-    window.confirmUserLogin = function() {
-        const selectedUser = document.getElementById('loginUserSelect').value;
-        if (!selectedUser && data.hosts.length > 0) return alert('請選擇您的金主身分喔！');
-        
+    // 點擊大按鈕直接登入
+    window.selectUserDirectly = function(selectedUser) {
         currentUser = selectedUser;
         document.getElementById('loginUserModal').style.display = 'none';
         
@@ -564,6 +571,12 @@
         
         renderMainTable(); 
         if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostTabs(); 
+    }
+
+    window.confirmUserLogin = function() {
+        document.getElementById('loginUserModal').style.display = 'none';
+        window.populateBatchTargets(); 
+        renderMainTable(); 
     }
 
     window.syncProjectName = function(val) {
@@ -886,14 +899,18 @@
         markDataChanged(); renderMainTable(); renderDeptFilter();
     }
 
-    // 🌟 精簡視角渲染邏輯：手機預設隱藏次要欄位，只留下單純欄位
+    // 🌟 精簡視角渲染邏輯：顯示【部門】與【姓名】(合計佔 50%)，打勾欄佔 50%
     function renderMainTable() {
         const thead = document.getElementById('mainTableHead'); const tbody = document.getElementById('mainTableBody');
-        const isHide = !showAllMobileCols; // 是否執行隱藏
+        const mainTable = document.getElementById('mainTable');
+        const isHide = !showAllMobileCols;
+
+        if (isHide) mainTable.classList.add('mobile-compact-view');
+        else mainTable.classList.remove('mobile-compact-view');
 
         let headHTML = `<tr>
-            <th style="min-width:60px;">區域</th>
-            <th class="${isHide ? 'hide-mobile' : ''}" style="min-width:80px;">部門</th>
+            <th class="${isHide ? 'hide-mobile' : ''}" style="min-width:60px;">區域</th>
+            <th style="min-width:70px;">部門</th>
             <th style="min-width:90px;">姓名</th>
             <th class="${isHide ? 'hide-mobile' : ''}" style="min-width:70px;">分工</th>
             <th class="${isHide ? 'hide-mobile' : ''}" style="min-width:80px;">狀態</th>
@@ -901,14 +918,14 @@
         
         data.hosts.forEach(h => { 
             let isCurrent = (h === currentUser);
-            // 手機上如果不展開，且不是「當前登入者」，就把其他金主欄位隱藏
             let hostHideClass = (isHide && !isCurrent) ? 'hide-mobile' : '';
+            let hostActiveClass = (isHide && isCurrent) ? 'mobile-active-host' : '';
 
             let thClass = isCurrent ? "host-header" : "disabled-cell";
             let clickAction = isCurrent ? `onclick="window.toggleHostColumn('${h}')"` : '';
             let title = isCurrent ? "點擊整欄全選/全取消" : "🔒 非您的專屬欄位，不可編輯";
             let icon = isCurrent ? "↕️" : "🔒";
-            headHTML += `<th class="${thClass} ${hostHideClass}" style="background:#e8f4f8;" ${clickAction} title="${title}">${h} ${icon}</th>`; 
+            headHTML += `<th class="${thClass} ${hostHideClass} ${hostActiveClass}" style="background:#e8f4f8;" ${clickAction} title="${title}">${h} ${icon}</th>`; 
         });
         headHTML += `</tr>`; thead.innerHTML = headHTML;
         
@@ -924,8 +941,8 @@
                 let rowClass = isExclude ? 'exclude' : (isNoHost ? 'no-host-row' : '');
 
                 bodyHTML += `<tr class="${rowClass}">
-                    <td><input type="text" class="inline-input" value="${g.reg}" onchange="window.updateGuestInfo(${g.id}, 'reg', this.value)"></td>
-                    <td class="${isHide ? 'hide-mobile' : ''}"><input type="text" class="inline-input" value="${g.dept}" onchange="window.updateGuestInfo(${g.id}, 'dept', this.value)"></td>
+                    <td class="${isHide ? 'hide-mobile' : ''}"><input type="text" class="inline-input" value="${g.reg}" onchange="window.updateGuestInfo(${g.id}, 'reg', this.value)"></td>
+                    <td><input type="text" class="inline-input" value="${g.dept}" onchange="window.updateGuestInfo(${g.id}, 'dept', this.value)"></td>
                     <td><input type="text" class="inline-input bold" value="${g.name}" onchange="window.updateGuestInfo(${g.id}, 'name', this.value)"></td>
                     <td class="${isHide ? 'hide-mobile' : ''}"><input type="text" class="inline-input" value="${g.dist}" onchange="window.updateGuestInfo(${g.id}, 'dist', this.value)"></td>
                     <td class="${isHide ? 'hide-mobile' : ''}"><select class="inline-select" style="color:${isExclude ? '#e74c3c' : '#2ecc71'};" onchange="window.updateGuestInfo(${g.id}, 'status', this.value)">
@@ -937,11 +954,12 @@
                     const isChecked = g.claimedBy && g.claimedBy.includes(h);
                     const isCurrent = (h === currentUser);
                     let hostHideClass = (isHide && !isCurrent) ? 'hide-mobile' : '';
+                    let hostActiveClass = (isHide && isCurrent) ? 'mobile-active-host' : '';
 
                     const cellClass = isCurrent ? 'checkbox-cell' : 'disabled-cell';
                     const clickAttr = (isCurrent && !isExclude) ? `onclick="window.toggleHostCell(this, ${g.id}, '${h}', ${isExclude}, event)"` : '';
                     const disAttr = (isExclude || !isCurrent) ? 'disabled' : '';
-                    bodyHTML += `<td class="${cellClass} ${hostHideClass}" ${clickAttr}><input type="checkbox" ${isChecked ? 'checked' : ''} ${disAttr}></td>`;
+                    bodyHTML += `<td class="${cellClass} ${hostHideClass} ${hostActiveClass}" ${clickAttr}><input type="checkbox" ${isChecked ? 'checked' : ''} ${disAttr}></td>`;
                 });
                 bodyHTML += `</tr>`;
             });
