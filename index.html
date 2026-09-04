@@ -36,6 +36,10 @@
         th, td { border: 1px solid #dee2e6; padding: 4px 6px; text-align: center; transition: background-color 0.2s; } 
         th { background-color: #f8f9fa; position: sticky; top: 0; z-index: 1; padding: 8px 10px; }
         
+        /* 電腦版品項表格比例：品項 25%、口味 45% (超寬空間)、單價/份數/小計/操作分剩餘 */
+        .menu-card-table th:nth-child(1), .menu-card-table td:nth-child(1) { width: 25%; }
+        .menu-card-table th:nth-child(2), .menu-card-table td:nth-child(2) { width: 45%; }
+        
         .main-list th:nth-child(1), .main-list td:nth-child(1) { position: sticky; left: 0; background-color: #fff; z-index: 2; }
         .main-list th:nth-child(2), .main-list td:nth-child(2) { position: sticky; left: 60px; background-color: #fff; z-index: 2; }
         .main-list th:nth-child(3), .main-list td:nth-child(3) { position: sticky; left: 140px; background-color: #fff; z-index: 2; }
@@ -127,7 +131,10 @@
         .accordion-header { background: #e8f4f8; padding: 10px 15px; border-radius: 8px; border: 1px solid #bce0ee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: #2c3e50; margin-bottom: 15px; }
         .accordion-content { display: none; padding: 15px; border: 1px solid #bce0ee; border-top: none; border-radius: 0 0 8px 8px; margin-top: -15px; margin-bottom: 15px; background: #fafbfc; }
 
-        /* ================= 手機版優化 (含大長度口味欄位修復) ================= */
+        /* 電腦版表格橫向容器 */
+        .menu-inputs-group-desktop { display: flex; gap: 4px; }
+
+        /* ================= 手機版優化 (嚴格封裝在 media 內部) ================= */
         @media (max-width: 768px) {
             body { padding: 5px; }
             .modal-box { width: 95%; padding: 15px; box-sizing: border-box; }
@@ -170,15 +177,15 @@
 
             .table-responsive { -webkit-overflow-scrolling: touch; }
 
-            /* 🎯 關鍵優化：品項 1 : 口味 2.2，給予口味超大寬敞展示空間 */
+            /* 🎯 僅在手機版將品項轉為卡片，品項 1 : 口味 2.2 */
             .menu-card-table, .menu-card-table tbody, .menu-card-table tr { display: block; width: 100%; }
             .menu-card-table thead { display: none; }
             .menu-card-row { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-            .menu-card-row td { display: block; border: none; padding: 3px 0; text-align: left; }
+            .menu-card-row td { display: block; border: none; padding: 3px 0; text-align: left; width: 100% !important; }
             .menu-card-row .menu-inputs-group { display: flex; gap: 8px; margin-bottom: 6px; }
             .menu-card-row .menu-inputs-group input { border: 1px solid #ccc !important; padding: 6px !important; text-align: left !important; border-radius: 4px; font-size: 14px; }
-            .menu-card-row .menu-inputs-group input:nth-child(1) { flex: 1 !important; min-width: 0; } /* 品項(店家) 佔 1 */
-            .menu-card-row .menu-inputs-group input:nth-child(2) { flex: 2.2 !important; min-width: 0; } /* 口味(長名字) 佔 2.2 大空間 */
+            .menu-card-row .menu-inputs-group input:nth-child(1) { flex: 1 !important; min-width: 0; }
+            .menu-card-row .menu-inputs-group input:nth-child(2) { flex: 2.2 !important; min-width: 0; }
             .menu-card-row .menu-meta-group { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 6px 8px; border-radius: 4px; }
 
             #tab-distribution > div:first-child { flex-direction: column; align-items: stretch; padding: 10px; }
@@ -1173,7 +1180,7 @@
         tbody.innerHTML = items.map(i => `
             <tr class="menu-card-row">
                 <td colspan="2">
-                    <div class="menu-inputs-group">
+                    <div class="menu-inputs-group menu-inputs-group-desktop">
                         <input type="text" class="inline-input" value="${i.item}" placeholder="品項/店家" onchange="window.updateMenuInfo('${type}', ${i.id}, 'item', this.value)">
                         <input type="text" class="inline-input" value="${i.flavor}" placeholder="口味/細節" onchange="window.updateMenuInfo('${type}', ${i.id}, 'flavor', this.value)">
                     </div>
@@ -2127,6 +2134,27 @@
         container.innerHTML = summaryHTML + detailedHTML;
         
         window.currentDistRegions.forEach(function(reg, rIdx) { window.renderDetailCard(rIdx); });
+    }
+
+    // 🎯 補齊：名牌列印函式組
+    window.printAllTags = function() {
+        const validGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.length > 0);
+        if (validGuests.length === 0) return alert('目前沒有被請客且正常出席的人員可列印！');
+        const printWindow = window.open('', '_blank');
+        const html = generatePrintHTML(validGuests, data.projectName || '下午茶名牌', '全體人員發放名牌');
+        printWindow.document.write(html);
+        printWindow.document.close();
+    }
+
+    window.printRegionTags = function(rIdx) {
+        const reg = window.currentDistRegions[rIdx];
+        if (!reg) return;
+        const validGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.length > 0 && (g.reg || '未分類區域') === reg);
+        if (validGuests.length === 0) return alert('本區目前沒有可列印的名單！');
+        const printWindow = window.open('', '_blank');
+        const html = generatePrintHTML(validGuests, data.projectName || '下午茶名牌', `📍 區域：${reg} 發放名牌`);
+        printWindow.document.write(html);
+        printWindow.document.close();
     }
 
     function generatePrintHTML(guestsToPrint, customTitle, mainHeading) {
