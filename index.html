@@ -471,7 +471,7 @@
         </div>
     </div>
 
-    <!-- 🎯 頁籤：啟動顯示完整文字，未啟動顯示1.設定 / 2.名單等... -->
+    <!-- 🎯 頁籤：電腦版顯示完整，手機版動態伸縮切換 (1.設定 / 2.名單) -->
     <div class="tabs">
         <button class="tab-btn owner-tab active" id="tabBtn1" onclick="switchTab('tab-setup')">
             <span class="tab-text-short">1.設定</span>
@@ -586,8 +586,12 @@
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #fff; padding: 10px 12px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%;">
                 <select id="deptFilterSelect" onchange="window.switchDeptTab(this.value)" style="flex: 1; min-width: 120px; padding: 6px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc;"></select>
+                <!-- 🎯 分頁 2：加入「我已打勾」快捷鍵 -->
+                <button class="success" style="font-weight: bold; font-size: 14px; padding: 6px 10px; background-color: #7a9eb1; border: 1px solid #638596;" onclick="window.switchDeptTab('我已打勾')" title="顯示我已打勾的名單">
+                    ✅我已打勾
+                </button>
                 <button class="warning" style="font-weight: bold; font-size: 14px; padding: 6px 10px;" onclick="window.switchDeptTab('未勾選金主')" title="顯示未勾選金主名單">
-                    🔍未勾選(<span id="noHostCountBadge">0</span>)
+                    ⚠️未打勾(<span id="noHostCountBadge">0</span>)
                 </button>
                 <button class="success" style="font-weight: bold; font-size: 14px; background-color: #5c666c; padding: 6px 10px;" onclick="window.toggleMobileColumns()" title="切換展開/精簡欄位">
                     👁️ <span id="toggleColBtnText" style="display:none;">展開</span>
@@ -605,7 +609,7 @@
         </div>
     </div>
 
-    <!-- Tab 3 (團員專區：排序修復 b-a -> 1/1 在上) -->
+    <!-- Tab 3 (團員專區) -->
     <div id="tab-host-summary" class="tab-content">
         <div id="hostSubTabs" class="host-sub-tabs"></div>
         <div id="hostSpecificData" style="display: none;">
@@ -694,15 +698,13 @@
     let currentGroupPassword = "";
     let currentGroupStatus = "進行中";
     
-    // 版本控制與防閒置雷達變數
     let cloudLastMod = 0;
     let pingInterval = null;
     let isOutdated = false;
     let lastActivityTime = Date.now();
     let isIdle = false;
-    const IDLE_TIMEOUT = 10 * 60 * 1000; // 10 分鐘 (毫秒)
+    const IDLE_TIMEOUT = 10 * 60 * 1000; 
 
-    // 🎯 監聽使用者動作，重置閒置計時器
     function resetIdleTimer() { lastActivityTime = Date.now(); }
     window.addEventListener('mousemove', resetIdleTimer);
     window.addEventListener('keydown', resetIdleTimer);
@@ -710,7 +712,6 @@
     window.addEventListener('scroll', resetIdleTimer);
     window.addEventListener('click', resetIdleTimer);
 
-    // 🎯 繼續連線 (從閒置中恢復)
     window.resumeConnection = function() {
         isIdle = false;
         lastActivityTime = Date.now();
@@ -718,7 +719,6 @@
         document.getElementById('onlineStatusBadge').innerHTML = '👀 重新連線中...';
         document.getElementById('onlineStatusBadge').classList.remove('warning-glow');
         
-        // 恢復 ping
         pingCloud();
         pingInterval = setInterval(() => pingCloud(), 15000);
     }
@@ -807,9 +807,23 @@
         }
     }
 
+    // 🎯 修復分頁 2 篩選邏輯，加入「我已打勾」
     function getFilteredGuests() {
         if (activeDeptTab === '未勾選金主') return data.guests.filter(g => g.status === '正常' && (!g.claimedBy || g.claimedBy.length === 0));
-        if (activeDeptTab !== '全部') return data.guests.filter(g => (g.dept || '未分類') === activeDeptTab);
+        if (activeDeptTab === '我已打勾') return data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(currentUser));
+        
+        if (activeDeptTab.startsWith('reg|')) {
+            const r = activeDeptTab.substring(4);
+            return data.guests.filter(g => (g.reg || '') === r);
+        }
+        if (activeDeptTab.startsWith('dept|')) {
+            const d = activeDeptTab.substring(5);
+            return data.guests.filter(g => (g.dept || '') === d);
+        }
+
+        if (activeDeptTab !== '全部') {
+            return data.guests.filter(g => (g.dept || '未分類') === activeDeptTab);
+        }
         return data.guests;
     }
 
@@ -827,7 +841,6 @@
     let activeDeptTab = '全部'; 
     let currentUser = ''; 
 
-    // ====== Admin 超級管理員 ======
     window.openAdminLoginModal = function() {
         document.getElementById('adminUser').value = '';
         document.getElementById('adminPass').value = '';
@@ -872,7 +885,6 @@
         }
     }
 
-    // ====== 主揪權限控制中心 ======
     window.openChangePassModal = function() {
         document.getElementById('newGroupPassInput').value = currentGroupPassword;
         document.getElementById('changePassModal').style.display = 'flex';
@@ -966,7 +978,6 @@
         renderBillingTable();
     }
 
-    // ====== 雲端 API & 首頁入口 ======
     async function fetchCloudGroups() {
         const container = document.getElementById('groupListContainer');
         const cachedList = localStorage.getItem('tea_group_list_cache');
@@ -1147,7 +1158,6 @@
         resetSaveStatus();
     }
 
-    // 🎯 修復切換帳號：傳遞 oldUser 給後端直接刪除線上狀態
     window.selectUserDirectly = function(selectedUser) {
         let oldUser = currentUser;
         currentUser = selectedUser;
@@ -1164,7 +1174,6 @@
         renderMainTable(); 
         if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostTabs(); 
 
-        // 啟動線上雷達 Ping
         if(pingInterval) clearInterval(pingInterval);
         pingCloud(oldUser); 
         pingInterval = setInterval(() => pingCloud(), 15000); 
@@ -1184,7 +1193,6 @@
         pingInterval = setInterval(() => pingCloud(), 15000);
     }
 
-    // 🎯 點擊返回主頁：清除目前的線上狀態
     window.backToHome = function() {
         if (hasUnsavedChanges) {
             if(!confirm("⚠️ 警告：您有未儲存的變動！確定要放棄存檔並返回主頁嗎？")) return;
@@ -1201,20 +1209,17 @@
         fetchCloudGroups();
     }
 
-    // 📡 結合「閒置防護」的線上雷達
     async function pingCloud(oldUser = null) {
         if(!currentGroupId) return;
 
-        // 💤 防閒置檢查 (10 分鐘)
         if (Date.now() - lastActivityTime > IDLE_TIMEOUT) {
             if (!isIdle) {
                 isIdle = true;
-                clearInterval(pingInterval); // 停止一直 ping
+                clearInterval(pingInterval);
                 document.getElementById('idleModal').style.display = 'flex';
                 document.getElementById('onlineStatusBadge').innerHTML = '💤 已暫停連線';
                 document.getElementById('onlineStatusBadge').classList.remove('warning-glow');
                 
-                // 通知雲端我要離線了
                 if (currentUser) fetch(`${API_URL}?action=ping&id=${currentGroupId}&leaveUser=${encodeURIComponent(currentUser)}`);
             }
             return; 
@@ -1228,7 +1233,6 @@
             const res = await fetch(url);
             const result = await res.json();
             if(result.status === 'success') {
-                // 1. 更新線上狀態
                 const badge = document.getElementById('onlineStatusBadge');
                 if(result.online && result.online.length > 0) {
                     badge.style.display = 'inline-block';
@@ -1242,7 +1246,6 @@
                     }
                 }
 
-                // 2. 版本偵測落後
                 if(result.lastMod > cloudLastMod && !isOutdated) {
                     isOutdated = true;
                     document.getElementById('saveStatusBadge').innerHTML = '⚠️ 雲端已有新版本！(存檔時將自動整併)';
@@ -1269,7 +1272,6 @@
         window.syncProjectName(document.getElementById('topProjectName').value); 
         let pName = data.projectName || '未命名專案';
         
-        // 🛡️ 智慧整併防禦機制
         if (isOutdated && hasUnsavedChanges) {
             if(!confirm(`⚠️ 雲端資料已被其他人更新！\n\n系統即將為您進行「智慧整併」：\n將您畫面上的【打勾紀錄】自動補加到最新的雲端資料中。\n\n確認要執行整併並覆蓋存檔嗎？`)) return;
             document.getElementById('saveStatusBadge').innerHTML = '⏳ 智慧整併中...';
@@ -1307,33 +1309,28 @@
         } catch(e) { alert(`❌ 連線錯誤: ${e.message}`); resetSaveStatus(); }
     }
 
-    // 🛡️ 執行智慧整併 (Smart Merge)
     async function executeSmartMergeAndSave() {
         try {
-            // 1. 抓取最新資料
             const res = await fetch(`${API_URL}?action=load&id=${currentGroupId}`);
             const result = await res.json();
             if(result.status !== 'success' || !result.data) throw new Error("無法取得最新雲端資料");
             
             let freshData = JSON.parse(result.data);
 
-            // 2. 無痛整併：將我自己(currentUser)在畫面上打的勾勾，套用到 freshData 上
             data.guests.forEach(localGuest => {
                 let freshGuest = freshData.guests.find(g => g.id === localGuest.id);
                 if (freshGuest) {
                     const iClaimedLocally = localGuest.claimedBy && localGuest.claimedBy.includes(currentUser);
                     if (iClaimedLocally && !freshGuest.claimedBy.includes(currentUser)) {
-                        freshGuest.claimedBy.push(currentUser); // 我有勾，但他沒有 -> 補加上去
+                        freshGuest.claimedBy.push(currentUser); 
                     } else if (!iClaimedLocally && freshGuest.claimedBy.includes(currentUser)) {
-                        freshGuest.claimedBy = freshGuest.claimedBy.filter(h => h !== currentUser); // 我取消勾了 -> 從他那邊移除
+                        freshGuest.claimedBy = freshGuest.claimedBy.filter(h => h !== currentUser); 
                     }
                 }
             });
 
-            // 3. 把資料替換為整併後的結果
             data = freshData;
             
-            // 4. 正式寫入雲端 (呼叫一般存檔，但設為 silent)
             isOutdated = false;
             await window.saveCloudFile(true);
             
@@ -1500,6 +1497,43 @@
     }
     window.clearAllData = clearAllData;
 
+    // 🎯 修復 1：加上 applyBatchDist 與 clearBatchDist 函式
+    window.applyBatchDist = function() {
+        const targets = getSelectedTargets();
+        if (targets.reg.length === 0 && targets.dept.length === 0) return alert("請點開下拉選單，勾選至少一個目標！");
+        
+        const distCheckboxes = document.querySelectorAll('.batch-dist-chk:checked');
+        let distHosts = Array.from(distCheckboxes).map(cb => cb.value);
+        if (distHosts.length === 0) return alert("請選擇至少一位派發人！");
+        
+        let distStr = distHosts.join('、');
+        let count = 0;
+        data.guests.forEach(g => {
+            if (isTargetMatch(g, targets) && g.status === '正常') {
+                g.dist = distStr;
+                count++;
+            }
+        });
+        markDataChanged(); renderMainTable(); renderDeptFilter(); alert(`分派成功！已將 ${count} 位名單的負責分派設為 ${distStr}。`);
+    }
+
+    window.clearBatchDist = function() {
+        const targets = getSelectedTargets();
+        if (targets.reg.length === 0 && targets.dept.length === 0) return alert("請勾選目標！");
+        
+        if(confirm(`確定要清除所選單位的負責分派嗎？`)) {
+            let count = 0;
+            data.guests.forEach(g => { 
+                if (isTargetMatch(g, targets) && g.status === '正常') {
+                    g.dist = ''; 
+                    count++;
+                } 
+            });
+            markDataChanged(); renderMainTable(); renderDeptFilter();
+            alert(`已清除 ${count} 筆分派。`);
+        }
+    }
+
     function batchImport() {
         const text = document.getElementById('excelPaste').value;
         if(!text.trim()) return;
@@ -1554,28 +1588,57 @@
         }
     }
 
+    // 🎯 修復 2：更進階的部門與區域下拉選單
     function renderDeptFilter() {
         const select = document.getElementById('deptFilterSelect');
-        const depts = [...new Set(data.guests.map(g => g.dept || '未分類'))].sort();
+        const depts = [...new Set(data.guests.map(g => g.dept).filter(d => d))].sort();
+        const regions = [...new Set(data.guests.map(g => g.reg).filter(r => r))].sort();
+        
         const noHostCount = data.guests.filter(g => g.status === '正常' && (!g.claimedBy || g.claimedBy.length === 0)).length;
+        const myCheckedCount = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(currentUser)).length;
 
         let badgeEl = document.getElementById('noHostCountBadge');
         if(badgeEl) badgeEl.innerText = noHostCount;
 
-        let optionsHtml = `<option value="全部">顯示全部部門</option>`;
+        let optionsHtml = `<option value="全部">顯示全部名單</option>`;
+        
+        optionsHtml += `<optgroup label="📌 快速篩選">`;
+        optionsHtml += `<option value="我已打勾" style="color:#7a9eb1; font-weight:bold;">✅ 我已打勾 (${myCheckedCount}人)</option>`;
         if (noHostCount > 0) {
-            optionsHtml += `<option value="未勾選金主" style="color:#c47c7c; font-weight:bold;">⚠️ 僅顯示未勾選金主 (${noHostCount}人)</option>`;
+            optionsHtml += `<option value="未勾選金主" style="color:#c47c7c; font-weight:bold;">⚠️ 無人打勾 (${noHostCount}人)</option>`;
         }
-        depts.forEach(d => { optionsHtml += `<option value="${d}">${d}</option>`; });
+        optionsHtml += `</optgroup>`;
+
+        if (regions.length > 0) {
+            optionsHtml += `<optgroup label="📍 依區域 (Region)">`;
+            regions.forEach(r => { optionsHtml += `<option value="reg|${r}">${r}</option>`; });
+            optionsHtml += `</optgroup>`;
+        }
+
+        if (depts.length > 0) {
+            optionsHtml += `<optgroup label="💼 依部門 (Dept)">`;
+            depts.forEach(d => { optionsHtml += `<option value="dept|${d}">${d}</option>`; });
+            optionsHtml += `</optgroup>`;
+        }
+
         select.innerHTML = optionsHtml;
 
-        if (!['全部', '未勾選金主', ...depts].includes(activeDeptTab)) activeDeptTab = '全部';
+        const validValues = ['全部', '未勾選金主', '我已打勾', ...regions.map(r=>'reg|'+r), ...depts.map(d=>'dept|'+d)];
+        if (!validValues.includes(activeDeptTab) && !depts.includes(activeDeptTab)) {
+            activeDeptTab = '全部';
+        }
         select.value = activeDeptTab;
     }
 
     window.switchDeptTab = function(dept) {
         activeDeptTab = dept; renderMainTable();
-        document.getElementById('sDept').value = (dept === '全部' || dept === '未分類' || dept === '未勾選金主') ? '' : dept;
+        
+        let fillDept = '';
+        if (dept.startsWith('dept|')) fillDept = dept.substring(5);
+        else if (dept !== '全部' && dept !== '未分類' && dept !== '未勾選金主' && dept !== '我已打勾' && !dept.startsWith('reg|')) fillDept = dept;
+        
+        let sDeptEl = document.getElementById('sDept');
+        if (sDeptEl) sDeptEl.value = fillDept;
     }
 
     window.toggleHostColumn = function(hostName) {
@@ -1869,7 +1932,7 @@
 
         let claimedGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(activeHostTab));
 
-        // b - a 排序演算法
+        // 🎯 修復 3：b-a 確保 1/1 在最上方
         claimedGuests.sort((a, b) => (1 / b.claimedBy.length) - (1 / a.claimedBy.length));
 
         let listHTML = claimedGuests.map(g => {
