@@ -132,15 +132,11 @@
             .save-bar { flex-direction: column; padding: 10px; margin-bottom: 10px; gap: 8px; }
             .save-bar > div:first-child { width: 100%; display: flex; justify-content: space-between; align-items: center; }
             #currentFileDisplay { display: none; }
-            #topProjectName { width: 110px !important; font-size: 14px !important; margin: 0; padding: 2px 4px; }
+            #topProjectName { width: 100px !important; font-size: 14px !important; margin: 0; padding: 2px 4px; }
             #saveStatusBadge { font-size: 12px; padding: 3px 8px; margin: 0; }
             
-            .save-bar > div:last-child { width: 100%; display: flex; flex-direction: row; gap: 4px; flex-wrap: nowrap; margin-top: 0; }
-            .save-bar button { flex: 1; padding: 8px 0; font-size: 0 !important; text-align: center; border-radius: 4px; }
-            .save-bar button:nth-child(1)::after { content: "📂 主頁"; font-size: 13px; }
-            .save-bar button:nth-child(2)::after { content: "🔑 改密碼"; font-size: 13px; }
-            .save-bar button:nth-child(3)::after { content: "📂 另存"; font-size: 13px; }
-            .save-bar button:nth-child(4)::after { content: "💾 儲存"; font-size: 13px; }
+            .save-bar > div:last-child { width: 100%; display: flex; flex-direction: row; gap: 4px; flex-wrap: wrap; margin-top: 0; }
+            .save-bar button { flex: 1 1 20%; padding: 6px 0; font-size: 12px !important; text-align: center; border-radius: 4px; }
             
             #userInfoDisplay { position: static; display: block; margin: 5px auto 10px; text-align: center; box-shadow: none; border: 1px solid #ddd; }
 
@@ -246,7 +242,7 @@
     </div>
 </div>
 
-<!-- 🌟 動態建團 Modal (自訂金主與主揪) -->
+<!-- 動態建團 Modal -->
 <div id="createGroupModal" class="modal-overlay">
     <div class="modal-box">
         <h3>➕ 建立新團體</h3>
@@ -301,7 +297,7 @@
     </div>
 </div>
 
-<!-- 選擇金主 Modal (大按鈕快速點擊版) -->
+<!-- 選擇金主 Modal -->
 <div id="loginUserModal" class="modal-overlay">
     <div class="modal-box">
         <h3>👤 快速選擇金主視角</h3>
@@ -345,11 +341,12 @@
             </select>
             <span id="saveStatusBadge" class="status-badge" style="color: #2ecc71;">✅ 已同步至最新狀態</span>
         </div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
-            <button class="success" style="font-size: 14px; font-weight: bold; background-color: #27ae60;" onclick="window.backToHome()">📂 返回主頁</button>
-            <button id="changePassBtn" class="warning" style="font-size: 14px; font-weight: bold; background-color: #e67e22; color: #fff; display:none;" onclick="window.openChangePassModal()">🔑 修改團密碼</button>
-            <button class="warning" style="font-size: 14px; font-weight: bold; background-color: #f39c12; color: #fff;" onclick="window.openSaveAsModal()">📂 另存新團</button>
-            <button class="success" style="font-size: 14px; font-weight: bold;" onclick="window.saveCloudFile()">💾 儲存至雲端</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px;">
+            <button class="success" style="font-size: 14px; font-weight: bold; background-color: #27ae60;" onclick="window.backToHome()">📂 主頁</button>
+            <button id="changePassBtn" class="warning" style="font-size: 14px; font-weight: bold; background-color: #e67e22; color: #fff; display:none;" onclick="window.openChangePassModal()">🔑 改密碼</button>
+            <button id="deleteGroupBtn" class="danger" style="font-size: 14px; font-weight: bold; display:none;" onclick="window.deleteCurrentGroup()">🗑️ 刪除此團</button>
+            <button class="warning" style="font-size: 14px; font-weight: bold; background-color: #f39c12; color: #fff;" onclick="window.openSaveAsModal()">📂 另存</button>
+            <button class="success" style="font-size: 14px; font-weight: bold;" onclick="window.saveCloudFile()">💾 儲存</button>
         </div>
     </div>
 
@@ -647,7 +644,7 @@
         }
     }
 
-    // ====== 主揪權限與密碼管理 ======
+    // ====== 主揪權限與密碼/刪團管理 ======
     window.openChangePassModal = function() {
         document.getElementById('newGroupPassInput').value = currentGroupPassword;
         document.getElementById('changePassModal').style.display = 'flex';
@@ -664,6 +661,30 @@
         alert(`✅ 團體通行密碼已成功修改為：【 ${newPass} 】！`);
     }
 
+    window.deleteCurrentGroup = async function() {
+        if (!confirm(`⚠️ 警告！您確定要徹底刪除【 ${data.projectName} 】這個團體嗎？\n刪除後雲端資料將完全無法復原！`)) {
+            return;
+        }
+        
+        document.getElementById('saveStatusBadge').innerHTML = '⏳ 刪除團體中...';
+        try {
+            const res = await fetch(`${API_URL}?action=delete&id=${currentGroupId}`);
+            const result = await res.json();
+            if (result.status === 'success') {
+                alert('🗑️ 團體已成功刪除！');
+                localStorage.removeItem(`tea_pass_${currentGroupId}`);
+                hasUnsavedChanges = false;
+                window.backToHome();
+            } else {
+                alert('❌ 刪除失敗: ' + result.message);
+                resetSaveStatus();
+            }
+        } catch(e) {
+            alert('❌ 刪除連線錯誤: ' + e.message);
+            resetSaveStatus();
+        }
+    }
+
     window.setAsOwnerHost = function(hostName) {
         data.ownerHost = hostName;
         markDataChanged();
@@ -678,18 +699,21 @@
         const fieldset = document.getElementById('tab1FieldSet');
         const notice = document.getElementById('tab1PermissionNotice');
         const changePassBtn = document.getElementById('changePassBtn');
+        const deleteGroupBtn = document.getElementById('deleteGroupBtn');
 
         if (isOwner) {
             fieldset.disabled = false;
             fieldset.style.opacity = '1';
             notice.style.display = 'none';
             if (changePassBtn) changePassBtn.style.display = 'inline-block'; 
+            if (deleteGroupBtn) deleteGroupBtn.style.display = 'inline-block'; 
         } else {
             fieldset.disabled = true;
             fieldset.style.opacity = '0.6';
             notice.style.display = 'block';
             document.getElementById('ownerNameNotice').innerText = data.ownerHost || "未指定";
             if (changePassBtn) changePassBtn.style.display = 'none'; 
+            if (deleteGroupBtn) deleteGroupBtn.style.display = 'none'; 
         }
     }
 
@@ -847,7 +871,6 @@
         document.getElementById('projectStatusSelect').value = currentGroupStatus;
         document.getElementById('globalPrintTitle').value = data.projectName || "";
         
-        // 生成大顆金主按鈕選單 (主揪按鈕加上 👑 標示)
         const gridContainer = document.getElementById('hostBtnGrid');
         if (data.hosts.length > 0) {
             gridContainer.innerHTML = data.hosts.map(h => {
