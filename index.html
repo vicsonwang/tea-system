@@ -116,13 +116,14 @@
         .host-grid-btn { background: #e8f4f8; border: 2px solid #bce0ee; color: #2980b9; padding: 14px 8px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; box-sizing: border-box; }
         .host-grid-btn:hover, .host-grid-btn:active { background: #3498db; color: white; border-color: #2980b9; transform: scale(0.98); }
 
-        /* 首頁團體列表卡片 */
         .group-card { background: #fff; border: 1px solid #ddd; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; text-align: left; }
         .group-card:hover { border-color: #3498db; background: #f0f8ff; transform: translateY(-1px); }
         .status-badge-active { background: #2ecc71; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
         .status-badge-ended { background: #95a5a6; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
 
-        /* ================= 手機版優化 (精簡/展開雙模式完美修復版) ================= */
+        .owner-tag { background: #f39c12; color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
+
+        /* ================= 手機版優化 ================= */
         @media (max-width: 768px) {
             body { padding: 5px; }
             .modal-box { width: 95%; padding: 15px; box-sizing: border-box; }
@@ -130,14 +131,15 @@
             .save-bar { flex-direction: column; padding: 10px; margin-bottom: 10px; gap: 8px; }
             .save-bar > div:first-child { width: 100%; display: flex; justify-content: space-between; align-items: center; }
             #currentFileDisplay { display: none; }
-            #topProjectName { width: 120px !important; font-size: 14px !important; margin: 0; padding: 2px 4px; }
+            #topProjectName { width: 110px !important; font-size: 14px !important; margin: 0; padding: 2px 4px; }
             #saveStatusBadge { font-size: 12px; padding: 3px 8px; margin: 0; }
             
-            .save-bar > div:last-child { width: 100%; display: flex; flex-direction: row; gap: 5px; flex-wrap: nowrap; margin-top: 0; }
+            .save-bar > div:last-child { width: 100%; display: flex; flex-direction: row; gap: 4px; flex-wrap: nowrap; margin-top: 0; }
             .save-bar button { flex: 1; padding: 8px 0; font-size: 0 !important; text-align: center; border-radius: 4px; }
-            .save-bar button:nth-child(1)::after { content: "📂 主頁"; font-size: 14px; }
-            .save-bar button:nth-child(2)::after { content: "📂 另存"; font-size: 14px; }
-            .save-bar button:nth-child(3)::after { content: "💾 儲存"; font-size: 14px; }
+            .save-bar button:nth-child(1)::after { content: "📂 主頁"; font-size: 13px; }
+            .save-bar button:nth-child(2)::after { content: "🔑 改密碼"; font-size: 13px; }
+            .save-bar button:nth-child(3)::after { content: "📂 另存"; font-size: 13px; }
+            .save-bar button:nth-child(4)::after { content: "💾 儲存"; font-size: 13px; }
             
             #userInfoDisplay { position: static; display: block; margin: 5px auto 10px; text-align: center; box-shadow: none; border: 1px solid #ddd; }
 
@@ -177,10 +179,13 @@
 </head>
 <body>
 
-<!-- 🌟 全新大入口：首頁選擇 Modal -->
+<!-- 首頁入口 Modal -->
 <div id="homeModal" class="modal-overlay" style="display: flex;">
     <div class="modal-box">
-        <h3 style="margin-bottom: 10px;">🧋 下午茶揪團分配系統</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin:0;">🧋 下午茶揪團分配系統</h3>
+            <button class="warning" style="padding: 4px 8px; font-size: 12px; font-weight: bold;" onclick="window.openAdminLoginModal()">🔑 Admin 登入</button>
+        </div>
         <span class="version-text">☁️ 雲端同步安全版</span>
         
         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
@@ -192,6 +197,50 @@
             <div id="groupListContainer" style="max-height: 280px; overflow-y: auto;">
                 <div style="text-align: center; color: #999; padding: 20px;">⏳ 載入雲端清單中...</div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin 登入 Modal -->
+<div id="adminLoginModal" class="modal-overlay">
+    <div class="modal-box" style="width: 320px;">
+        <h3>🔑 Admin 超級管理員登入</h3>
+        <div style="text-align: left; margin-bottom: 10px;">
+            <label>帳號：</label>
+            <input type="text" id="adminUser" placeholder="admin" style="padding: 8px;">
+        </div>
+        <div style="text-align: left; margin-bottom: 20px;">
+            <label>密碼：</label>
+            <input type="password" id="adminPass" placeholder="8888" style="padding: 8px;">
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="success" style="flex: 1; padding: 8px;" onclick="window.verifyAdmin()">登入</button>
+            <button class="danger" style="flex: 1; padding: 8px;" onclick="document.getElementById('adminLoginModal').style.display='none'">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- Admin 後台儀表板 Modal -->
+<div id="adminDashboardModal" class="modal-overlay">
+    <div class="modal-box" style="width: 90%; max-width: 900px; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="margin: 0; color: #8e44ad;">📊 Admin 管理員主控台 (所有團體總覽)</h3>
+            <button class="danger" onclick="document.getElementById('adminDashboardModal').style.display='none'">關閉</button>
+        </div>
+        <div class="table-responsive" style="max-height: 450px;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f39c12; color: white;">
+                        <th>團體名稱</th>
+                        <th>專案 ID</th>
+                        <th>狀態</th>
+                        <th>通行密碼</th>
+                        <th>金主/主揪清單</th>
+                        <th>目前人數</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody"></tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -224,6 +273,19 @@
         <div style="display: flex; gap: 10px;">
             <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.verifyPassword()">✅ 解鎖進入</button>
             <button class="danger" style="flex: 1; padding: 10px;" onclick="document.getElementById('passwordModal').style.display='none'">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- 修改團密碼 Modal (主揪專用) -->
+<div id="changePassModal" class="modal-overlay">
+    <div class="modal-box" style="width: 320px;">
+        <h3>🔑 修改團體通行密碼 (主揪專用)</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">修改後將會同步更新至雲端資料庫</p>
+        <input type="password" id="newGroupPassInput" maxlength="4" placeholder="新 4 位數密碼" pattern="[0-9]*" inputmode="numeric" style="padding: 12px; font-size: 22px; text-align: center; letter-spacing: 8px; width: 80%; margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px;">
+            <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.submitChangePassword()">💾 確定修改</button>
+            <button class="danger" style="flex: 1; padding: 10px;" onclick="document.getElementById('changePassModal').style.display='none'">取消</button>
         </div>
     </div>
 </div>
@@ -274,6 +336,7 @@
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
             <button class="success" style="font-size: 14px; font-weight: bold; background-color: #27ae60;" onclick="window.backToHome()">📂 返回主頁</button>
+            <button id="changePassBtn" class="warning" style="font-size: 14px; font-weight: bold; background-color: #e67e22; color: #fff; display:none;" onclick="window.openChangePassModal()">🔑 修改團密碼</button>
             <button class="warning" style="font-size: 14px; font-weight: bold; background-color: #f39c12; color: #fff;" onclick="window.openSaveAsModal()">📂 另存新團</button>
             <button class="success" style="font-size: 14px; font-weight: bold;" onclick="window.saveCloudFile()">💾 儲存至雲端</button>
         </div>
@@ -290,54 +353,59 @@
 
     <!-- Tab 1 -->
     <div id="tab-setup" class="tab-content active">
-        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-            <div class="section-box" style="flex: 1; min-width: 450px;">
-                <h3 style="color: #d35400;">🍔 吃的部份</h3>
-                <div class="flex-row" style="margin-bottom: 10px;">
-                    <input type="text" id="fItem" placeholder="品項 (例: 雞排)" style="width: 100px;">
-                    <input type="text" id="fFlavor" placeholder="口味 (例: 辣味)" style="width: 100px;">
-                    <input type="number" id="fPrice" placeholder="單價" style="width: 70px;" min="0">
-                    <input type="number" id="fQty" placeholder="份數" style="width: 70px;" min="1">
-                    <button onclick="addMenu('food')">➕ 加入</button>
+        <div id="tab1PermissionNotice" style="display:none; background:#fcf8e3; border:1px solid #faebcc; color:#8a6d3b; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
+            🔒 提示：您目前的身份為「一般金主/團員」，分頁 1 僅限「主揪 (<span id="ownerNameNotice"></span>)」進行設定與匯入。
+        </div>
+        <fieldset id="tab1FieldSet" style="border:none; padding:0; margin:0;">
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div class="section-box" style="flex: 1; min-width: 450px;">
+                    <h3 style="color: #d35400;">🍔 吃的部份</h3>
+                    <div class="flex-row" style="margin-bottom: 10px;">
+                        <input type="text" id="fItem" placeholder="品項 (例: 雞排)" style="width: 100px;">
+                        <input type="text" id="fFlavor" placeholder="口味 (例: 辣味)" style="width: 100px;">
+                        <input type="number" id="fPrice" placeholder="單價" style="width: 70px;" min="0">
+                        <input type="number" id="fQty" placeholder="份數" style="width: 70px;" min="1">
+                        <button onclick="addMenu('food')">➕ 加入</button>
+                    </div>
+                    <div class="table-responsive" style="max-height: 250px;">
+                        <table><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="foodTableBody"></tbody></table>
+                    </div>
+                    <div style="text-align: right; margin-top: 10px; font-weight: bold;">吃的總計: $<span id="foodTotalDisplay" style="color: #d35400;">0</span></div>
                 </div>
-                <div class="table-responsive" style="max-height: 250px;">
-                    <table><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="foodTableBody"></tbody></table>
+                <div class="section-box" style="flex: 1; min-width: 450px;">
+                    <h3 style="color: #2980b9;">🥤 喝的部份</h3>
+                    <div class="flex-row" style="margin-bottom: 10px;">
+                        <input type="text" id="dItem" placeholder="品項 (例: 紅茶)" style="width: 100px;">
+                        <input type="text" id="dFlavor" placeholder="口味 (例: 去冰)" style="width: 100px;">
+                        <input type="number" id="dPrice" placeholder="單價" style="width: 70px;" min="0">
+                        <input type="number" id="dQty" placeholder="份數" style="width: 70px;" min="1">
+                        <button onclick="addMenu('drink')">➕ 加入</button>
+                    </div>
+                    <div class="table-responsive" style="max-height: 250px;">
+                        <table><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="drinkTableBody"></tbody></table>
+                    </div>
+                    <div style="text-align: right; margin-top: 10px; font-weight: bold;">喝的總計: $<span id="drinkTotalDisplay" style="color: #2980b9;">0</span></div>
                 </div>
-                <div style="text-align: right; margin-top: 10px; font-weight: bold;">吃的總計: $<span id="foodTotalDisplay" style="color: #d35400;">0</span></div>
             </div>
-            <div class="section-box" style="flex: 1; min-width: 450px;">
-                <h3 style="color: #2980b9;">🥤 喝的部份</h3>
-                <div class="flex-row" style="margin-bottom: 10px;">
-                    <input type="text" id="dItem" placeholder="品項 (例: 紅茶)" style="width: 100px;">
-                    <input type="text" id="dFlavor" placeholder="口味 (例: 去冰)" style="width: 100px;">
-                    <input type="number" id="dPrice" placeholder="單價" style="width: 70px;" min="0">
-                    <input type="number" id="dQty" placeholder="份數" style="width: 70px;" min="1">
-                    <button onclick="addMenu('drink')">➕ 加入</button>
-                </div>
-                <div class="table-responsive" style="max-height: 250px;">
-                    <table><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="drinkTableBody"></tbody></table>
-                </div>
-                <div style="text-align: right; margin-top: 10px; font-weight: bold;">喝的總計: $<span id="drinkTotalDisplay" style="color: #2980b9;">0</span></div>
+            <div class="summary-card" style="background-color: #d4edda; border-color: #c3e6cb;">
+                <div style="font-size: 20px;">下午茶總金額 (吃+喝)：<strong style="color: #155724; font-size: 28px;">$<span id="grandTotalDisplay">0</span></strong></div>
+                <button class="danger" style="height: 40px;" onclick="clearAllData()">🗑️ 清空此專案所有資料</button>
             </div>
-        </div>
-        <div class="summary-card" style="background-color: #d4edda; border-color: #c3e6cb;">
-            <div style="font-size: 20px;">下午茶總金額 (吃+喝)：<strong style="color: #155724; font-size: 28px;">$<span id="grandTotalDisplay">0</span></strong></div>
-            <button class="danger" style="height: 40px;" onclick="clearAllData()">🗑️ 清空此專案所有資料</button>
-        </div>
-        <hr>
-        <h3>👥 管理金主名單</h3>
-        <div class="flex-row" style="align-items: center;">
-            <input type="text" id="newHostName" placeholder="輸入新金主名字" style="width: 200px;"><button onclick="addHost()">➕ 新增金主</button>
-        </div>
-        <div id="hostTagsContainer" style="margin-top: 15px;"></div>
-        <hr>
-        <h3>📋 批次匯入 Excel 名單 (支援帶勾匯入)</h3>
-        <p style="font-size: 13px; color: #666;">格式：<b>區域 | 部門 | 中文名字 | 分工 | 狀態 | 金主1 | 金主2 ... </b></p>
-        <textarea id="excelPaste" rows="4" placeholder="B2F	IQC	Lance	James	正常	V		V..."></textarea>
-        <div style="margin-top: 10px; display: flex; gap: 10px;">
-            <button onclick="batchImport()">📥 批次匯入名單</button>
-            <button class="danger" onclick="clearAllGuests()">🗑️ 僅清空被請客名單</button>
-        </div>
+            <hr>
+            <h3>👥 管理金主名單 (預設第一個為👑主揪)</h3>
+            <div class="flex-row" style="align-items: center;">
+                <input type="text" id="newHostName" placeholder="輸入新金主名字" style="width: 200px;"><button onclick="addHost()">➕ 新增金主</button>
+            </div>
+            <div id="hostTagsContainer" style="margin-top: 15px;"></div>
+            <hr>
+            <h3>📋 批次匯入 Excel 名單 (支援帶勾匯入)</h3>
+            <p style="font-size: 13px; color: #666;">格式：<b>區域 | 部門 | 中文名字 | 分工 | 狀態 | 金主1 | 金主2 ... </b></p>
+            <textarea id="excelPaste" rows="4" placeholder="B2F	IQC	Lance	James	正常	V		V..."></textarea>
+            <div style="margin-top: 10px; display: flex; gap: 10px;">
+                <button onclick="batchImport()">📥 批次匯入名單</button>
+                <button class="danger" onclick="clearAllGuests()">🗑️ 僅清空被請客名單</button>
+            </div>
+        </fieldset>
     </div>
 
     <!-- Tab 2 -->
@@ -457,7 +525,7 @@
         </div>
     </div>
 
-    <!-- 🌟 Tab 5: 派發與分餐明細 -->
+    <!-- Tab 5 -->
     <div id="tab-distribution" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; background-color: #fdf5e6; border: 1px solid #faebcc; padding: 15px; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
             <div style="font-size: 16px; flex: 1; min-width: 300px;">
@@ -512,7 +580,7 @@
     }
 
     function getEmptyData() {
-        return { projectName: "", foodItems: [], drinkItems: [], hosts: ['Unique', 'ALin', 'Julie', 'Elma', 'Kate', 'Vicson', 'James', 'Comgan', 'Monica', 'Joyes'], guests: [], paidStatus: {}, allocations: {} };
+        return { projectName: "", ownerHost: "", foodItems: [], drinkItems: [], hosts: ['Unique', 'ALin', 'Julie', 'Elma', 'Kate', 'Vicson', 'James', 'Comgan', 'Monica', 'Joyes'], guests: [], paidStatus: {}, allocations: {} };
     }
 
     let data = getEmptyData();
@@ -522,6 +590,90 @@
     let hasUnsavedChanges = false;
     let lastChecked = null;
     window.currentDistRegions = []; 
+
+    // ====== Admin 超級管理員 ======
+    window.openAdminLoginModal = function() {
+        document.getElementById('adminUser').value = '';
+        document.getElementById('adminPass').value = '';
+        document.getElementById('adminLoginModal').style.display = 'flex';
+    }
+
+    window.verifyAdmin = async function() {
+        const u = document.getElementById('adminUser').value.trim();
+        const p = document.getElementById('adminPass').value.trim();
+        if (u === 'admin' && p === '8888') {
+            document.getElementById('adminLoginModal').style.display = 'none';
+            document.getElementById('adminDashboardModal').style.display = 'flex';
+            document.getElementById('adminTableBody').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">⏳ 讀取全抓雲端資料中...</td></tr>`;
+            
+            try {
+                const res = await fetch(`${API_URL}?action=admin_list`);
+                const list = await res.json();
+                let html = '';
+                list.forEach(g => {
+                    html += `<tr>
+                        <td><strong>${g.name}</strong></td>
+                        <td style="font-size:12px; color:#666;">${g.id}</td>
+                        <td>${g.status === '進行中' ? '<span class="status-badge-active">🟢 進行中</span>' : '<span class="status-badge-ended">已結束</span>'}</td>
+                        <td><strong style="color:#c0392b; font-size:16px;">${g.pass}</strong></td>
+                        <td>${g.hosts}</td>
+                        <td>${g.guestCount} 人</td>
+                    </tr>`;
+                });
+                document.getElementById('adminTableBody').innerHTML = html || `<tr><td colspan="6" style="text-align:center;">目前無團體資料</td></tr>`;
+            } catch(e) {
+                alert('Admin 讀取失敗: ' + e.message);
+            }
+        } else {
+            alert('❌ Admin 帳號或密碼錯誤！');
+        }
+    }
+
+    // ====== 主揪權限與密碼管理 ======
+    window.openChangePassModal = function() {
+        document.getElementById('newGroupPassInput').value = currentGroupPassword;
+        document.getElementById('changePassModal').style.display = 'flex';
+    }
+
+    window.submitChangePassword = async function() {
+        const newPass = document.getElementById('newGroupPassInput').value.trim();
+        if(!/^\d{4}$/.exec(newPass)) return alert('請輸入 4 位數純數字密碼！');
+
+        currentGroupPassword = newPass;
+        localStorage.setItem(`tea_pass_${currentGroupId}`, newPass);
+        document.getElementById('changePassModal').style.display = 'none';
+        await window.saveCloudFile(true);
+        alert(`✅ 團體通行密碼已成功修改為：【 ${newPass} 】！`);
+    }
+
+    window.setAsOwnerHost = function(hostName) {
+        data.ownerHost = hostName;
+        markDataChanged();
+        renderHostsManager();
+        checkTab1Permission();
+    }
+
+    function checkTab1Permission() {
+        if (!data.ownerHost && data.hosts.length > 0) data.ownerHost = data.hosts[0]; 
+        const isOwner = (currentUser === data.ownerHost);
+        
+        const fieldset = document.getElementById('tab1FieldSet');
+        const notice = document.getElementById('tab1PermissionNotice');
+        const changePassBtn = document.getElementById('changePassBtn');
+
+        if (isOwner) {
+            fieldset.disabled = false;
+            fieldset.style.opacity = '1';
+            notice.style.display = 'none';
+            if (changePassBtn) changePassBtn.style.display = 'inline-block'; 
+        } else {
+            fieldset.disabled = true;
+            fieldset.style.opacity = '0.6';
+            notice.style.display = 'block';
+            document.getElementById('ownerNameNotice').innerText = data.ownerHost || "未指定";
+            if (changePassBtn) changePassBtn.style.display = 'none'; 
+        }
+    }
 
     // ====== 雲端 API & 首頁入口 ======
     async function fetchCloudGroups() {
@@ -542,7 +694,6 @@
             return;
         }
 
-        // 進行中排前面，已結束排後面
         let activeList = cloudGroups.filter(g => g.status === '進行中');
         let endedList = cloudGroups.filter(g => g.status === '已結束');
 
@@ -583,13 +734,12 @@
         currentGroupPassword = pass;
         currentGroupStatus = "進行中";
 
-        // 預存密碼至本機 localStorage
         localStorage.setItem(`tea_pass_${currentGroupId}`, pass);
 
         document.getElementById('createGroupModal').style.display = 'none';
         document.getElementById('homeModal').style.display = 'none';
         
-        await window.saveCloudFile(true); // 強制存檔建立新紀錄
+        await window.saveCloudFile(true); 
         finishLoadingSetup();
     }
 
@@ -601,11 +751,9 @@
         selectedGroupForPass = group;
         const savedPass = localStorage.getItem(`tea_pass_${groupId}`);
 
-        // 自動比對本機預存密碼
         if (savedPass && savedPass === group.pass) {
             executeLoadGroup(group.id, group.pass, group.status);
         } else {
-            // 換手機或第一次進入，跳出密碼輸入框
             document.getElementById('passModalGroupName').innerText = group.name;
             document.getElementById('inputPass').value = '';
             document.getElementById('passwordModal').style.display = 'flex';
@@ -615,7 +763,7 @@
     window.verifyPassword = function() {
         const inputPass = document.getElementById('inputPass').value.trim();
         if(inputPass === selectedGroupForPass.pass) {
-            localStorage.setItem(`tea_pass_${selectedGroupForPass.id}`, inputPass); // 驗證成功後預存本機
+            localStorage.setItem(`tea_pass_${selectedGroupForPass.id}`, inputPass);
             document.getElementById('passwordModal').style.display = 'none';
             executeLoadGroup(selectedGroupForPass.id, selectedGroupForPass.pass, selectedGroupForPass.status);
         } else {
@@ -674,6 +822,7 @@
 
         window.populateBatchTargets(); 
         activeHostTab = currentUser;
+        checkTab1Permission();
         renderMainTable(); 
         if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostTabs(); 
     }
@@ -681,6 +830,7 @@
     window.confirmUserLogin = function() {
         document.getElementById('loginUserModal').style.display = 'none';
         window.populateBatchTargets(); 
+        checkTab1Permission();
         renderMainTable(); 
     }
 
@@ -785,7 +935,7 @@
     });
 
     window.onload = function() {
-        fetchCloudGroups(); // 啟動直接讀取首頁清單
+        fetchCloudGroups();
     };
 
     function switchTab(tabId) {
@@ -800,7 +950,7 @@
 
     function refreshAllUI() {
         renderMenuTable('food'); renderMenuTable('drink'); updateMenuTotals();
-        renderHostsManager(); renderDeptFilter(); renderMainTable(); window.populateBatchTargets();
+        renderHostsManager(); renderDeptFilter(); renderMainTable(); window.populateBatchTargets(); checkTab1Permission();
         if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostTabs(); 
         if (document.getElementById('tab-billing').classList.contains('active')) renderBillingTable(); 
         if (document.getElementById('tab-distribution').classList.contains('active')) { renderDistributionTab(); }
@@ -847,21 +997,30 @@
         document.getElementById('grandTotalDisplay').innerText = (fT + dT).toLocaleString(); updateStats(fT + dT); 
     }
 
-    function renderHostsManager() { document.getElementById('hostTagsContainer').innerHTML = data.hosts.map(h => `<div class="host-tag">${h} <span style="color:red; cursor:pointer; font-weight:bold;" onclick="window.removeHost('${h}')">×</span></div>`).join(''); }
+    function renderHostsManager() { 
+        if (!data.ownerHost && data.hosts.length > 0) data.ownerHost = data.hosts[0];
+        document.getElementById('hostTagsContainer').innerHTML = data.hosts.map(h => {
+            const isOwner = (h === data.ownerHost);
+            return `<div class="host-tag">${h} ${isOwner ? '<span class="owner-tag">👑主揪</span>' : `<button class="warning" style="padding:1px 5px; font-size:10px; margin-left:5px;" onclick="window.setAsOwnerHost('${h}')">設為主揪</button>`} <span style="color:red; cursor:pointer; font-weight:bold; margin-left:5px;" onclick="window.removeHost('${h}')">×</span></div>`;
+        }).join(''); 
+    }
+
     function addHost() { const name = document.getElementById('newHostName').value.trim(); if (name && !data.hosts.includes(name)) { data.hosts.push(name); document.getElementById('newHostName').value = ''; markDataChanged(); refreshAllUI(); } }
     window.addHost = addHost;
 
     function removeHost(hostName) {
         if(confirm(`確定刪除金主「${hostName}」嗎？`)) {
             data.hosts = data.hosts.filter(h => h !== hostName); data.guests.forEach(g => { if(g.claimedBy) g.claimedBy = g.claimedBy.filter(h => h !== hostName); });
-            if (activeHostTab === hostName) activeHostTab = ''; markDataChanged(); refreshAllUI();
+            if (activeHostTab === hostName) activeHostTab = ''; 
+            if (data.ownerHost === hostName) data.ownerHost = data.hosts[0] || "";
+            markDataChanged(); refreshAllUI();
         }
     }
     window.removeHost = removeHost;
     
     function clearAllData() {
         if(confirm("確定要清空此團體的所有資料嗎？")) {
-            data = { projectName: data.projectName, foodItems: [], drinkItems: [], hosts: [], guests: [], paidStatus: {}, allocations: {} }; 
+            data = { projectName: data.projectName, ownerHost: data.ownerHost, foodItems: [], drinkItems: [], hosts: data.hosts, guests: [], paidStatus: {}, allocations: {} }; 
             markDataChanged(); refreshAllUI();
         }
     }
@@ -1030,7 +1189,8 @@
             let clickAction = isCurrent ? `onclick="window.toggleHostColumn('${h}')"` : '';
             let title = isCurrent ? "點擊整欄全選/全取消" : "🔒 非您的專屬欄位，不可編輯";
             let icon = isCurrent ? "↕️" : "🔒";
-            headHTML += `<th class="${thClass} ${hostHideClass} ${hostActiveClass}" style="background:#e8f4f8;" ${clickAction} title="${title}">${h} ${icon}</th>`; 
+            let isOwnerMark = (h === data.ownerHost) ? '👑' : '';
+            headHTML += `<th class="${thClass} ${hostHideClass} ${hostActiveClass}" style="background:#e8f4f8;" ${clickAction} title="${title}">${isOwnerMark}${h} ${icon}</th>`; 
         });
         headHTML += `</tr>`; thead.innerHTML = headHTML;
         
@@ -1216,7 +1376,7 @@
         passedTotal = getPassedTotal(passedTotal); 
         const stats = getCalcStats(passedTotal);
         document.getElementById('dispTotal').innerText = passedTotal.toLocaleString(); document.getElementById('dispShares').innerText = stats.validSharesCount; document.getElementById('dispAvg').innerText = stats.avgPrice.toFixed(4);
-        if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostView(passedTotal); 
+        if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostTabs(); 
         if (document.getElementById('tab-billing').classList.contains('active')) renderBillingTable(passedTotal); 
     }
 
@@ -1705,7 +1865,6 @@
             summaryHTML += `</tr>`;
         });
 
-        // 總計核對列
         summaryHTML += `
                         <tr style="background-color: #fff3cd;">
                             <td colspan="2" style="font-weight: bold; text-align: right; position: sticky; left: 0; z-index: 15; background-color: #fff3cd;">目前分配總計：</td>
@@ -1721,7 +1880,6 @@
             <hr style="border: 0; border-top: 2px dashed #ccc; margin: 30px 0;">
         `;
 
-        // 建立下方各區詳細卡片
         let detailedHTML = '';
         window.currentDistRegions.forEach(function(reg, rIdx) {
             const rt = regionData[reg];
