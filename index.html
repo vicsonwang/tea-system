@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>下午茶分配系統 (雲端同步專業版 - 專屬鎖定)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; position: relative; }
+        .container { max-width: 98%; margin: 0 auto; }
+        h1, h2, h3 { color: #2c3e50; margin-top: 0; }
+        
+        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { background: none; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; cursor: pointer; color: #777; transition: 0.3s; }
+        .tab-btn:hover { color: #3498db; }
+        .tab-btn.active { color: #3498db; border-bottom: 3px solid #3498db; margin-bottom: -2px; }
+        .tab-content { display: none; background: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .tab-content.active { display: block; }
+
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 14px; }
+        input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .flex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        
+        button { background-color: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 14px; }
+        button:hover { background-color: #2980b9; }
+        button.success { background-color: #2ecc71; }
+        button.success:hover { background-color: #27ae60; }
+        button.danger { background-color: #e74c3c; }
+        button.danger:hover { background-color: #c0392b; }
+        button.warning { background-color: #f39c12; }
+        button.warning:hover { background-color: #e67e22; }
+        
+        .table-responsive { overflow-x: auto; max-height: 600px; overflow-y: auto; border: 1px solid #ddd; margin-top: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; user-select: none; }
+        th, td { border: 1px solid #dee2e6; padding: 4px 6px; text-align: center; transition: background-color 0.2s; } 
+        th { background-color: #f8f9fa; position: sticky; top: 0; z-index: 1; padding: 8px 10px; }
+        
+        .main-list th:nth-child(1), .main-list td:nth-child(1) { position: sticky; left: 0; background-color: #fff; z-index: 2; }
+        .main-list th:nth-child(2), .main-list td:nth-child(2) { position: sticky; left: 60px; background-color: #fff; z-index: 2; }
+        .main-list th:nth-child(3), .main-list td:nth-child(3) { position: sticky; left: 140px; background-color: #fff; z-index: 2; }
+        .main-list th:nth-child(1), .main-list th:nth-child(2), .main-list th:nth-child(3) { z-index: 3; background-color: #f8f9fa; }
+        
+        .inline-input, .inline-select { width: 100%; box-sizing: border-box; border: 1px solid transparent; background: transparent; padding: 6px 4px; text-align: center; font-family: inherit; font-size: 14px; border-radius: 3px; transition: 0.2s; color: #333; }
+        .inline-input:hover, .inline-select:hover { background-color: #f0f0f0; border-color: #ccc; }
+        .inline-input:focus, .inline-select:focus { background-color: #fff; border-color: #3498db; outline: none; box-shadow: 0 0 3px rgba(52,152,219,0.5); }
+        .inline-input.bold { font-weight: bold; }
+        
+        .exclude { background-color: #fdfdfd; }
+        .exclude .inline-input, .exclude .inline-select { color: #aaa; text-decoration: line-through; }
+        .exclude .inline-select { text-decoration: none; color: red; } 
+        .no-host-row { background-color: #fff8e1 !important; border-left: 4px solid #f39c12 !important; }
+
+        .checkbox-cell { cursor: pointer; transition: background 0.1s; }
+        .checkbox-cell:hover { background-color: #e8f4f8; }
+        .checkbox-cell input { cursor: pointer; transform: scale(1.2); pointer-events: none; }
+        .host-header { cursor: pointer; transition: 0.2s; color: #2c3e50; }
+        .host-header:hover { background-color: #d1e8f0 !important; }
+
+        .disabled-cell { background-color: #f5f5f5 !important; opacity: 0.4; cursor: not-allowed !important; pointer-events: none; }
+        
+        .section-box { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 20px; background-color: #fafbfc; }
+        .host-tag { display: inline-block; background: #e8f4f8; border: 1px solid #bce0ee; padding: 5px 10px; border-radius: 20px; margin: 5px; font-size: 14px; color: #2980b9; font-weight: bold; }
+        .summary-card { background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 16px; display: flex; justify-content: space-between; align-items: center;}
+        
+        .save-bar { background: #34495e; color: white; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.2); flex-wrap: wrap; gap: 10px; }
+        .status-badge { background: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-left: 15px; display: inline-block; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-box { background: white; padding: 30px; border-radius: 12px; width: 420px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-box h3 { margin-top: 0; color: #2c3e50; font-size: 24px; margin-bottom: 20px; }
+        .version-text { font-size: 12px; color: #7f8c8d; margin-bottom: 20px; display: block; }
+        #userInfoDisplay { position: absolute; top: 85px; right: 25px; font-weight: bold; color: #2c3e50; font-size: 15px; background: white; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none; z-index: 90; }
+        
+        .custom-select-wrapper { position: relative; display: inline-block; width: 200px; }
+        .custom-select-header { background: #fff; border: 1px solid #ccc; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; user-select: none; display: flex; justify-content: space-between; align-items: center; }
+        .custom-select-header:hover { border-color: #3498db; }
+        .custom-select-options { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px; max-height: 350px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .custom-select-options.show { display: block; }
+        .custom-optgroup { background: #f4f6f7; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #7f8c8d; border-bottom: 1px solid #eee; }
+        .custom-option { display: block; padding: 6px 15px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f9f9f9; }
+        .custom-option:hover { background: #e8f4f8; }
+        .custom-option input { margin-right: 8px; cursor: pointer; }
+
+        .host-sub-tabs, .sub-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .host-sub-tab-btn, .sub-tab-btn { background: #f0f2f5; border: 1px solid #ccc; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 15px; transition: 0.2s; font-weight: bold; color: #495057; }
+        .host-sub-tab-btn:hover, .sub-tab-btn:hover { background: #e2e6ea; color: #212529; }
+        .host-sub-tab-btn.active { background: #2ecc71; color: white; border-color: #27ae60; font-weight: bold; box-shadow: 0 2px 4px rgba(46,204,113,0.3); transform: translateY(-1px); }
+        .sub-tab-btn.dept-active { background: #3498db; color: white; border-color: #2980b9; box-shadow: 0 2px 4px rgba(52,152,219,0.3); transform: translateY(-1px); }
+
+        .paid-row { background-color: #f0fdf4 !important; }
+        .unpaid-row { background-color: #fff; }
+        
+        .pivot-container { max-height: 75vh; overflow: auto; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .pivot-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .pivot-table thead { position: sticky; top: 0; z-index: 20; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .pivot-table th, .pivot-table td { border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 4px !important; text-align: center; vertical-align: middle; white-space: normal !important; word-wrap: break-word; overflow-wrap: break-word; }
+        .item-col { width: 72px; min-width: 72px; max-width: 72px; font-size: 12px; line-height: 1.2; }
+        .pivot-table th:first-child, .pivot-table td:first-child { position: sticky; left: 0; z-index: 10; background-color: #fcfcfc; border-right: 2px solid #ccc; }
+        .pivot-table thead th:first-child { z-index: 30; background-color: #f8f9fa; }
+        .wrap-table { white-space: normal !important; word-break: break-word !important; }
+
+        .stepper { display: inline-flex; align-items: center; justify-content: center; border: 1px solid #ccc; border-radius: 4px; background: #fff; overflow: hidden; width: 66px; margin: 0 auto; }
+        .stepper button { flex: 0 0 18px; height: 26px; background: #f4f6f7; border: none; cursor: pointer; font-weight: bold; color: #555; transition: 0.2s; padding: 0; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+        .stepper button:hover { background: #e2e6ea; color: #000; }
+        .stepper input { flex: 1 1 auto; width: 28px; height: 26px; text-align: center; border: none; border-left: 1px solid #ccc; border-right: 1px solid #ccc; font-weight: bold; color: #2c3e50; font-size: 13px; -moz-appearance: textfield; padding: 0; }
+        .stepper input:focus { outline: none; background-color: #e8f4f8; }
+        .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .pulse-btn { background-color: #9b59b6; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .pulse-btn:hover { background-color: #8e44ad; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        
+        .focus-input { border: 1px solid #f39c12 !important; box-shadow: 0 0 5px rgba(243,156,18,0.5); }
+    </style>
+</head>
+<body>
+
+<!-- 載入雲端檔案 Modal -->
+<div id="loadModal" class="modal-overlay" style="display: flex;">
+    <div class="modal-box">
+        <h3 style="margin-bottom: 20px;">👋 歡迎進入下午茶系統</h3>
+        <span class="version-text">☁️ 系統狀態: 雲端同步專業版</span>
+        <p style="font-size: 14px; color: #666; margin-bottom: 25px; line-height: 1.5;">系統將即時連線至 Google Sheets 雲端資料庫。<br>請選擇您要讀取哪一個檔位：</p>
+        
+        <div style="text-align: left; margin-bottom: 25px;">
+            <label style="color: #2980b9; font-size: 15px; font-weight: bold;">📁 請選擇要讀取的雲端檔位：</label>
+            <select id="fileSlotSelect" style="width: 100%; padding: 10px; font-size: 15px; border-radius: 4px; border: 1px solid #ccc; margin-top: 8px;">
+                <option>⏳ 讀取雲端清單中...</option>
+            </select>
+        </div>
+
+        <button class="success" style="width: 100%; font-size: 16px; padding: 12px; font-weight: bold;" onclick="window.loadCloudFile()">🚀 從雲端讀取</button>
+        <button id="loadCancelBtn" class="danger" style="width: 100%; font-size: 16px; padding: 12px; margin-top: 10px; display: none;" onclick="document.getElementById('loadModal').style.display='none'">❌ 取消切換</button>
+    </div>
+</div>
+
+<!-- 選擇金主 Modal -->
+<div id="loginUserModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>👤 選擇金主視角</h3>
+        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">為防止誤觸，非您本人的格位將會被<strong style="color:#e74c3c;">🔒反灰鎖定</strong></p>
+        <select id="loginUserSelect" style="width: 100%; padding: 10px; margin-bottom: 20px; font-size: 16px;"></select>
+        <button class="success" style="width: 100%; font-size: 16px; padding: 12px;" onclick="window.confirmUserLogin()">✅ 確認進入</button>
+    </div>
+</div>
+
+<!-- 雲端另存新檔 Modal -->
+<div id="saveAsModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>📂 另存至其他雲端檔位</h3>
+        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">選擇您要把目前的資料備份到雲端的哪一個檔位。</p>
+        
+        <div style="text-align: left; margin-bottom: 20px;">
+            <label style="color: #d35400; font-size: 15px; font-weight: bold;">選擇要另存至哪個雲端檔位：</label>
+            <select id="saveDestSelect" style="width: 100%; padding: 10px; font-size: 15px; border-radius: 4px; border: 1px solid #ccc; margin-top: 8px;">
+                <option>⏳ 讀取雲端清單中...</option>
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.executeSaveAs(document.getElementById('saveDestSelect').value)">💾 另存並覆蓋該檔</button>
+            <button class="danger" style="flex: 1; padding: 10px;" onclick="document.getElementById('saveAsModal').style.display='none'">取消</button>
+        </div>
+    </div>
+</div>
+
+<div id="userInfoDisplay"></div>
+
+<div class="container" id="mainContainer" style="display: none;">
+    <div class="save-bar">
+        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <strong style="font-size: 18px; color: #f1c40f; display: flex; align-items: center; gap: 8px;">
+                📁 專案：
+                <input type="text" id="topProjectName" onchange="window.syncProjectName(this.value)" placeholder="輸入名稱..." style="background: rgba(255,255,255,0.1); border: 1px dashed #f1c40f; color: #f1c40f; font-size: 18px; font-weight: bold; width: 180px; padding: 4px 8px; border-radius: 4px;" class="focus-input">
+            </strong>
+            <span id="currentFileDisplay" style="color: #bdc3c7; font-size: 14px;">(雲端檔位: 1)</span>
+            <span id="saveStatusBadge" class="status-badge" style="color: #2ecc71;">✅ 已同步至最新狀態</span>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
+            <button class="success" style="font-size: 14px; font-weight: bold; background-color: #27ae60;" onclick="window.openLoadModal(false)">📂 切換雲端檔案</button>
+            <button class="warning" style="font-size: 14px; font-weight: bold; background-color: #f39c12; color: #fff;" onclick="window.openSaveAsModal()">📂 另存至其他檔位</button>
+            <button class="success" style="font-size: 14px; font-weight: bold;" onclick="window.saveCloudFile()">💾 儲存至雲端</button>
+        </div>
+    </div>
+
+    <!-- 頁籤按鈕 -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-setup')">1. 設定與匯入名單</button>
+        <button class="tab-btn" onclick="switchTab('tab-guests')">2. 名單與分配打勾</button>
+        <button class="tab-btn" onclick="switchTab('tab-host-summary')">3. 金主專屬確認區</button>
+        <button class="tab-btn" onclick="switchTab('tab-billing')">4. 總表與收款 💰</button>
+        <button class="tab-btn" style="color:#d35400;" onclick="switchTab('tab-distribution')">5. 派發與分餐明細 📦</button>
+    </div>
+
+    <!-- Tab 1 -->
+    <div id="tab-setup" class="tab-content active">
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div class="section-box" style="flex: 1; min-width: 450px;">
+                <h3 style="color: #d35400;">🍔 吃的部份</h3>
+                <div class="flex-row" style="margin-bottom: 10px;">
+                    <input type="text" id="fItem" placeholder="品項 (例: 雞排)" style="width: 100px;">
+                    <input type="text" id="fFlavor" placeholder="口味 (例: 辣味)" style="width: 100px;">
+                    <input type="number" id="fPrice" placeholder="單價" style="width: 70px;" min="0">
+                    <input type="number" id="fQty" placeholder="份數" style="width: 70px;" min="1">
+                    <button onclick="addMenu('food')">➕ 加入</button>
+                </div>
+                <div class="table-responsive" style="max-height: 250px;">
+                    <table><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="foodTableBody"></tbody></table>
+                </div>
+                <div style="text-align: right; margin-top: 10px; font-weight: bold;">吃的總計: $<span id="foodTotalDisplay" style="color: #d35400;">0</span></div>
+            </div>
+            <div class="section-box" style="flex: 1; min-width: 450px;">
+                <h3 style="color: #2980b9;">🥤 喝的部份</h3>
+                <div class="flex-row" style="margin-bottom: 10px;">
+                    <input type="text" id="dItem" placeholder="品項 (例: 紅茶)" style="width: 100px;">
+                    <input type="text" id="dFlavor" placeholder="口味 (例: 去冰)" style="width: 100px;">
+                    <input type="number" id="dPrice" placeholder="單價" style="width: 70px;" min="0">
+                    <input type="number" id="dQty" placeholder="份數" style="width: 70px;" min="1">
+                    <button onclick="addMenu('drink')">➕ 加入</button>
+                </div>
+                <div class="table-responsive" style="max-height: 250px;">
+                    <table><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="drinkTableBody"></tbody></table>
+                </div>
+                <div style="text-align: right; margin-top: 10px; font-weight: bold;">喝的總計: $<span id="drinkTotalDisplay" style="color: #2980b9;">0</span></div>
+            </div>
+        </div>
+        <div class="summary-card" style="background-color: #d4edda; border-color: #c3e6cb;">
+            <div style="font-size: 20px;">下午茶總金額 (吃+喝)：<strong style="color: #155724; font-size: 28px;">$<span id="grandTotalDisplay">0</span></strong></div>
+            <button class="danger" style="height: 40px;" onclick="clearAllData()">🗑️ 清空此專案所有資料</button>
+        </div>
+        <hr>
+        <h3>👥 管理金主名單</h3>
+        <div class="flex-row" style="align-items: center;">
+            <input type="text" id="newHostName" placeholder="輸入新金主名字" style="width: 200px;"><button onclick="addHost()">➕ 新增金主</button>
+        </div>
+        <div id="hostTagsContainer" style="margin-top: 15px;"></div>
+        <hr>
+        <h3>📋 批次匯入 Excel 名單 (支援帶勾匯入)</h3>
+        <p style="font-size: 13px; color: #666;">格式：<b>區域 | 部門 | 中文名字 | 分工 | 狀態 | 金主1 | 金主2 ... </b></p>
+        <textarea id="excelPaste" rows="4" placeholder="B2F	IQC	Lance	James	正常	V		V..."></textarea>
+        <div style="margin-top: 10px; display: flex; gap: 10px;">
+            <button onclick="batchImport()">📥 批次匯入名單</button>
+            <button class="danger" onclick="clearAllGuests()">🗑️ 僅清空被請客名單</button>
+        </div>
+    </div>
+
+    <!-- Tab 2 -->
+    <div id="tab-guests" class="tab-content">
+        <div class="summary-card" style="display: flex; flex-direction: column; gap: 5px;">
+            <div>自動帶入總金額: $<strong id="dispTotal">0</strong> | 有效總份數: <strong id="dispShares">0</strong> 份 | 平均單價: $<strong id="dispAvg">0.00</strong></div>
+            <div id="noHostWarning" style="color: #c0392b; font-weight: bold; display: none; margin-top: 5px;"></div>
+        </div>
+        
+        <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; border: 1px solid #bce0ee; margin-bottom: 20px;">
+            <strong style="color: #2c3e50; font-size: 16px; display: block; margin-bottom: 10px;">🚀 多重批次管理工具：</strong>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <strong style="color: #555;">🎯 選擇目標：</strong>
+                <div class="custom-select-wrapper" id="targetDropdown" style="width: 180px;">
+                    <div class="custom-select-header" onclick="window.toggleTargetDropdown(event)" id="dropdownHeader"><span>-- 選擇目標 --</span> <span>🔽</span></div>
+                    <div class="custom-select-options" id="targetOptionsContainer"></div>
+                </div>
+                <button class="danger" style="padding: 6px 10px; border-radius: 4px;" onclick="window.clearTargetSelections()">🔄 重設</button>
+
+                <span style="border-left: 2px solid #ccc; height: 24px; margin: 0 5px;"></span>
+
+                <strong style="color: #2980b9;">💰 包場 (鎖定本人)：</strong>
+                <select id="batchHostSelect" style="width: 110px; padding: 6px; border-radius: 4px; border: 1px solid #ccc; background-color: #eee;" disabled title="防止誤觸，僅能包場在您自己名下"></select>
+                <button class="success" onclick="window.applyBatchAssign()">✅ 打勾</button>
+                <button class="danger" onclick="window.clearBatchAssign()">❌ 取消</button>
+
+                <span style="border-left: 2px solid #ccc; height: 24px; margin: 0 5px;"></span>
+
+                <strong style="color: #d35400;">🛠️ 派發：</strong>
+                <div class="custom-select-wrapper" id="distDropdown" style="width: 160px;">
+                    <div class="custom-select-header" onclick="window.toggleDistDropdown(event)" id="distDropdownHeader"><span>-- 選擇派發人 --</span> <span>🔽</span></div>
+                    <div class="custom-select-options" id="distOptionsContainer"></div>
+                </div>
+                <button class="warning" onclick="window.applyBatchDist()">✅ 分派</button>
+                <button class="danger" onclick="window.clearBatchDist()">❌ 清除</button>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #fff; padding: 12px 15px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <strong style="color: #2c3e50; font-size: 16px;">🏢 依部門檢視名單：</strong>
+                <select id="deptFilterSelect" onchange="window.switchDeptTab(this.value)" style="width: 220px; padding: 6px; font-size: 15px; border-radius: 4px; border: 1px solid #ccc;"></select>
+                <button class="warning" style="font-weight: bold; font-size: 14px;" onclick="window.switchDeptTab('未勾選金主')">
+                    ⚠️ 顯示未勾選金主 (<span id="noHostCountBadge">0</span>人)
+                </button>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-end;">
+            <div class="flex-row" style="background: #f9f9f9; padding: 10px; border-radius: 5px; border: 1px solid #ddd; width: 100%;">
+                <strong style="color: #555; font-size: 14px; margin-right: 10px;">➕ 快速新增：</strong>
+                <input type="text" id="sReg" placeholder="區域" style="width: 70px;">
+                <input type="text" id="sDept" placeholder="部門" style="width: 80px;">
+                <input type="text" id="sName" placeholder="姓名*" style="width: 100px;">
+                <input type="text" id="sDist" placeholder="分工" style="width: 80px;">
+                <select id="sStatus" style="width: 80px;"><option value="正常">正常</option><option value="請假">請假</option><option value="出差">出差</option><option value="公假">公假</option></select>
+                <button onclick="addSingleGuest()">新增至目前名單</button>
+            </div>
+        </div>
+
+        <div class="table-responsive main-list">
+            <table id="mainTable">
+                <thead id="mainTableHead"></thead><tbody id="mainTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab 3 -->
+    <div id="tab-host-summary" class="tab-content">
+        <div id="hostSubTabs" class="host-sub-tabs"></div>
+        <div id="hostSpecificData" style="display: none;">
+            <div class="summary-card" style="background: #d4edda; border-color: #c3e6cb;">
+                <div>
+                    金主 <strong id="hViewName" style="font-size: 20px;"></strong> 本次結算：<br>
+                    負擔總份數：<strong id="hViewShares">0</strong> 份<br>
+                    精確金額：$<span id="hViewExact">0.00</span><br>
+                    實收金額 (四捨五入)：<strong style="color: #c0392b; font-size: 24px;">$<span id="hViewRounded">0</span></strong>
+                </div>
+            </div>
+            <h3>📝 認領名單明細</h3>
+            <table style="width: 100%; max-width: 800px;">
+                <thead><tr><th>區域</th><th>部門</th><th>分工</th><th>姓名</th><th>共同請客人數</th><th>負擔比例</th></tr></thead>
+                <tbody id="hostGuestList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab 4 -->
+    <div id="tab-billing" class="tab-content">
+        <div class="summary-card" style="background-color: #e8f4f8; border-color: #bce0ee;">
+            <div style="font-size: 18px;">
+                下午茶總金額：<strong>$<span id="billingGrandTotal">0</span></strong> | 
+                預計總收：<strong>$<span id="billingExpectedTotal">0</span></strong> | 
+                已收總計：<strong style="color: #2ecc71; font-size: 24px;">$<span id="billingCollectedTotal">0</span></strong>
+            </div>
+        </div>
+        
+        <h3>💰 金主收款進度表</h3>
+        <p style="font-size: 13px; color: #666;">點擊「未收款」格子即可切換為已收款狀態。只有需要付錢的金主會顯示在下方。</p>
+        
+        <div class="table-responsive">
+            <table id="billingTable" style="max-width: 1000px;">
+                <thead>
+                    <tr>
+                        <th style="width: 150px;">金主姓名</th>
+                        <th style="width: 120px;">負擔份數</th>
+                        <th style="width: 120px;">精確金額</th>
+                        <th style="width: 150px; color:#c0392b;">應收 (四捨五入)</th>
+                        <th style="width: 150px;">收款狀態</th>
+                    </tr>
+                </thead>
+                <tbody id="billingTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 🌟 Tab 5: 派發與分餐明細 -->
+    <div id="tab-distribution" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; background-color: #fdf5e6; border: 1px solid #faebcc; padding: 15px; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <div style="font-size: 16px; flex: 1; min-width: 300px;">
+                💡 <strong>雙向核對模式：</strong> 點擊右側的閃爍按鈕，系統會瞬間打好完美草稿。<br>
+                左側會即時核對 <strong style="color:#d35400;">已分數量</strong> = <strong style="color:#2980b9;">總人數</strong>；上方核對 <strong style="color:#27ae60;">剩餘總量</strong> = 0。<br>
+                🏷️ <strong>列印名牌標題：</strong> <input type="text" id="globalPrintTitle" value="" style="width: 250px; padding: 4px; display: inline-block; font-size: 14px; background: #eee; cursor: not-allowed;" readonly title="請在畫面上方的【專案名稱】修改">
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="pulse-btn" onclick="autoAllocate()">✨ 點我一鍵自動預算</button>
+                <button class="danger" onclick="clearAllocations()" style="font-size: 14px; font-weight: bold; padding: 10px 15px;">🗑️ 清空重填</button>
+                <button class="success" onclick="printAllTags()" style="font-size: 14px; font-weight: bold; padding: 10px 15px;">🖨️ 一鍵列印全部名牌</button>
+            </div>
+        </div>
+        
+        <div id="distributionContainer"></div>
+    </div>
+</div>
+
+<script>
+    // ======= 核心：您的專屬 Google Sheets API 網址 ======= 
+    const API_URL = "https://script.google.com/macros/s/AKfycbxQ7dsY362d07-wakIjerPbW6PM9x91l2zMLGohO1uEfvWvhrqMWuUPYcRdw4o3n449/exec";
+
+    function resetSaveStatus() {
+        hasUnsavedChanges = false;
+        let badge = document.getElementById('saveStatusBadge');
+        if (badge) {
+            badge.innerHTML = '✅ 已同步至最新狀態';
+            badge.style.color = '#2ecc71';
+        }
+    }
+
+    function getFilteredGuests() {
+        if (activeDeptTab === '未勾選金主') return data.guests.filter(g => g.status === '正常' && (!g.claimedBy || g.claimedBy.length === 0));
+        if (activeDeptTab !== '全部') return data.guests.filter(g => (g.dept || '未分類') === activeDeptTab);
+        return data.guests;
+    }
+
+    function getPassedTotal(passedTotal) {
+        if (passedTotal !== undefined) return passedTotal;
+        return data.foodItems.reduce((s,i)=>s+i.subtotal,0) + data.drinkItems.reduce((s,i)=>s+i.subtotal,0);
+    }
+
+    function getEmptyData() {
+        return { projectName: "", foodItems: [], drinkItems: [], hosts: ['Unique', 'ALin', 'Julie', 'Elma', 'Kate', 'Vicson', 'James', 'Comgan', 'Monica', 'Joyes'], guests: [], paidStatus: {}, allocations: {} };
+    }
+
+    let data = getEmptyData();
+    let currentFileIndex = 1; 
+    let activeHostTab = ''; 
+    let activeDeptTab = '全部'; 
+    let currentUser = ''; 
+    let hasUnsavedChanges = false;
+    let lastChecked = null;
+    window.currentDistRegions = []; 
+
+    // ====== 雲端 API 溝通函式 ======
+
+    // 1. 抓取雲端所有的專案清單
+    async function fetchCloudList() {
+        try {
+            const res = await fetch(`${API_URL}?action=list`);
+            const listData = await res.json();
+            let html = '';
+            for(let i=1; i<=10; i++) {
+                let name = listData[i] || "未命名專案 (空)";
+                html += `<option value="${i}">檔位 ${i} - [ ${name} ]</option>`;
+            }
+            const fileSelect = document.getElementById('fileSlotSelect');
+            const saveDestSelect = document.getElementById('saveDestSelect');
+            if (fileSelect) fileSelect.innerHTML = html;
+            if (saveDestSelect) saveDestSelect.innerHTML = html;
+        } catch(e) {
+            console.error("API 讀取失敗", e);
+            alert("⚠️ 無法連線至 Google Sheets，請檢查網路或 API 網址設定。");
+        }
+    }
+
+    window.openLoadModal = async function(isInitial) {
+        document.getElementById('loadModal').style.display = 'flex';
+        document.getElementById('loadCancelBtn').style.display = isInitial ? 'none' : 'block';
+        document.getElementById('fileSlotSelect').innerHTML = '<option>⏳ 讀取雲端清單中...</option>';
+        await fetchCloudList(); // 即時向雲端抓取清單
+    }
+
+    // 2. 讀取雲端特定檔位資料
+    window.loadCloudFile = async function() {
+        if (hasUnsavedChanges && document.getElementById('loadCancelBtn').style.display === 'block') {
+            if(!confirm("⚠️ 警告：您有未儲存的變動！\n切換檔案將會遺失目前進度，確定要放棄存檔並切換嗎？")) {
+                return;
+            }
+        }
+
+        const targetIndex = document.getElementById('fileSlotSelect').value;
+        document.getElementById('loadModal').style.display = 'none';
+        
+        // 提示讀取中
+        document.getElementById('saveStatusBadge').innerHTML = '⏳ 從雲端讀取中...';
+        document.getElementById('saveStatusBadge').style.color = '#f39c12';
+
+        try {
+            const res = await fetch(`${API_URL}?action=load&slot=${targetIndex}`);
+            const result = await res.json();
+            
+            if (result.status === 'success' && result.data) {
+                data = JSON.parse(result.data);
+            } else {
+                console.log(`⚠️ 找不到檔位 ${targetIndex} 的資料，建立空的新專案`);
+                data = getEmptyData();
+            }
+            currentFileIndex = targetIndex;
+            finishLoadingSetup();
+        } catch(e) {
+            alert(`❌ 讀取失敗: ${e.message}`);
+            data = getEmptyData();
+            finishLoadingSetup();
+        }
+    }
+
+    function finishLoadingSetup() {
+        document.getElementById('mainContainer').style.display = 'block';
+        document.getElementById('currentFileDisplay').innerText = `(雲端檔位: ${currentFileIndex})`;
+        document.getElementById('topProjectName').value = data.projectName || "";
+        document.getElementById('topProjectName').classList.remove('focus-input'); 
+        document.getElementById('globalPrintTitle').value = data.projectName || "";
+        
+        let select = document.getElementById('loginUserSelect');
+        select.innerHTML = '<option value="">-- 請選擇您的名字 --</option>' + data.hosts.map(h => `<option value="${h}">${h}</option>`).join('');
+        
+        if (data.hosts.length > 0) {
+            document.getElementById('loginUserModal').style.display = 'flex';
+        } else {
+            window.confirmUserLogin(); 
+        }
+        
+        refreshAllUI();
+        resetSaveStatus();
+    }
+
+    window.confirmUserLogin = function() {
+        const selectedUser = document.getElementById('loginUserSelect').value;
+        if (!selectedUser && data.hosts.length > 0) return alert('請選擇您的金主身分喔！');
+        
+        currentUser = selectedUser;
+        document.getElementById('loginUserModal').style.display = 'none';
+        
+        document.getElementById('userInfoDisplay').style.display = 'block';
+        document.getElementById('userInfoDisplay').innerHTML = `👤 身分: <span style="color:#27ae60;">${currentUser||'未指定'}</span> <a href="#" onclick="document.getElementById('loginUserModal').style.display='flex'" style="font-size:12px; color:#3498db; margin-left:5px; text-decoration:none;">[切換]</a>`;
+
+        window.populateBatchTargets(); 
+        activeHostTab = currentUser;
+        
+        renderMainTable(); 
+        if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostTabs(); 
+    }
+
+    window.syncProjectName = function(val) {
+        data.projectName = val;
+        document.getElementById('globalPrintTitle').value = val;
+        markDataChanged(); 
+    }
+
+    // 3. 直接儲存（覆寫當前雲端檔位）
+    window.saveCloudFile = async function() {
+        window.syncProjectName(document.getElementById('topProjectName').value); 
+        let pName = data.projectName || '未命名專案';
+        
+        if(!confirm(`⚠️ 雲端存檔提醒\n\n即將將專案：【 ${pName} 】儲存至雲端資料庫（檔位 ${currentFileIndex}）\n這將會覆蓋原本的資料！\n\n確定要繼續嗎？`)) {
+            return;
+        }
+
+        document.getElementById('saveStatusBadge').innerHTML = '⏳ 同步至雲端中...';
+        document.getElementById('saveStatusBadge').style.color = '#f39c12';
+
+        try {
+            const payload = {
+                slot: currentFileIndex,
+                projectName: pName,
+                data: JSON.stringify(data)
+            };
+            
+            // 為了避開 CORS preflight 問題，我們使用 text/plain 發送 JSON 字串
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            
+            if(result.status === 'success') {
+                resetSaveStatus();
+                alert(`✅ 成功儲存至雲端檔位 ${currentFileIndex}！\n其他同事只要重整網頁並選擇同一個檔位，即可看到最新資料。`);
+            } else {
+                alert(`❌ 存檔失敗: ${result.message}`);
+                resetSaveStatus();
+            }
+        } catch(e) {
+            alert(`❌ 連線錯誤: ${e.message}`);
+            resetSaveStatus();
+        }
+    }
+
+    window.openSaveAsModal = async function() {
+        document.getElementById('saveAsModal').style.display = 'flex';
+        document.getElementById('saveDestSelect').innerHTML = '<option>⏳ 讀取雲端清單中...</option>';
+        await fetchCloudList();
+        document.getElementById('saveDestSelect').value = currentFileIndex; 
+    }
+
+    // 4. 另存新檔（寫入指定的雲端檔位）
+    window.executeSaveAs = async function(targetIndex) {
+        window.syncProjectName(document.getElementById('topProjectName').value); 
+        let pName = data.projectName || '未命名專案';
+
+        if(!confirm(`⚠️ 雲端另存提醒\n\n即將將此專案另存至雲端：【 檔位 ${targetIndex} 】\n這將會覆蓋該檔位原本的資料，確定要繼續嗎？`)) {
+            return;
+        }
+
+        document.getElementById('saveStatusBadge').innerHTML = '⏳ 儲存中...';
+        document.getElementById('saveStatusBadge').style.color = '#f39c12';
+
+        try {
+            const payload = {
+                slot: targetIndex,
+                projectName: pName,
+                data: JSON.stringify(data)
+            };
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            
+            if(result.status === 'success') {
+                currentFileIndex = targetIndex;
+                document.getElementById('currentFileDisplay').innerText = `(雲端檔位: ${currentFileIndex})`;
+                document.getElementById('saveAsModal').style.display = 'none';
+                resetSaveStatus(); 
+                alert(`✅ 成功另存並切換至雲端檔位 ${targetIndex}！`);
+            } else {
+                alert(`❌ 另存失敗: ${result.message}`);
+                resetSaveStatus();
+            }
+        } catch (error) {
+            alert(`❌ 連線錯誤: ${error.message}`);
+            resetSaveStatus();
+        }
+    }
+
+    function markDataChanged() {
+        hasUnsavedChanges = true;
+        document.getElementById('saveStatusBadge').innerHTML = '⚠️ 有資料變動，請記得點擊「儲存至雲端」';
+        document.getElementById('saveStatusBadge').style.color = '#e74c3c';
+    }
+
+    window.addEventListener('beforeunload', function (e) {
+        if (hasUnsavedChanges) {
+            e.preventDefault();
+            e.returnValue = '您有未匯出儲存的變更，直接離開將會遺失進度，確定要離開嗎？';
+        }
+    });
+
+    window.onload = function() {
+        window.openLoadModal(true); 
+    };
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active'); event.target.classList.add('active');
+        if(tabId === 'tab-guests') { renderDeptFilter(); renderMainTable(); window.populateBatchTargets(); }
+        if(tabId === 'tab-host-summary') renderHostTabs(); 
+        if(tabId === 'tab-billing') renderBillingTable(); 
+        if(tabId === 'tab-distribution') { renderDistributionTab(); }
+    }
+
+    function refreshAllUI() {
+        renderMenuTable('food'); renderMenuTable('drink'); updateMenuTotals();
+        renderHostsManager(); renderDeptFilter(); renderMainTable(); window.populateBatchTargets();
+        if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostTabs(); 
+        if (document.getElementById('tab-billing').classList.contains('active')) renderBillingTable(); 
+        if (document.getElementById('tab-distribution').classList.contains('active')) { renderDistributionTab(); }
+    }
+
+    function addMenu(type) {
+        const prefix = type === 'food' ? 'f' : 'd';
+        const item = document.getElementById(`${prefix}Item`).value.trim(); const flavor = document.getElementById(`${prefix}Flavor`).value.trim();
+        const price = parseFloat(document.getElementById(`${prefix}Price`).value) || 0; const qty = parseInt(document.getElementById(`${prefix}Qty`).value) || 0;
+        if (!item || price === 0 || qty === 0) return alert("請輸入完整明細！");
+        (type === 'food' ? data.foodItems : data.drinkItems).push({ id: Date.now()+Math.random(), item, flavor, price, qty, subtotal: price*qty });
+        document.getElementById(`${prefix}Item`).value = ''; document.getElementById(`${prefix}Flavor`).value = ''; document.getElementById(`${prefix}Price`).value = ''; document.getElementById(`${prefix}Qty`).value = '';
+        markDataChanged(); renderMenuTable(type);
+    }
+    window.addMenu = addMenu;
+    
+    function removeMenu(type, id) { if(type==='food') data.foodItems = data.foodItems.filter(i=>i.id!==id); else data.drinkItems = data.drinkItems.filter(i=>i.id!==id); markDataChanged(); renderMenuTable(type); }
+    window.removeMenu = removeMenu;
+
+    window.updateMenuInfo = function(type, id, field, value) {
+        const item = (type === 'food' ? data.foodItems : data.drinkItems).find(i => i.id === id);
+        if (item) {
+            if (field === 'price' || field === 'qty') { item[field] = parseFloat(value) || 0; item.subtotal = item.price * item.qty; } 
+            else { item[field] = value.trim(); } 
+            markDataChanged(); renderMenuTable(type); 
+            if (document.getElementById('tab-distribution').classList.contains('active')) { renderDistributionTab(); }
+        }
+    }
+    
+    function renderMenuTable(type) {
+        const tbody = document.getElementById(type === 'food' ? 'foodTableBody' : 'drinkTableBody');
+        tbody.innerHTML = (type === 'food' ? data.foodItems : data.drinkItems).map(i => `<tr>
+            <td><input type="text" class="inline-input" value="${i.item}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'item', this.value)"></td>
+            <td><input type="text" class="inline-input" value="${i.flavor}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'flavor', this.value)"></td>
+            <td><input type="number" class="inline-input" style="width:70px;" value="${i.price}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'price', this.value)" min="0"></td>
+            <td><input type="number" class="inline-input" style="width:70px;" value="${i.qty}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'qty', this.value)" min="1"></td>
+            <td><strong>$${i.subtotal}</strong></td><td><button class="danger" style="padding: 2px 8px;" onclick="removeMenu('${type}', ${i.id})">刪</button></td></tr>`).join('');
+        updateMenuTotals();
+    }
+    
+    function updateMenuTotals() {
+        let fT = data.foodItems.reduce((s, i) => s + i.subtotal, 0); let dT = data.drinkItems.reduce((s, i) => s + i.subtotal, 0);
+        document.getElementById('foodTotalDisplay').innerText = fT.toLocaleString(); document.getElementById('drinkTotalDisplay').innerText = dT.toLocaleString();
+        document.getElementById('grandTotalDisplay').innerText = (fT + dT).toLocaleString(); updateStats(fT + dT); 
+    }
+
+    function renderHostsManager() { document.getElementById('hostTagsContainer').innerHTML = data.hosts.map(h => `<div class="host-tag">${h} <span style="color:red; cursor:pointer; font-weight:bold;" onclick="window.removeHost('${h}')">×</span></div>`).join(''); }
+    function addHost() { const name = document.getElementById('newHostName').value.trim(); if (name && !data.hosts.includes(name)) { data.hosts.push(name); document.getElementById('newHostName').value = ''; markDataChanged(); refreshAllUI(); } }
+    window.addHost = addHost;
+
+    function removeHost(hostName) {
+        if(confirm(`確定刪除金主「${hostName}」嗎？`)) {
+            data.hosts = data.hosts.filter(h => h !== hostName); data.guests.forEach(g => { if(g.claimedBy) g.claimedBy = g.claimedBy.filter(h => h !== hostName); });
+            if (activeHostTab === hostName) activeHostTab = ''; markDataChanged(); refreshAllUI();
+        }
+    }
+    window.removeHost = removeHost;
+    
+    function clearAllData() {
+        if(confirm("確定要清空此檔位的所有資料嗎？清空後需點擊儲存才會覆蓋雲端檔案！")) {
+            data = { projectName: data.projectName, foodItems: [], drinkItems: [], hosts: [], guests: [], paidStatus: {}, allocations: {} }; 
+            markDataChanged(); refreshAllUI();
+        }
+    }
+    window.clearAllData = clearAllData;
+
+    function batchImport() {
+        const text = document.getElementById('excelPaste').value;
+        if(!text.trim()) return;
+        const lines = text.split('\n'); let count = 0;
+        
+        lines.forEach(line => {
+            if(!line.trim()) return;
+            const cols = line.split('\t').map(c => c.trim());
+            if(cols.includes('中文名字') || cols.includes('部門')) return;
+
+            let reg = "", dept = "", name = "", dist = "", status = "正常"; let claimedBy = [];
+
+            if (cols.length === 1 && cols[0] !== '') { 
+                name = cols[0]; 
+            } else if (cols.length >= 3) {
+                reg = cols[0] || ""; dept = cols[1] || ""; name = cols[2] || "";
+                if(cols.length >= 4) dist = cols[3] || "";
+                if(cols.length >= 5) status = (cols[4] && cols[4] !== "") ? cols[4] : "正常";
+                for(let i = 5; i < cols.length; i++) {
+                    let hostIndex = i - 5;
+                    if(hostIndex < data.hosts.length) {
+                        let cellValue = cols[i].toUpperCase();
+                        if(cellValue === 'V' || cellValue === 'TRUE' || cellValue === '1') claimedBy.push(data.hosts[hostIndex]);
+                    }
+                }
+            }
+            
+            if (name) {
+                data.guests.push({ id: Date.now()+Math.random(), reg: reg, dept: dept, name: name, dist: dist, status: status, claimedBy: claimedBy }); count++;
+            }
+        });
+        document.getElementById('excelPaste').value = ''; markDataChanged(); refreshAllUI(); alert(`成功匯入 ${count} 筆名單！(已自動配對打勾狀態)`);
+    }
+    window.batchImport = batchImport;
+    
+    function addSingleGuest() {
+        const name = document.getElementById('sName').value.trim(); if (!name) return alert('姓名必填！');
+        data.guests.push({ id: Date.now()+Math.random(), reg: document.getElementById('sReg').value.trim(), dept: document.getElementById('sDept').value.trim(), name, dist: document.getElementById('sDist').value.trim(), status: document.getElementById('sStatus').value, claimedBy: [] });
+        document.getElementById('sName').value = ''; document.getElementById('sDist').value = '';
+        markDataChanged(); renderDeptFilter(); renderMainTable(); window.populateBatchTargets();
+    }
+    window.addSingleGuest = addSingleGuest;
+    
+    function removeGuest(id) { data.guests = data.guests.filter(g => g.id !== id); markDataChanged(); renderDeptFilter(); renderMainTable(); window.populateBatchTargets(); }
+    window.removeGuest = removeGuest;
+    
+    window.clearAllGuests = function() {
+        if(confirm("確定要清空目前下方的【被請客名單】嗎？\n(金主、吃的、喝的設定將會保留)")) {
+            data.guests = []; data.paidStatus = {}; data.allocations = {};
+            markDataChanged(); refreshAllUI(); alert("名單已清空！現在可以貼上新的 Excel 重新匯入了。");
+        }
+    }
+
+    window.updateGuestInfo = function(guestId, field, newValue) {
+        const guest = data.guests.find(g => g.id === guestId);
+        if (guest) { 
+            guest[field] = newValue.trim(); markDataChanged(); 
+            if (field === 'status') { renderMainTable(); updateStats(); }
+            if (field === 'dept' || field === 'reg') { renderDeptFilter(); renderMainTable(); window.populateBatchTargets(); } 
+        }
+    }
+
+    function renderDeptFilter() {
+        const select = document.getElementById('deptFilterSelect');
+        const depts = [...new Set(data.guests.map(g => g.dept || '未分類'))].sort();
+        const noHostCount = data.guests.filter(g => g.status === '正常' && (!g.claimedBy || g.claimedBy.length === 0)).length;
+
+        let badgeEl = document.getElementById('noHostCountBadge');
+        if(badgeEl) badgeEl.innerText = noHostCount;
+
+        let optionsHtml = `<option value="全部">顯示全部部門</option>`;
+        if (noHostCount > 0) {
+            optionsHtml += `<option value="未勾選金主" style="color:#c0392b; font-weight:bold;">⚠️ 僅顯示未勾選金主 (${noHostCount}人)</option>`;
+        }
+        depts.forEach(d => { optionsHtml += `<option value="${d}">${d}</option>`; });
+        select.innerHTML = optionsHtml;
+
+        if (!['全部', '未勾選金主', ...depts].includes(activeDeptTab)) activeDeptTab = '全部';
+        select.value = activeDeptTab;
+    }
+
+    window.switchDeptTab = function(dept) {
+        activeDeptTab = dept; renderMainTable();
+        document.getElementById('sDept').value = (dept === '全部' || dept === '未分類' || dept === '未勾選金主') ? '' : dept;
+    }
+
+    window.toggleHostColumn = function(hostName) {
+        if(hostName !== currentUser) return; 
+        
+        let filteredGuests = getFilteredGuests();
+        const activeGuests = filteredGuests.filter(g => g.status === '正常');
+        if (activeGuests.length === 0) return;
+        
+        const allChecked = activeGuests.every(g => g.claimedBy && g.claimedBy.includes(hostName));
+        activeGuests.forEach(g => {
+            if(!g.claimedBy) g.claimedBy = [];
+            if (allChecked) { g.claimedBy = g.claimedBy.filter(h => h !== hostName); } else { if (!g.claimedBy.includes(hostName)) g.claimedBy.push(hostName); }
+        }); 
+        markDataChanged(); renderMainTable(); renderDeptFilter();
+    }
+
+    window.toggleHostCell = function(cell, guestId, hostName, isExclude, event) {
+        if(isExclude || hostName !== currentUser) return; 
+        
+        let filteredGuests = getFilteredGuests(); 
+
+        const guest = data.guests.find(g => g.id === guestId); 
+        if(!guest.claimedBy) guest.claimedBy = [];
+        const guestIndexInFiltered = filteredGuests.findIndex(g => g.id === guestId);
+        const isCurrentlyChecked = guest.claimedBy.includes(hostName); const newState = !isCurrentlyChecked; 
+
+        if (event.shiftKey && lastChecked && lastChecked.hostName === hostName) {
+            const lastIndexInFiltered = filteredGuests.findIndex(g => g.id === lastChecked.id);
+            if (lastIndexInFiltered !== -1) {
+                let start = Math.min(lastIndexInFiltered, guestIndexInFiltered); let end = Math.max(lastIndexInFiltered, guestIndexInFiltered);
+                for (let i = start; i <= end; i++) {
+                    let g = filteredGuests[i];
+                    if(!g.claimedBy) g.claimedBy = [];
+                    if (g.status === '正常') {
+                        let hasHost = g.claimedBy.includes(hostName);
+                        if (lastChecked.state && !hasHost) g.claimedBy.push(hostName); else if (!lastChecked.state && hasHost) g.claimedBy = g.claimedBy.filter(h => h !== hostName);
+                    }
+                }
+            } else {
+                if (newState) { guest.claimedBy.push(hostName); } else { guest.claimedBy = guest.claimedBy.filter(h => h !== hostName); }
+            }
+        } else {
+            if (newState) { guest.claimedBy.push(hostName); } else { guest.claimedBy = guest.claimedBy.filter(h => h !== hostName); }
+        }
+        lastChecked = { id: guestId, hostName: hostName, state: newState }; 
+        markDataChanged(); renderMainTable(); renderDeptFilter();
+    }
+
+    function renderMainTable() {
+        const thead = document.getElementById('mainTableHead'); const tbody = document.getElementById('mainTableBody');
+        
+        let headHTML = `<tr><th style="min-width:60px;">區域</th><th style="min-width:80px;">部門</th><th style="min-width:90px;">姓名</th><th style="min-width:70px;">分工</th><th style="min-width:80px;">狀態</th><th>操作</th>`;
+        data.hosts.forEach(h => { 
+            let isCurrent = (h === currentUser);
+            let thClass = isCurrent ? "host-header" : "disabled-cell";
+            let clickAction = isCurrent ? `onclick="window.toggleHostColumn('${h}')"` : '';
+            let title = isCurrent ? "點擊整欄全選/全取消" : "🔒 非您的專屬欄位，不可編輯";
+            let icon = isCurrent ? "↕️" : "🔒";
+            headHTML += `<th class="${thClass}" style="background:#e8f4f8;" ${clickAction} title="${title}">${h} ${icon}</th>`; 
+        });
+        headHTML += `</tr>`; thead.innerHTML = headHTML;
+        
+        let filteredGuests = getFilteredGuests();
+
+        let bodyHTML = '';
+        if (filteredGuests.length === 0) {
+            bodyHTML = `<tr><td colspan="${6 + data.hosts.length}" style="text-align:center; padding: 20px; color: #999;">此分類目前沒有名單</td></tr>`;
+        } else {
+            filteredGuests.forEach((g) => {
+                const isExclude = (g.status !== '正常');
+                const isNoHost = (g.status === '正常' && (!g.claimedBy || g.claimedBy.length === 0));
+                let rowClass = isExclude ? 'exclude' : (isNoHost ? 'no-host-row' : '');
+
+                bodyHTML += `<tr class="${rowClass}">
+                    <td><input type="text" class="inline-input" value="${g.reg}" onchange="window.updateGuestInfo(${g.id}, 'reg', this.value)"></td>
+                    <td><input type="text" class="inline-input" value="${g.dept}" onchange="window.updateGuestInfo(${g.id}, 'dept', this.value)"></td>
+                    <td><input type="text" class="inline-input bold" value="${g.name}" onchange="window.updateGuestInfo(${g.id}, 'name', this.value)"></td>
+                    <td><input type="text" class="inline-input" value="${g.dist}" onchange="window.updateGuestInfo(${g.id}, 'dist', this.value)"></td>
+                    <td><select class="inline-select" style="color:${isExclude ? '#e74c3c' : '#2ecc71'};" onchange="window.updateGuestInfo(${g.id}, 'status', this.value)">
+                            <option value="正常" ${g.status === '正常' ? 'selected' : ''}>正常</option><option value="請假" ${g.status === '請假' ? 'selected' : ''}>請假</option><option value="出差" ${g.status === '出差' ? 'selected' : ''}>出差</option><option value="公假" ${g.status === '公假' ? 'selected' : ''}>公假</option><option value="產假" ${g.status === '產假' ? 'selected' : ''}>產假</option>
+                        </select></td>
+                    <td><button class="danger" style="padding:4px 8px; font-size:12px;" onclick="window.removeGuest(${g.id})">刪</button></td>`;
+                
+                data.hosts.forEach(h => {
+                    const isChecked = g.claimedBy && g.claimedBy.includes(h);
+                    const isCurrent = (h === currentUser);
+                    const cellClass = isCurrent ? 'checkbox-cell' : 'disabled-cell';
+                    const clickAttr = (isCurrent && !isExclude) ? `onclick="window.toggleHostCell(this, ${g.id}, '${h}', ${isExclude}, event)"` : '';
+                    const disAttr = (isExclude || !isCurrent) ? 'disabled' : '';
+                    bodyHTML += `<td class="${cellClass}" ${clickAttr}><input type="checkbox" ${isChecked ? 'checked' : ''} ${disAttr}></td>`;
+                });
+                bodyHTML += `</tr>`;
+            });
+        }
+        tbody.innerHTML = bodyHTML;
+    }
+
+    window.toggleTargetDropdown = function(e) { document.getElementById('targetOptionsContainer').classList.toggle('show'); document.getElementById('distOptionsContainer').classList.remove('show');}
+    window.toggleDistDropdown = function(e) { document.getElementById('distOptionsContainer').classList.toggle('show'); document.getElementById('targetOptionsContainer').classList.remove('show');}
+
+    window.updateDropdownHeader = function() {
+        const checkedCount = document.querySelectorAll('.batch-target-chk:checked').length;
+        const header = document.getElementById('dropdownHeader');
+        if (checkedCount === 0) header.innerHTML = '<span>-- 選擇目標 --</span> <span>🔽</span>';
+        else header.innerHTML = `<span style="color:#2980b9; font-weight:bold;">已選 ${checkedCount} 個目標</span> <span>🔽</span>`;
+    }
+
+    window.updateDistDropdownHeader = function() {
+        const checkedCount = document.querySelectorAll('.batch-dist-chk:checked').length;
+        const header = document.getElementById('distDropdownHeader');
+        if (checkedCount === 0) header.innerHTML = '<span>-- 選擇派發人 --</span> <span>🔽</span>';
+        else header.innerHTML = `<span style="color:#d35400; font-weight:bold;">已選 ${checkedCount} 人</span> <span>🔽</span>`;
+    }
+
+    window.populateBatchTargets = function() {
+        const previouslyCheckedT = Array.from(document.querySelectorAll('.batch-target-chk:checked')).map(cb => cb.value);
+        const previouslyCheckedD = Array.from(document.querySelectorAll('.batch-dist-chk:checked')).map(cb => cb.value);
+
+        const depts = [...new Set(data.guests.map(g => g.dept).filter(d => d))].sort();
+        const regions = [...new Set(data.guests.map(g => g.reg).filter(r => r))].sort();
+        
+        let targetHtml = '';
+        if(regions.length > 0) {
+            targetHtml += `<div class="custom-optgroup">📍 依區域 (Region)</div>`;
+            regions.forEach(r => targetHtml += `<label class="custom-option"><input type="checkbox" class="batch-target-chk" value="reg|${r}" onchange="window.updateDropdownHeader()"> ${r}</label>`);
+        }
+        if(depts.length > 0) {
+            targetHtml += `<div class="custom-optgroup">💼 依部門 (Department)</div>`;
+            depts.forEach(d => targetHtml += `<label class="custom-option"><input type="checkbox" class="batch-target-chk" value="dept|${d}" onchange="window.updateDropdownHeader()"> ${d}</label>`);
+        }
+        document.getElementById('targetOptionsContainer').innerHTML = targetHtml || '<div style="padding: 10px; color: #999;">目前名單沒有設定資料</div>';
+
+        document.querySelectorAll('.batch-target-chk').forEach(cb => { if (previouslyCheckedT.includes(cb.value)) cb.checked = true; });
+        window.updateDropdownHeader(); 
+
+        const hostOptions = data.hosts.map(h => `<option value="${h}">${h}</option>`).join('');
+        document.getElementById('batchHostSelect').innerHTML = hostOptions;
+        
+        if (currentUser && data.hosts.includes(currentUser)) {
+            document.getElementById('batchHostSelect').value = currentUser;
+            document.getElementById('batchHostSelect').disabled = true; 
+        }
+
+        let distHtml = '';
+        data.hosts.forEach(h => { distHtml += `<label class="custom-option"><input type="checkbox" class="batch-dist-chk" value="${h}" onchange="window.updateDistDropdownHeader()"> ${h}</label>`; });
+        document.getElementById('distOptionsContainer').innerHTML = distHtml || '<div style="padding: 10px; color: #999;">尚未設定金主</div>';
+        
+        if (previouslyCheckedD.length > 0) {
+            document.querySelectorAll('.batch-dist-chk').forEach(cb => { if (previouslyCheckedD.includes(cb.value)) cb.checked = true; });
+        } else if (currentUser) {
+            document.querySelectorAll('.batch-dist-chk').forEach(cb => { if (cb.value === currentUser) cb.checked = true; });
+        }
+        window.updateDistDropdownHeader();
+    }
+
+    function getSelectedTargets() {
+        const checkboxes = document.querySelectorAll('.batch-target-chk:checked');
+        const targets = { reg: [], dept: [] };
+        checkboxes.forEach(chk => { 
+            const parts = chk.value.split('|'); 
+            const type = parts.shift();
+            const val = parts.join('|');
+            targets[type].push(val); 
+        });
+        return targets;
+    }
+
+    function isTargetMatch(guest, targets) {
+        if (targets.reg.length === 0 && targets.dept.length === 0) return false;
+        return targets.reg.includes(guest.reg) || targets.dept.includes(guest.dept);
+    }
+
+    window.applyBatchAssign = function() {
+        const host = document.getElementById('batchHostSelect').value;
+        const targets = getSelectedTargets();
+        if (!host) return alert("請選擇金主！");
+        if (targets.reg.length === 0 && targets.dept.length === 0) return alert("請點開下拉選單，勾選至少一個目標！");
+        if (host !== currentUser) return alert("基於安全機制，您只能幫自己包場喔！"); 
+        
+        let count = 0;
+        data.guests.forEach(g => {
+            if(!g.claimedBy) g.claimedBy = [];
+            if (isTargetMatch(g, targets) && g.status === '正常' && !g.claimedBy.includes(host)) { g.claimedBy.push(host); count++; }
+        });
+        markDataChanged(); renderMainTable(); renderDeptFilter(); alert(`包場成功！已將 ${count} 位名單記在 ${host} 的帳上。`);
+    }
+
+    window.clearBatchAssign = function() {
+        const host = document.getElementById('batchHostSelect').value; const targets = getSelectedTargets();
+        if (!host || (targets.reg.length === 0 && targets.dept.length === 0)) return alert("請勾選目標並確認金主。");
+        if (host !== currentUser) return alert("基於安全機制，您只能取消自己的包場喔！");
+        
+        if(confirm(`確定要取消 ${host} 對所選單位的包場嗎？`)) {
+            let count = 0;
+            data.guests.forEach(g => { 
+                if(!g.claimedBy) g.claimedBy = [];
+                if (isTargetMatch(g, targets) && g.claimedBy.includes(host)) { g.claimedBy = g.claimedBy.filter(h => h !== host); count++;} 
+            });
+            markDataChanged(); renderMainTable(); renderDeptFilter();
+            alert(`已取消 ${count} 筆包場。`);
+        }
+    }
+
+    function getCalcStats(currentTotalCost) {
+        let validSharesCount = 0; 
+        let hostShares = {};
+        let noHostCount = 0; 
+        
+        data.hosts.forEach(function(h) { hostShares[h] = 0; });
+        
+        data.guests.forEach(function(g) {
+            if (g.status === '正常') {
+                if (g.claimedBy && g.claimedBy.length > 0) {
+                    validSharesCount += 1; 
+                    const splitShare = 1 / g.claimedBy.length; 
+                    g.claimedBy.forEach(function(h) { 
+                        if (hostShares[h] !== undefined) hostShares[h] += splitShare; 
+                    }); 
+                } else {
+                    noHostCount++;
+                }
+            }
+        });
+
+        let warnEl = document.getElementById('noHostWarning');
+        if(warnEl) {
+            if(noHostCount > 0) {
+                warnEl.innerHTML = `⚠️ 注意：有 ${noHostCount} 人未勾選金主，已自動扣除不計入發放份數！`;
+                warnEl.style.display = 'block';
+            } else {
+                warnEl.style.display = 'none';
+            }
+        }
+
+        return { validSharesCount: validSharesCount, avgPrice: validSharesCount > 0 ? (currentTotalCost / validSharesCount) : 0, hostShares: hostShares };
+    }
+
+    function updateStats(passedTotal) {
+        passedTotal = getPassedTotal(passedTotal); 
+        const stats = getCalcStats(passedTotal);
+        document.getElementById('dispTotal').innerText = passedTotal.toLocaleString(); document.getElementById('dispShares').innerText = stats.validSharesCount; document.getElementById('dispAvg').innerText = stats.avgPrice.toFixed(4);
+        if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostView(passedTotal); 
+        if (document.getElementById('tab-billing').classList.contains('active')) renderBillingTable(passedTotal); 
+    }
+
+    function renderHostTabs() {
+        const container = document.getElementById('hostSubTabs');
+        if (data.hosts.length === 0) { container.innerHTML = '<span style="color:#999;">目前尚無設定金主名單</span>'; document.getElementById('hostSpecificData').style.display = 'none'; return; }
+        if (!activeHostTab || !data.hosts.includes(activeHostTab)) { activeHostTab = (currentUser && data.hosts.includes(currentUser)) ? currentUser : data.hosts[0]; }
+        container.innerHTML = data.hosts.map(h => `<button class="host-sub-tab-btn ${h === activeHostTab ? 'active' : ''}" onclick="window.switchHostTab('${h}')">${h}</button>`).join('');
+        renderHostView(); 
+    }
+
+    window.switchHostTab = function(hostName) { activeHostTab = hostName; renderHostTabs(); }
+
+    function renderHostView(passedTotal) {
+        passedTotal = getPassedTotal(passedTotal); 
+        const displayDiv = document.getElementById('hostSpecificData');
+        if (!activeHostTab) { displayDiv.style.display = 'none'; return; }
+        
+        displayDiv.style.display = 'block';
+        const stats = getCalcStats(passedTotal); const shares = stats.hostShares[activeHostTab] || 0; const exactAmount = shares * stats.avgPrice;
+        
+        document.getElementById('hViewName').innerText = activeHostTab; document.getElementById('hViewShares').innerText = shares.toFixed(2);
+        document.getElementById('hViewExact').innerText = exactAmount.toFixed(2); document.getElementById('hViewRounded').innerText = Math.round(exactAmount).toLocaleString();
+
+        let listHTML = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(activeHostTab))
+            .map(g => `<tr><td>${g.reg || '-'}</td><td>${g.dept || '-'}</td><td>${g.dist || '-'}</td><td><strong>${g.name}</strong></td><td>${g.claimedBy.length} 人 (${g.claimedBy.join(', ')})</td><td>${g.claimedBy.length === 1 ? '全額 (1/1)' : `平分 (1/${g.claimedBy.length})`}</td></tr>`).join('');
+        document.getElementById('hostGuestList').innerHTML = listHTML !== '' ? listHTML : `<tr><td colspan="6" style="text-align:center; color:#999;">目前沒有認領任何名單喔！</td></tr>`;
+    }
+
+    function renderBillingTable(passedTotal) {
+        passedTotal = getPassedTotal(passedTotal); 
+        const stats = getCalcStats(passedTotal);
+        const tbody = document.getElementById('billingTableBody');
+        let html = ''; let expectedTotal = 0; let collectedTotal = 0;
+
+        data.hosts.forEach(host => {
+            const shares = stats.hostShares[host] || 0;
+            if (shares > 0 || data.paidStatus[host]) {
+                const exactAmount = shares * stats.avgPrice;
+                const roundedAmount = Math.round(exactAmount);
+                const isPaid = !!data.paidStatus[host];
+                
+                expectedTotal += roundedAmount;
+                if (isPaid) collectedTotal += roundedAmount;
+
+                html += `<tr class="${isPaid ? 'paid-row' : 'unpaid-row'}">
+                    <td><strong style="font-size: 16px;">${host}</strong></td><td>${shares.toFixed(2)}</td><td>$${exactAmount.toFixed(2)}</td>
+                    <td style="color: #c0392b; font-weight: bold; font-size: 18px;">$${roundedAmount.toLocaleString()}</td>
+                    <td class="checkbox-cell" onclick="window.togglePaidStatus('${host}')">
+                        <input type="checkbox" style="transform: scale(1.5); pointer-events: none;" ${isPaid ? 'checked' : ''}> 
+                        ${isPaid ? '<span style="color:#2ecc71; margin-left:5px; font-weight:bold;">已收款</span>' : '<span style="color:#e74c3c; margin-left:5px; font-weight:bold;">未收款</span>'}
+                    </td>
+                </tr>`;
+            }
+        });
+        if(html === '') html = '<tr><td colspan="5" style="text-align:center; padding: 20px; color:#999;">目前還沒有金主需要付款喔！</td></tr>';
+        
+        tbody.innerHTML = html;
+        document.getElementById('billingGrandTotal').innerText = passedTotal.toLocaleString();
+        document.getElementById('billingExpectedTotal').innerText = expectedTotal.toLocaleString();
+        document.getElementById('billingCollectedTotal').innerText = collectedTotal.toLocaleString();
+    }
+
+    window.togglePaidStatus = function(hostName) {
+        data.paidStatus[hostName] = !data.paidStatus[hostName];
+        markDataChanged(); renderBillingTable();
+    }
+
+    function getItemName(i) { return `${i.item}${i.flavor ? ' (' + i.flavor + ')' : ''}`; }
+
+    window.autoAllocate = function() {
+        try {
+            const validGuests = data.guests.filter(function(g) { return g.status === '正常' && g.claimedBy && g.claimedBy.length > 0; });
+            const totalPeopleAll = validGuests.length;
+            if(totalPeopleAll === 0) { alert("目前沒有有效的名單可分配！"); return; }
+
+            let totalFood = 0;
+            data.foodItems.forEach(function(i) { totalFood += (parseInt(i.qty, 10) || 0); });
+            let totalDrink = 0;
+            data.drinkItems.forEach(function(i) { totalDrink += (parseInt(i.qty, 10) || 0); });
+
+            let diffMsg = "";
+            let mismatch = false;
+
+            if (data.foodItems.length > 0 && totalFood !== totalPeopleAll) {
+                let diff = totalPeopleAll - totalFood;
+                if (diff > 0) diffMsg += "🍔 吃的份數不足！(還差 " + diff + " 份)\n";
+                else diffMsg += "🍔 吃的份數過多！(多了 " + Math.abs(diff) + " 份)\n";
+                mismatch = true;
+            }
+
+            if (data.drinkItems.length > 0 && totalDrink !== totalPeopleAll) {
+                let diff = totalPeopleAll - totalDrink;
+                if (diff > 0) diffMsg += "🥤 喝的份數不足！(還差 " + diff + " 份)\n";
+                else diffMsg += "🥤 喝的份數過多！(多了 " + Math.abs(diff) + " 份)\n";
+                mismatch = true;
+            }
+
+            if (mismatch) {
+                alert("⚠️ 系統核對失敗！訂購數量與「有效發放總人數 (" + totalPeopleAll + " 人)」不符：\n\n" + diffMsg + "\n👉 請回『1. 設定與匯入名單』確認並修改數量，吻合後才能執行自動預算！");
+                return; 
+            }
+
+            if(!confirm("這將會覆蓋您目前手動填寫的分配數字，確定要自動預算嗎？\n(系統將套用「大區優先＋口味平均」演算法，保證絕對精準！)")) return;
+            
+            data.allocations = {}; 
+
+            let groups = [];
+            let regionPeople = {};
+            
+            validGuests.forEach(function(g) {
+                const reg = g.reg || '未分類區域';
+                regionPeople[reg] = (regionPeople[reg] || 0) + 1;
+            });
+            
+            Object.keys(regionPeople).forEach(function(reg) {
+                groups.push({ id: reg, people: regionPeople[reg] });
+                data.allocations[reg] = {};
+            });
+
+            function doAllocate(items) {
+                let totalItems = 0;
+                items.forEach(function(i) { totalItems += (parseInt(i.qty, 10) || 0); });
+                if(totalItems === 0) return;
+
+                let groupTargets = {};
+                let remaining = totalItems;
+                let pool = [];
+                
+                groups.forEach(function(g) {
+                    let exact = totalItems * (g.people / totalPeopleAll);
+                    let base = Math.floor(exact);
+                    groupTargets[g.id] = base;
+                    remaining -= base;
+                    pool.push({ id: g.id, rem: exact - base });
+                });
+                
+                pool.sort(function(a, b) { return b.rem - a.rem; });
+                for(let i=0; i<remaining; i++) {
+                    if (pool[i]) { groupTargets[pool[i].id]++; }
+                }
+
+                let itemStock = {};
+                items.forEach(function(i) { itemStock[i.id] = parseInt(i.qty, 10) || 0; });
+
+                let sortedGroups = groups.slice().sort(function(a, b) {
+                    return groupTargets[b.id] - groupTargets[a.id];
+                });
+
+                sortedGroups.forEach(function(g) {
+                    let target = groupTargets[g.id];
+                    while (target > 0) {
+                        let availItems = items.filter(function(i) { return itemStock[i.id] > 0; });
+                        if (availItems.length === 0) break;
+
+                        availItems.sort(function(a, b) {
+                            let countA = data.allocations[g.id][a.id] || 0;
+                            let countB = data.allocations[g.id][b.id] || 0;
+                            if (countA !== countB) return countA - countB;
+                            return itemStock[b.id] - itemStock[a.id];
+                        });
+
+                        let chosenItem = availItems[0];
+                        data.allocations[g.id][chosenItem.id] = (data.allocations[g.id][chosenItem.id] || 0) + 1;
+                        itemStock[chosenItem.id]--;
+                        target--;
+                    }
+                });
+            }
+
+            doAllocate(data.foodItems);
+            doAllocate(data.drinkItems);
+            
+            markDataChanged(); 
+            renderDistributionTab(); 
+            alert("🤖 已完成「口味平均」自動預算！橫向與縱向的數字皆已 100% 精準吻合。");
+        } catch(e) {
+            console.error(e);
+            alert("自動計算發生錯誤，請聯絡開發者: " + e.message);
+        }
+    }
+
+    window.clearAllocations = function() {
+        if(!confirm("確定要清空所有已填寫的分配數字嗎？")) return;
+        data.allocations = {};
+        markDataChanged();
+        renderDistributionTab();
+    }
+    
+    window.stepAlloc = function(rIdx, type, iIdx, step) {
+        let typePrefix = type === 'food' ? 'f' : 'd';
+        let input = document.getElementById('input_r' + rIdx + '_' + typePrefix + iIdx);
+        if(!input) return;
+        let val = parseInt(input.value, 10);
+        if (isNaN(val)) val = 0;
+        val += step;
+        if(val < 0) val = 0;
+        input.value = val;
+        window.updateAlloc(rIdx, type, iIdx, val); 
+    }
+
+    window.updateAlloc = function(rIdx, type, iIdx, val) {
+        try {
+            let reg = window.currentDistRegions[rIdx];
+            let item = type === 'food' ? data.foodItems[iIdx] : data.drinkItems[iIdx];
+            if(!reg || !item) return;
+
+            if (!data.allocations) data.allocations = {};
+            if (!data.allocations[reg]) data.allocations[reg] = {};
+            
+            let parsed = parseInt(val, 10);
+            if (isNaN(parsed) || parsed < 0) parsed = 0; 
+            data.allocations[reg][item.id] = parsed;
+            
+            markDataChanged(); 
+            
+            let colSum = 0;
+            window.currentDistRegions.forEach(function(r) {
+                let cellVal = 0;
+                if(data.allocations && data.allocations[r] && data.allocations[r][item.id]) {
+                    cellVal = parseInt(data.allocations[r][item.id], 10);
+                }
+                colSum += cellVal; 
+            });
+            
+            let colSumEl = document.getElementById('col_sum_' + type + '_' + iIdx);
+            if (colSumEl) colSumEl.innerText = colSum;
+
+            let total = parseInt(item.qty, 10) || 0;
+            let remain = total - colSum;
+            
+            let remainEl = document.getElementById('pivot_remain_' + type + '_' + iIdx);
+            let remainTh = document.getElementById('pivot_remain_th_' + type + '_' + iIdx);
+            
+            if (remainEl && remainTh) {
+                remainEl.innerText = remain;
+                if (remain === 0) {
+                    remainTh.style.color = '#27ae60'; remainTh.style.backgroundColor = '#eafaf1';
+                } else if (remain < 0) {
+                    remainTh.style.color = '#c0392b'; remainTh.style.backgroundColor = '#fdf0ed';
+                } else {
+                    remainTh.style.color = '#2980b9'; remainTh.style.backgroundColor = '#e8f4f8';
+                }
+            }
+
+            let regFoodSum = 0;
+            data.foodItems.forEach(function(i) {
+                if(data.allocations && data.allocations[reg] && data.allocations[reg][i.id]) {
+                    regFoodSum += parseInt(data.allocations[reg][i.id], 10);
+                }
+            });
+            
+            let regDrinkSum = 0;
+            data.drinkItems.forEach(function(i) {
+                if(data.allocations && data.allocations[reg] && data.allocations[reg][i.id]) {
+                    regDrinkSum += parseInt(data.allocations[reg][i.id], 10);
+                }
+            });
+
+            let peopleEl = document.getElementById('reg_people_' + rIdx);
+            let peopleCount = peopleEl ? parseInt(peopleEl.innerText, 10) : 0;
+            
+            let fSumEl = document.getElementById('reg_food_sum_' + rIdx);
+            if(fSumEl) {
+                fSumEl.innerText = regFoodSum;
+                fSumEl.style.color = (regFoodSum === peopleCount) ? '#27ae60' : '#e74c3c';
+            }
+            
+            let dSumEl = document.getElementById('reg_drink_sum_' + rIdx);
+            if(dSumEl) {
+                dSumEl.innerText = regDrinkSum;
+                dSumEl.style.color = (regDrinkSum === peopleCount) ? '#27ae60' : '#e74c3c';
+            }
+
+            let grandFoodSum = 0;
+            let grandDrinkSum = 0;
+            window.currentDistRegions.forEach(function(r) {
+                data.foodItems.forEach(function(i) {
+                    if(data.allocations && data.allocations[r] && data.allocations[r][i.id]) {
+                        grandFoodSum += parseInt(data.allocations[r][i.id], 10);
+                    }
+                });
+                data.drinkItems.forEach(function(i) {
+                    if(data.allocations && data.allocations[r] && data.allocations[r][i.id]) {
+                        grandDrinkSum += parseInt(data.allocations[r][i.id], 10);
+                    }
+                });
+            });
+            
+            let gfSumEl = document.getElementById('grand_food_sum');
+            if(gfSumEl) gfSumEl.innerText = grandFoodSum;
+            let gdSumEl = document.getElementById('grand_drink_sum');
+            if(gdSumEl) gdSumEl.innerText = grandDrinkSum;
+
+            window.renderDetailCard(rIdx);
+        } catch(e) {
+            console.error(e);
+            alert('微調發生錯誤，請聯絡開發者: ' + e.message);
+        }
+    }
+
+    window.renderDetailCard = function(rIdx) {
+        let reg = window.currentDistRegions[rIdx];
+        if(!reg) return;
+        
+        const container = document.getElementById('detail_alloc_' + rIdx);
+        if (!container) return;
+
+        let fHtml = ''; let fCount = 0;
+        data.foodItems.forEach(function(item) {
+            let qty = 0;
+            if(data.allocations && data.allocations[reg] && data.allocations[reg][item.id]) {
+                qty = parseInt(data.allocations[reg][item.id], 10);
+            }
+            if (qty > 0) { fHtml += `🔹 ${getItemName(item)} ： <strong style="color:#d35400; font-size:16px;">${qty}</strong> 份<br>`; fCount += qty; }
+        });
+        if (!fHtml) fHtml = '<span style="color:#999;">無餐點</span>';
+
+        let dHtml = ''; let dCount = 0;
+        data.drinkItems.forEach(function(item) {
+            let qty = 0;
+            if(data.allocations && data.allocations[reg] && data.allocations[reg][item.id]) {
+                qty = parseInt(data.allocations[reg][item.id], 10);
+            }
+            if (qty > 0) { dHtml += `🔹 ${getItemName(item)} ： <strong style="color:#27ae60; font-size:16px;">${qty}</strong> 份<br>`; dCount += qty; }
+        });
+        if (!dHtml) dHtml = '<span style="color:#999;">無飲料</span>';
+
+        const fTitle = document.getElementById('detail_ftitle_' + rIdx);
+        const dTitle = document.getElementById('detail_dtitle_' + rIdx);
+        if (fTitle) fTitle.innerHTML = `🍔 應拿餐點分配 (共拿 <strong style="color:#d35400;">${fCount}</strong> 份)`;
+        if (dTitle) dTitle.innerHTML = `🥤 應拿飲料分配 (共拿 <strong style="color:#27ae60;">${dCount}</strong> 份)`;
+
+        container.innerHTML = `
+            <td style="vertical-align: top; text-align: left; padding: 12px; line-height: 1.8;">${fHtml}</td>
+            <td style="vertical-align: top; text-align: left; padding: 12px; line-height: 1.8;">${dHtml}</td>
+        `;
+    }
+
+    function renderDistributionTab() {
+        const container = document.getElementById('distributionContainer');
+        const validGuests = data.guests.filter(function(g) { return g.status === '正常' && g.claimedBy && g.claimedBy.length > 0; });
+        
+        if (validGuests.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">目前沒有有效(正常且有勾金主)的名單可分配！</div>';
+            return;
+        }
+
+        let regionData = {};
+        validGuests.forEach(function(g) {
+            const reg = g.reg || '未分類區域';
+            const dist = g.dist || '未指定分派';
+            if (!regionData[reg]) regionData[reg] = { people: 0, dists: new Set(), guests: [] };
+            regionData[reg].people++;
+            regionData[reg].dists.add(dist);
+            regionData[reg].guests.push(g);
+        });
+
+        window.currentDistRegions = Object.keys(regionData).sort();
+
+        let totalItemsColFood = [];
+        let totalItemsColDrink = [];
+        let grandFoodSum = 0;
+        let grandDrinkSum = 0;
+        
+        data.foodItems.forEach(function(item, fIdx) {
+            let colSum = 0;
+            window.currentDistRegions.forEach(function(reg) {
+                let val = 0;
+                if(data.allocations && data.allocations[reg] && data.allocations[reg][item.id]) {
+                    val = parseInt(data.allocations[reg][item.id], 10);
+                }
+                colSum += val;
+                grandFoodSum += val;
+            });
+            totalItemsColFood[fIdx] = colSum;
+        });
+
+        data.drinkItems.forEach(function(item, dIdx) {
+            let colSum = 0;
+            window.currentDistRegions.forEach(function(reg) {
+                let val = 0;
+                if(data.allocations && data.allocations[reg] && data.allocations[reg][item.id]) {
+                    val = parseInt(data.allocations[reg][item.id], 10);
+                }
+                colSum += val;
+                grandDrinkSum += val;
+            });
+            totalItemsColDrink[dIdx] = colSum;
+        });
+
+        let summaryHTML = `
+            <div class="pivot-container">
+                <table class="pivot-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="3" style="width: 50px;">區域</th>
+                            <th rowspan="3" style="width: 70px; font-size: 12px;">負責分派</th>
+                            <th rowspan="3" style="width: 35px; font-size: 16px;" title="總人數">👤</th>
+                            ${data.foodItems.length > 0 ? `<th rowspan="3" style="width: 40px; background-color: #fff3cd; color: #d35400; font-size: 13px;" title="已分餐點">🍔<br>已分</th>` : ''}
+                            ${data.drinkItems.length > 0 ? `<th rowspan="3" style="width: 40px; background-color: #eafaf1; color: #27ae60; font-size: 13px;" title="已分飲料">🥤<br>已分</th>` : ''}
+                            ${data.foodItems.length > 0 ? `<th colspan="${data.foodItems.length}" style="background-color: #fdf5e6; border: 1px solid #ccc;">🍔 吃的部份</th>` : ''}
+                            ${data.drinkItems.length > 0 ? `<th colspan="${data.drinkItems.length}" style="background-color: #eafaf1; border: 1px solid #ccc;">🥤 喝的部份</th>` : ''}
+                        </tr>
+                        <tr>
+                            ${data.foodItems.map(function(item) { return `<th class="item-col" style="background-color: #fff; border: 1px solid #ccc;">${getItemName(item)}<br><b style="color:#888;">(總:${item.qty})</b></th>`; }).join('')}
+                            ${data.drinkItems.map(function(item) { return `<th class="item-col" style="background-color: #fff; border: 1px solid #ccc;">${getItemName(item)}<br><b style="color:#888;">(總:${item.qty})</b></th>`; }).join('')}
+                        </tr>
+                        <tr>
+                            ${data.foodItems.map(function(item, fIdx) {
+                                let remain = (parseInt(item.qty, 10)||0) - (totalItemsColFood[fIdx] || 0);
+                                let bg = remain === 0 ? '#eafaf1' : (remain < 0 ? '#fdf0ed' : '#e8f4f8');
+                                let color = remain === 0 ? '#27ae60' : (remain < 0 ? '#c0392b' : '#2980b9');
+                                return `<th id="pivot_remain_th_food_${fIdx}" style="background-color: ${bg}; color: ${color}; font-size: 13px; border: 1px solid #ccc; transition: 0.3s; padding: 4px;">餘: <span id="pivot_remain_food_${fIdx}">${remain}</span></th>`;
+                            }).join('')}
+                            ${data.drinkItems.map(function(item, dIdx) {
+                                let remain = (parseInt(item.qty, 10)||0) - (totalItemsColDrink[dIdx] || 0);
+                                let bg = remain === 0 ? '#eafaf1' : (remain < 0 ? '#fdf0ed' : '#e8f4f8');
+                                let color = remain === 0 ? '#27ae60' : (remain < 0 ? '#c0392b' : '#2980b9');
+                                return `<th id="pivot_remain_th_drink_${dIdx}" style="background-color: ${bg}; color: ${color}; font-size: 13px; border: 1px solid #ccc; transition: 0.3s; padding: 4px;">餘: <span id="pivot_remain_drink_${dIdx}">${remain}</span></th>`;
+                            }).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        let totalPeopleCol = 0;
+
+        window.currentDistRegions.forEach(function(reg, rIdx) {
+            let rt = regionData[reg];
+            let distStr = Array.from(rt.dists).join('、');
+            totalPeopleCol += rt.people;
+
+            let regFoodSum = 0;
+            data.foodItems.forEach(function(item) {
+                if(data.allocations && data.allocations[reg] && data.allocations[reg][item.id]) {
+                    regFoodSum += parseInt(data.allocations[reg][item.id], 10);
+                }
+            });
+            let regDrinkSum = 0;
+            data.drinkItems.forEach(function(item) {
+                if(data.allocations && data.allocations[reg] && data.allocations[reg][item.id]) {
+                    regDrinkSum += parseInt(data.allocations[reg][item.id], 10);
+                }
+            });
+
+            let fColor = (regFoodSum === rt.people) ? '#27ae60' : '#e74c3c';
+            let dColor = (regDrinkSum === rt.people) ? '#27ae60' : '#e74c3c';
+
+            summaryHTML += `<tr>
+                <td style="font-weight: bold; background-color: #fcfcfc;">${reg}</td>
+                <td style="font-size: 12px; color: #555;">${distStr}</td>
+                <td style="font-weight: bold; color: #2980b9; font-size: 15px;" id="reg_people_${rIdx}">${rt.people}</td>
+                ${data.foodItems.length > 0 ? `<td style="font-weight: bold; font-size: 15px; color: ${fColor}; background-color: #fffaf0;" id="reg_food_sum_${rIdx}">${regFoodSum}</td>` : ''}
+                ${data.drinkItems.length > 0 ? `<td style="font-weight: bold; font-size: 15px; color: ${dColor}; background-color: #f4fdf8;" id="reg_drink_sum_${rIdx}">${regDrinkSum}</td>` : ''}
+            `;
+
+            data.foodItems.forEach(function(item, fIdx) {
+                let val = 0;
+                if(data.allocations && data.allocations[reg] && data.allocations[reg][item.id]) {
+                    val = data.allocations[reg][item.id];
+                }
+                summaryHTML += `<td>
+                    <div class="stepper">
+                        <button type="button" onclick="window.stepAlloc(${rIdx}, 'food', ${fIdx}, -1)">-</button>
+                        <input type="number" id="input_r${rIdx}_f${fIdx}" min="0" value="${val}" onchange="window.updateAlloc(${rIdx}, 'food', ${fIdx}, this.value)">
+                        <button type="button" onclick="window.stepAlloc(${rIdx}, 'food', ${fIdx}, 1)">+</button>
+                    </div>
+                </td>`;
+            });
+
+            data.drinkItems.forEach(function(item, dIdx) {
+                let val = 0;
+                if(data.allocations && data.allocations[reg] && data.allocations[reg][item.id]) {
+                    val = data.allocations[reg][item.id];
+                }
+                summaryHTML += `<td>
+                    <div class="stepper">
+                        <button type="button" onclick="window.stepAlloc(${rIdx}, 'drink', ${dIdx}, -1)">-</button>
+                        <input type="number" id="input_r${rIdx}_d${dIdx}" min="0" value="${val}" onchange="window.updateAlloc(${rIdx}, 'drink', ${dIdx}, this.value)">
+                        <button type="button" onclick="window.stepAlloc(${rIdx}, 'drink', ${dIdx}, 1)">+</button>
+                    </div>
+                </td>`;
+            });
+
+            summaryHTML += `</tr>`;
+        });
+
+        // 總計核對列
+        summaryHTML += `
+                        <tr style="background-color: #fff3cd;">
+                            <td colspan="2" style="font-weight: bold; text-align: right; position: sticky; left: 0; z-index: 15; background-color: #fff3cd;">目前分配總計：</td>
+                            <td style="font-weight: bold; color: #2980b9; font-size: 16px;">${totalPeopleCol}</td>
+                            ${data.foodItems.length > 0 ? `<td style="font-weight: bold; color: #d35400; font-size: 16px;" id="grand_food_sum">${grandFoodSum}</td>` : ''}
+                            ${data.drinkItems.length > 0 ? `<td style="font-weight: bold; color: #27ae60; font-size: 16px;" id="grand_drink_sum">${grandDrinkSum}</td>` : ''}
+                            ${data.foodItems.map(function(item, fIdx) { return `<td style="color: #d35400; font-weight: bold; font-size: 15px;"><span id="col_sum_food_${fIdx}">${totalItemsColFood[fIdx] || 0}</span></td>`; }).join('')}
+                            ${data.drinkItems.map(function(item, dIdx) { return `<td style="color: #27ae60; font-weight: bold; font-size: 15px;"><span id="col_sum_drink_${dIdx}">${totalItemsColDrink[dIdx] || 0}</span></td>`; }).join('')}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr style="border: 0; border-top: 2px dashed #ccc; margin: 30px 0;">
+        `;
+
+        // 建立下方各區詳細卡片
+        let detailedHTML = '';
+        window.currentDistRegions.forEach(function(reg, rIdx) {
+            const rt = regionData[reg];
+            const guests = rt.guests;
+            const totalPeople = guests.length;
+            const distStr = Array.from(rt.dists).join('、');
+            
+            detailedHTML += `
+                <div class="section-box" style="background-color: #fff; border-color: #34495e; padding: 0; overflow: hidden; margin-bottom: 25px;">
+                    <div style="background-color: #34495e; color: white; margin: 0; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0; font-size: 18px; color: white;">🛠️ 負責分派：${distStr}</h3>
+                        <button class="success" style="padding: 4px 10px; font-size: 13px;" onclick="window.printRegionTags(${rIdx})">🖨️ 列印此區名牌</button>
+                    </div>
+                    <div style="padding: 15px;">
+                        <table class="wrap-table" style="width: 100%; margin-bottom: 15px; border: 1px solid #dee2e6;">
+                            <thead>
+                                <tr>
+                                    <th colspan="2" style="background-color: #e8f4f8; text-align: left; font-size: 16px; border-bottom: 2px solid #bce0ee;">📍 區域：<span style="color:#e74c3c; font-size: 18px;">${reg}</span></th>
+                                </tr>
+                                <tr>
+                                    <th id="detail_ftitle_${rIdx}" style="width: 50%; background-color: #fdf5e6;">🍔 應拿餐點分配</th>
+                                    <th id="detail_dtitle_${rIdx}" style="width: 50%; background-color: #eafaf1;">🥤 應拿飲料分配</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="detail_alloc_${rIdx}"></tr>
+                                <tr style="background:#f9f9f9;"><td colspan="2" style="text-align: left; font-size: 13px; color: #555; padding: 10px 12px; border-top: 1px solid #eee;"><strong style="color: #2c3e50;">📝 本區發放名單 (${totalPeople}人)：</strong><br>${guests.map(function(g) { return g.name; }).join('、')}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = summaryHTML + detailedHTML;
+        
+        window.currentDistRegions.forEach(function(reg, rIdx) { window.renderDetailCard(rIdx); });
+    }
+
+    function generatePrintHTML(guestsToPrint, customTitle, mainHeading) {
+        let html = `
+        <!DOCTYPE html>
+        <html lang="zh-TW">
+        <head>
+            <meta charset="UTF-8">
+            <title>列印名牌</title>
+            <style>
+                @page { size: A4; margin: 5mm; }
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; }
+                .grid-container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2mm; width: 100%; }
+                .tag { border: 1px dashed #bdc3c7; border-radius: 4px; padding: 3px; text-align: center; page-break-inside: avoid; display: flex; flex-direction: column; justify-content: center; height: 34mm; box-sizing: border-box; overflow: hidden; }
+                .tag-title { font-weight: bold; font-size: 10px; color: #d35400; margin-bottom: 2px; border-bottom: 1px solid #eee; padding-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                .tag-guest { font-size: 14px; font-weight: bold; margin-bottom: 2px; color: #2c3e50; }
+                .tag-host { font-size: 9px; color: #7f8c8d; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+                .tag-reg { font-size: 9px; color: #fff; background: #3498db; border-radius: 3px; padding: 1px 3px; display: inline-block; margin-bottom: 2px; }
+                .page-title { text-align: center; font-size: 16px; margin-bottom: 8px; color: #333; grid-column: 1 / -1; font-weight: bold; }
+            </style>
+        </head>
+        <body>
+            <div class="grid-container">
+                <div class="page-title">${mainHeading} (共 ${guestsToPrint.length} 張)</div>
+        `;
+
+        guestsToPrint.forEach(function(g) {
+            let hosts = (g.claimedBy && g.claimedBy.length > 0) ? g.claimedBy.join('、') : '無紀錄';
+            let regLabel = g.reg ? `<div class="tag-reg">${g.reg}</div>` : '';
+            html += `
+                <div class="tag">
+                    <div class="tag-title">${customTitle}</div>
+                    <div>${regLabel}</div>
+                    <div class="tag-guest">${g.name}</div>
+                    <div class="tag-host">請客: ${hosts}</div>
+                </div>
+            `;
+        });
+
+        html += `</div><script>setTimeout(function() { window.print(); window.close(); }, 500);<\/script></body></html>`;
+        return html;
+    }
+</script>
+
+</body>
+</html>
