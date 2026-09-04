@@ -124,6 +124,10 @@
 
         .owner-tag { background: #f39c12; color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
 
+        /*折疊面板樣式*/
+        .accordion-header { background: #e8f4f8; padding: 10px 15px; border-radius: 8px; border: 1px solid #bce0ee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: #2c3e50; margin-bottom: 15px; }
+        .accordion-content { display: none; padding: 15px; border: 1px solid #bce0ee; border-top: none; border-radius: 0 0 8px 8px; margin-top: -15px; margin-bottom: 15px; background: #fafbfc; }
+
         /* ================= 手機版優化 ================= */
         @media (max-width: 768px) {
             body { padding: 5px; }
@@ -297,6 +301,70 @@
     </div>
 </div>
 
+<!-- 彈出視窗：新增品項 Modal (分頁1) -->
+<div id="addMenuModal" class="modal-overlay">
+    <div class="modal-box" style="width: 320px; text-align: left;">
+        <h3 id="addMenuModalTitle" style="text-align: center; margin-bottom: 15px;">➕ 新增品項</h3>
+        <input type="hidden" id="addMenuType">
+        <div style="margin-bottom: 10px;">
+            <label>品項 (例: 雞排/紅茶)：</label>
+            <input type="text" id="popItem" placeholder="必填" style="padding: 8px;">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label>口味 (例: 辣味/去冰)：</label>
+            <input type="text" id="popFlavor" placeholder="選填" style="padding: 8px;">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label>單價：</label>
+            <input type="number" id="popPrice" placeholder="0" min="0" style="padding: 8px;">
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label>份數：</label>
+            <input type="number" id="popQty" placeholder="1" min="1" value="1" style="padding: 8px;">
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.submitPopMenu()">➕ 加入</button>
+            <button class="danger" style="flex: 1; padding: 10px;" onclick="document.getElementById('addMenuModal').style.display='none'">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- 彈出視窗：新增名單 Modal (分頁2) -->
+<div id="addGuestModal" class="modal-overlay">
+    <div class="modal-box" style="width: 320px; text-align: left;">
+        <h3 style="text-align: center; margin-bottom: 15px;">➕ 新增成員名單</h3>
+        <div style="margin-bottom: 10px;">
+            <label>姓名 (必填)：</label>
+            <input type="text" id="popName" placeholder="例如: 王小明" style="padding: 8px;">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label>區域：</label>
+            <input type="text" id="popReg" placeholder="例如: B2F" style="padding: 8px;">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label>部門：</label>
+            <input type="text" id="popDept" placeholder="例如: IQC" style="padding: 8px;">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label>分工：</label>
+            <input type="text" id="popDist" placeholder="例如: 負責人" style="padding: 8px;">
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label>狀態：</label>
+            <select id="popStatus" style="padding: 8px;">
+                <option value="正常">正常</option>
+                <option value="請假">請假</option>
+                <option value="出差">出差</option>
+                <option value="公假">公假</option>
+            </select>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.submitPopGuest()">➕ 新增</button>
+            <button class="danger" style="flex: 1; padding: 10px;" onclick="document.getElementById('addGuestModal').style.display='none'">取消</button>
+        </div>
+    </div>
+</div>
+
 <!-- 選擇金主 Modal -->
 <div id="loginUserModal" class="modal-overlay">
     <div class="modal-box">
@@ -367,13 +435,9 @@
         <fieldset id="tab1FieldSet" style="border:none; padding:0; margin:0;">
             <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                 <div class="section-box" style="flex: 1; min-width: 450px;">
-                    <h3 style="color: #d35400;">🍔 吃的部份</h3>
-                    <div class="flex-row" style="margin-bottom: 10px;">
-                        <input type="text" id="fItem" placeholder="品項 (例: 雞排)" style="width: 100px;">
-                        <input type="text" id="fFlavor" placeholder="口味 (例: 辣味)" style="width: 100px;">
-                        <input type="number" id="fPrice" placeholder="單價" style="width: 70px;" min="0">
-                        <input type="number" id="fQty" placeholder="份數" style="width: 70px;" min="1">
-                        <button onclick="addMenu('food')">➕ 加入</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 style="color: #d35400; margin:0;">🍔 吃的部份</h3>
+                        <button class="success" style="font-weight: bold;" onclick="window.openAddMenuModal('food')">➕ 新增品項</button>
                     </div>
                     <div class="table-responsive" style="max-height: 250px;">
                         <table><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="foodTableBody"></tbody></table>
@@ -381,13 +445,9 @@
                     <div style="text-align: right; margin-top: 10px; font-weight: bold;">吃的總計: $<span id="foodTotalDisplay" style="color: #d35400;">0</span></div>
                 </div>
                 <div class="section-box" style="flex: 1; min-width: 450px;">
-                    <h3 style="color: #2980b9;">🥤 喝的部份</h3>
-                    <div class="flex-row" style="margin-bottom: 10px;">
-                        <input type="text" id="dItem" placeholder="品項 (例: 紅茶)" style="width: 100px;">
-                        <input type="text" id="dFlavor" placeholder="口味 (例: 去冰)" style="width: 100px;">
-                        <input type="number" id="dPrice" placeholder="單價" style="width: 70px;" min="0">
-                        <input type="number" id="dQty" placeholder="份數" style="width: 70px;" min="1">
-                        <button onclick="addMenu('drink')">➕ 加入</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 style="color: #2980b9; margin:0;">🥤 喝的部份</h3>
+                        <button class="success" style="font-weight: bold;" onclick="window.openAddMenuModal('drink')">➕ 新增品項</button>
                     </div>
                     <div class="table-responsive" style="max-height: 250px;">
                         <table><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="drinkTableBody"></tbody></table>
@@ -423,8 +483,12 @@
             <div id="noHostWarning" style="color: #c0392b; font-weight: bold; display: none; margin-top: 5px;"></div>
         </div>
         
-        <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; border: 1px solid #bce0ee; margin-bottom: 20px;">
-            <strong style="color: #2c3e50; font-size: 16px; display: block; margin-bottom: 10px;">🚀 多重批次管理工具：</strong>
+        <!-- 可折疊的多重批次管理工具 (預設關閉) -->
+        <div class="accordion-header" onclick="window.toggleBatchAccordion()">
+            <span>🚀 多重批次管理工具 (包場 / 派發)</span>
+            <span id="batchAccordionIcon">🔽</span>
+        </div>
+        <div class="accordion-content" id="batchAccordionContent">
             <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                 <strong style="color: #555;">🎯 選擇目標：</strong>
                 <div class="custom-select-wrapper" id="targetDropdown" style="width: 180px;">
@@ -452,28 +516,18 @@
             </div>
         </div>
 
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #fff; padding: 12px 15px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <strong style="color: #2c3e50; font-size: 16px;">🏢 依部門檢視名單：</strong>
-                <select id="deptFilterSelect" onchange="window.switchDeptTab(this.value)" style="width: 200px; padding: 6px; font-size: 15px; border-radius: 4px; border: 1px solid #ccc;"></select>
-                <button class="warning" style="font-weight: bold; font-size: 14px;" onclick="window.switchDeptTab('未勾選金主')">
-                    ⚠️ 未勾選金主 (<span id="noHostCountBadge">0</span>人)
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #fff; padding: 10px 12px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%;">
+                <select id="deptFilterSelect" onchange="window.switchDeptTab(this.value)" style="flex: 1; min-width: 120px; padding: 6px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc;"></select>
+                <button class="warning" style="font-weight: bold; font-size: 14px; padding: 6px 10px;" onclick="window.switchDeptTab('未勾選金主')" title="顯示未勾選金主名單">
+                    🔍未勾選(<span id="noHostCountBadge">0</span>)
                 </button>
-                <button class="success" style="font-weight: bold; font-size: 14px; background-color: #34495e;" onclick="window.toggleMobileColumns()">
-                    👁️ <span id="toggleColBtnText">展開完整欄位</span>
+                <button class="success" style="font-weight: bold; font-size: 14px; background-color: #34495e; padding: 6px 10px;" onclick="window.toggleMobileColumns()" title="切換展開/精簡欄位">
+                    👁️ <span id="toggleColBtnText" style="display:none;">展開</span>
                 </button>
-            </div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-end;">
-            <div class="flex-row" style="background: #f9f9f9; padding: 10px; border-radius: 5px; border: 1px solid #ddd; width: 100%;">
-                <strong style="color: #555; font-size: 14px; margin-right: 10px;">➕ 快速新增：</strong>
-                <input type="text" id="sReg" placeholder="區域" style="width: 70px;">
-                <input type="text" id="sDept" placeholder="部門" style="width: 80px;">
-                <input type="text" id="sName" placeholder="姓名*" style="width: 100px;">
-                <input type="text" id="sDist" placeholder="分工" style="width: 80px;">
-                <select id="sStatus" style="width: 80px;"><option value="正常">正常</option><option value="請假">請假</option><option value="出差">出差</option><option value="公假">公假</option></select>
-                <button onclick="addSingleGuest()">新增至目前名單</button>
+                <button class="success" style="font-weight: bold; font-size: 14px; padding: 6px 12px;" onclick="window.openAddGuestModal()" title="快速新增成員">
+                    ➕ 新增成員
+                </button>
             </div>
         </div>
 
@@ -563,8 +617,78 @@
 
     window.toggleMobileColumns = function() {
         showAllMobileCols = !showAllMobileCols;
-        document.getElementById('toggleColBtnText').innerText = showAllMobileCols ? "隱藏非必要欄位" : "展開完整欄位";
         renderMainTable();
+    }
+
+    window.toggleBatchAccordion = function() {
+        const content = document.getElementById('batchAccordionContent');
+        const icon = document.getElementById('batchAccordionIcon');
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            icon.innerText = '🔽';
+        } else {
+            content.style.display = 'block';
+            icon.innerText = '🔼';
+        }
+    }
+
+    // ===== 彈出式新增 Modal 控制 =====
+    window.openAddMenuModal = function(type) {
+        document.getElementById('addMenuType').value = type;
+        document.getElementById('addMenuModalTitle').innerText = type === 'food' ? '🍔 新增吃的品項' : '🥤 新增喝的品項';
+        document.getElementById('popItem').value = '';
+        document.getElementById('popFlavor').value = '';
+        document.getElementById('popPrice').value = '';
+        document.getElementById('popQty').value = '1';
+        document.getElementById('addMenuModal').style.display = 'flex';
+    }
+
+    window.submitPopMenu = function() {
+        const type = document.getElementById('addMenuType').value;
+        const item = document.getElementById('popItem').value.trim();
+        const flavor = document.getElementById('popFlavor').value.trim();
+        const price = parseFloat(document.getElementById('popPrice').value) || 0;
+        const qty = parseInt(document.getElementById('popQty').value) || 0;
+
+        if(!item || price === 0 || qty === 0) return alert('請完整填寫品項、單價與份數！');
+
+        (type === 'food' ? data.foodItems : data.drinkItems).push({
+            id: Date.now() + Math.random(), item, flavor, price, qty, subtotal: price * qty
+        });
+
+        document.getElementById('addMenuModal').style.display = 'none';
+        markDataChanged();
+        renderMenuTable(type);
+    }
+
+    window.openAddGuestModal = function() {
+        document.getElementById('popName').value = '';
+        document.getElementById('popReg').value = '';
+        document.getElementById('popDept').value = '';
+        document.getElementById('popDist').value = '';
+        document.getElementById('popStatus').value = '正常';
+        document.getElementById('addGuestModal').style.display = 'flex';
+    }
+
+    window.submitPopGuest = function() {
+        const name = document.getElementById('popName').value.trim();
+        if(!name) return alert('姓名為必填欄位！');
+
+        data.guests.push({
+            id: Date.now() + Math.random(),
+            name: name,
+            reg: document.getElementById('popReg').value.trim(),
+            dept: document.getElementById('popDept').value.trim(),
+            dist: document.getElementById('popDist').value.trim(),
+            status: document.getElementById('popStatus').value,
+            claimedBy: []
+        });
+
+        document.getElementById('addGuestModal').style.display = 'none';
+        markDataChanged();
+        renderDeptFilter();
+        renderMainTable();
+        window.populateBatchTargets();
     }
 
     function resetSaveStatus() {
@@ -1028,17 +1152,17 @@
         if (document.getElementById('tab-distribution').classList.contains('active')) { renderDistributionTab(); }
     }
 
-    function addMenu(type) {
-        const prefix = type === 'food' ? 'f' : 'd';
-        const item = document.getElementById(`${prefix}Item`).value.trim(); const flavor = document.getElementById(`${prefix}Flavor`).value.trim();
-        const price = parseFloat(document.getElementById(`${prefix}Price`).value) || 0; const qty = parseInt(document.getElementById(`${prefix}Qty`).value) || 0;
-        if (!item || price === 0 || qty === 0) return alert("請輸入完整明細！");
-        (type === 'food' ? data.foodItems : data.drinkItems).push({ id: Date.now()+Math.random(), item, flavor, price, qty, subtotal: price*qty });
-        document.getElementById(`${prefix}Item`).value = ''; document.getElementById(`${prefix}Flavor`).value = ''; document.getElementById(`${prefix}Price`).value = ''; document.getElementById(`${prefix}Qty`).value = '';
-        markDataChanged(); renderMenuTable(type);
+    function renderMenuTable(type) {
+        const tbody = document.getElementById(type === 'food' ? 'foodTableBody' : 'drinkTableBody');
+        tbody.innerHTML = (type === 'food' ? data.foodItems : data.drinkItems).map(i => `<tr>
+            <td><input type="text" class="inline-input" value="${i.item}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'item', this.value)"></td>
+            <td><input type="text" class="inline-input" value="${i.flavor}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'flavor', this.value)"></td>
+            <td><input type="number" class="inline-input" style="width:70px;" value="${i.price}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'price', this.value)" min="0"></td>
+            <td><input type="number" class="inline-input" style="width:70px;" value="${i.qty}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'qty', this.value)" min="1"></td>
+            <td><strong>$${i.subtotal}</strong></td><td><button class="danger" style="padding: 2px 8px;" onclick="removeMenu('${type}', ${i.id})">刪</button></td></tr>`).join('');
+        updateMenuTotals();
     }
-    window.addMenu = addMenu;
-    
+
     function removeMenu(type, id) { if(type==='food') data.foodItems = data.foodItems.filter(i=>i.id!==id); else data.drinkItems = data.drinkItems.filter(i=>i.id!==id); markDataChanged(); renderMenuTable(type); }
     window.removeMenu = removeMenu;
 
@@ -1050,17 +1174,6 @@
             markDataChanged(); renderMenuTable(type); 
             if (document.getElementById('tab-distribution').classList.contains('active')) { renderDistributionTab(); }
         }
-    }
-    
-    function renderMenuTable(type) {
-        const tbody = document.getElementById(type === 'food' ? 'foodTableBody' : 'drinkTableBody');
-        tbody.innerHTML = (type === 'food' ? data.foodItems : data.drinkItems).map(i => `<tr>
-            <td><input type="text" class="inline-input" value="${i.item}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'item', this.value)"></td>
-            <td><input type="text" class="inline-input" value="${i.flavor}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'flavor', this.value)"></td>
-            <td><input type="number" class="inline-input" style="width:70px;" value="${i.price}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'price', this.value)" min="0"></td>
-            <td><input type="number" class="inline-input" style="width:70px;" value="${i.qty}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'qty', this.value)" min="1"></td>
-            <td><strong>$${i.subtotal}</strong></td><td><button class="danger" style="padding: 2px 8px;" onclick="removeMenu('${type}', ${i.id})">刪</button></td></tr>`).join('');
-        updateMenuTotals();
     }
     
     function updateMenuTotals() {
@@ -1132,15 +1245,7 @@
         document.getElementById('excelPaste').value = ''; markDataChanged(); refreshAllUI(); alert(`成功匯入 ${count} 筆名單！(已自動配對打勾狀態)`);
     }
     window.batchImport = batchImport;
-    
-    function addSingleGuest() {
-        const name = document.getElementById('sName').value.trim(); if (!name) return alert('姓名必填！');
-        data.guests.push({ id: Date.now()+Math.random(), reg: document.getElementById('sReg').value.trim(), dept: document.getElementById('sDept').value.trim(), name, dist: document.getElementById('sDist').value.trim(), status: document.getElementById('sStatus').value, claimedBy: [] });
-        document.getElementById('sName').value = ''; document.getElementById('sDist').value = '';
-        markDataChanged(); renderDeptFilter(); renderMainTable(); window.populateBatchTargets();
-    }
-    window.addSingleGuest = addSingleGuest;
-    
+
     function removeGuest(id) { data.guests = data.guests.filter(g => g.id !== id); markDataChanged(); renderDeptFilter(); renderMainTable(); window.populateBatchTargets(); }
     window.removeGuest = removeGuest;
     
