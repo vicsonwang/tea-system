@@ -124,11 +124,10 @@
 
         .owner-tag { background: #f39c12; color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
 
-        /*折疊面板樣式*/
         .accordion-header { background: #e8f4f8; padding: 10px 15px; border-radius: 8px; border: 1px solid #bce0ee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: #2c3e50; margin-bottom: 15px; }
         .accordion-content { display: none; padding: 15px; border: 1px solid #bce0ee; border-top: none; border-radius: 0 0 8px 8px; margin-top: -15px; margin-bottom: 15px; background: #fafbfc; }
 
-        /* ================= 手機版優化 ================= */
+        /* ================= 手機版優化 (含卡片化品項修復) ================= */
         @media (max-width: 768px) {
             body { padding: 5px; }
             .modal-box { width: 95%; padding: 15px; box-sizing: border-box; }
@@ -170,6 +169,15 @@
             .custom-select-wrapper { width: 100%; margin-bottom: 10px; }
 
             .table-responsive { -webkit-overflow-scrolling: touch; }
+
+            /* 🎯 關鍵修復：分頁 1 吃的/喝的表格在手機版轉為「寬敞卡片」 */
+            .menu-card-table, .menu-card-table tbody, .menu-card-table tr { display: block; width: 100%; }
+            .menu-card-table thead { display: none; } /* 隱藏壓迫感標題列 */
+            .menu-card-row { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+            .menu-card-row td { display: block; border: none; padding: 3px 0; text-align: left; }
+            .menu-card-row .menu-inputs-group { display: flex; gap: 8px; margin-bottom: 6px; }
+            .menu-card-row .menu-inputs-group input { border: 1px solid #ccc !important; padding: 6px !important; text-align: left !important; border-radius: 4px; font-size: 14px; }
+            .menu-card-row .menu-meta-group { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 6px 8px; border-radius: 4px; }
 
             #tab-distribution > div:first-child { flex-direction: column; align-items: stretch; padding: 10px; }
             #tab-distribution > div:first-child > div { width: 100%; flex-direction: column; font-size: 14px; }
@@ -307,7 +315,7 @@
         <h3 id="addMenuModalTitle" style="text-align: center; margin-bottom: 15px;">➕ 新增品項</h3>
         <input type="hidden" id="addMenuType">
         <div style="margin-bottom: 10px;">
-            <label>品項 (例: 雞排/紅茶)：</label>
+            <label>品項 (例: 雙層牛肉堡)：</label>
             <input type="text" id="popItem" placeholder="必填" style="padding: 8px;">
         </div>
         <div style="margin-bottom: 10px;">
@@ -439,8 +447,8 @@
                         <h3 style="color: #d35400; margin:0;">🍔 吃的部份</h3>
                         <button class="success" style="font-weight: bold;" onclick="window.openAddMenuModal('food')">➕ 新增品項</button>
                     </div>
-                    <div class="table-responsive" style="max-height: 250px;">
-                        <table><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="foodTableBody"></tbody></table>
+                    <div class="table-responsive" style="max-height: 350px;">
+                        <table class="menu-card-table"><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="foodTableBody"></tbody></table>
                     </div>
                     <div style="text-align: right; margin-top: 10px; font-weight: bold;">吃的總計: $<span id="foodTotalDisplay" style="color: #d35400;">0</span></div>
                 </div>
@@ -449,8 +457,8 @@
                         <h3 style="color: #2980b9; margin:0;">🥤 喝的部份</h3>
                         <button class="success" style="font-weight: bold;" onclick="window.openAddMenuModal('drink')">➕ 新增品項</button>
                     </div>
-                    <div class="table-responsive" style="max-height: 250px;">
-                        <table><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="drinkTableBody"></tbody></table>
+                    <div class="table-responsive" style="max-height: 350px;">
+                        <table class="menu-card-table"><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="drinkTableBody"></tbody></table>
                     </div>
                     <div style="text-align: right; margin-top: 10px; font-weight: bold;">喝的總計: $<span id="drinkTotalDisplay" style="color: #2980b9;">0</span></div>
                 </div>
@@ -483,7 +491,6 @@
             <div id="noHostWarning" style="color: #c0392b; font-weight: bold; display: none; margin-top: 5px;"></div>
         </div>
         
-        <!-- 可折疊的多重批次管理工具 (預設關閉) -->
         <div class="accordion-header" onclick="window.toggleBatchAccordion()">
             <span>🚀 多重批次管理工具 (包場 / 派發)</span>
             <span id="batchAccordionIcon">🔽</span>
@@ -632,7 +639,6 @@
         }
     }
 
-    // ===== 彈出式新增 Modal 控制 =====
     window.openAddMenuModal = function(type) {
         document.getElementById('addMenuType').value = type;
         document.getElementById('addMenuModalTitle').innerText = type === 'food' ? '🍔 新增吃的品項' : '🥤 新增喝的品項';
@@ -1152,14 +1158,40 @@
         if (document.getElementById('tab-distribution').classList.contains('active')) { renderDistributionTab(); }
     }
 
+    // 🎯 渲染品項表格（含手機版寬敞卡片轉化）
     function renderMenuTable(type) {
         const tbody = document.getElementById(type === 'food' ? 'foodTableBody' : 'drinkTableBody');
-        tbody.innerHTML = (type === 'food' ? data.foodItems : data.drinkItems).map(i => `<tr>
-            <td><input type="text" class="inline-input" value="${i.item}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'item', this.value)"></td>
-            <td><input type="text" class="inline-input" value="${i.flavor}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'flavor', this.value)"></td>
-            <td><input type="number" class="inline-input" style="width:70px;" value="${i.price}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'price', this.value)" min="0"></td>
-            <td><input type="number" class="inline-input" style="width:70px;" value="${i.qty}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'qty', this.value)" min="1"></td>
-            <td><strong>$${i.subtotal}</strong></td><td><button class="danger" style="padding: 2px 8px;" onclick="removeMenu('${type}', ${i.id})">刪</button></td></tr>`).join('');
+        const items = (type === 'food' ? data.foodItems : data.drinkItems);
+        
+        if (items.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#999;">尚未新增品項</td></tr>`;
+            updateMenuTotals();
+            return;
+        }
+
+        tbody.innerHTML = items.map(i => `
+            <tr class="menu-card-row">
+                <td colspan="2">
+                    <div class="menu-inputs-group">
+                        <input type="text" class="inline-input" value="${i.item}" placeholder="品項名稱" onchange="window.updateMenuInfo('${type}', ${i.id}, 'item', this.value)" style="flex:2;">
+                        <input type="text" class="inline-input" value="${i.flavor}" placeholder="口味" onchange="window.updateMenuInfo('${type}', ${i.id}, 'flavor', this.value)" style="flex:1;">
+                    </div>
+                </td>
+                <td colspan="4">
+                    <div class="menu-meta-group">
+                        <div>
+                            單價 $<input type="number" class="inline-input" style="width:55px; border:1px solid #ccc!important; padding:2px 4px!important; border-radius:3px;" value="${i.price}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'price', this.value)" min="0">
+                            × <input type="number" class="inline-input" style="width:45px; border:1px solid #ccc!important; padding:2px 4px!important; border-radius:3px;" value="${i.qty}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'qty', this.value)" min="1"> 份
+                        </div>
+                        <div>
+                            <strong style="color:#d35400; font-size:15px; margin-right:8px;">$${i.subtotal}</strong>
+                            <button class="danger" style="padding: 3px 8px; font-size:12px;" onclick="removeMenu('${type}', ${i.id})">刪</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+        
         updateMenuTotals();
     }
 
