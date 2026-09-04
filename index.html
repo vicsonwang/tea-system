@@ -115,6 +115,7 @@
         .host-grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
         .host-grid-btn { background: #e8f4f8; border: 2px solid #bce0ee; color: #2980b9; padding: 14px 8px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; box-sizing: border-box; }
         .host-grid-btn:hover, .host-grid-btn:active { background: #3498db; color: white; border-color: #2980b9; transform: scale(0.98); }
+        .host-grid-btn.owner-btn { background: #fef9e7; border-color: #f39c12; color: #d35400; }
 
         .group-card { background: #fff; border: 1px solid #ddd; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; text-align: left; }
         .group-card:hover { border-color: #3498db; background: #f0f8ff; transform: translateY(-1px); }
@@ -245,17 +246,27 @@
     </div>
 </div>
 
-<!-- 新開團 Modal -->
+<!-- 🌟 動態建團 Modal (自訂金主與主揪) -->
 <div id="createGroupModal" class="modal-overlay">
     <div class="modal-box">
         <h3>➕ 建立新團體</h3>
-        <div style="text-align: left; margin-bottom: 15px;">
-            <label>團體/專案名稱：</label>
-            <input type="text" id="newGroupName" placeholder="例: 2026 10月壽星下午茶" style="padding: 10px; font-size: 15px;">
+        <div style="text-align: left; margin-bottom: 12px;">
+            <label>1. 團體/專案名稱：</label>
+            <input type="text" id="newGroupName" placeholder="例: 2026 10月壽星下午茶" style="padding: 8px;">
+        </div>
+        <div style="text-align: left; margin-bottom: 12px;">
+            <label>2. 設定 4 位數通行密碼 (全團共用)：</label>
+            <input type="password" id="newGroupPass" maxlength="4" placeholder="例如: 1234" pattern="[0-9]*" inputmode="numeric" style="padding: 8px; font-size: 16px; text-align: center; letter-spacing: 4px;">
+        </div>
+        <div style="text-align: left; margin-bottom: 12px;">
+            <label>3. 金主名單 (用逗號或換行隔開)：</label>
+            <textarea id="newGroupHosts" rows="3" placeholder="例: Unique, ALin, Vicson, Kate" onchange="window.updateOwnerSelectOptions()" style="padding: 8px; font-size: 13px;"></textarea>
         </div>
         <div style="text-align: left; margin-bottom: 20px;">
-            <label>設定 4 位數安全密碼 (全團共用)：</label>
-            <input type="password" id="newGroupPass" maxlength="4" placeholder="例如: 1234" pattern="[0-9]*" inputmode="numeric" style="padding: 10px; font-size: 18px; text-align: center; letter-spacing: 5px;">
+            <label>4. 選擇哪一位為 👑 主揪：</label>
+            <select id="newGroupOwnerSelect" style="padding: 8px; font-weight: bold; color: #d35400;">
+                <option value="">(請先在上方輸入金主名字)</option>
+            </select>
         </div>
         <div style="display: flex; gap: 10px;">
             <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.submitCreateGroup()">✅ 建立並進入</button>
@@ -392,7 +403,7 @@
                 <button class="danger" style="height: 40px;" onclick="clearAllData()">🗑️ 清空此專案所有資料</button>
             </div>
             <hr>
-            <h3>👥 管理金主名單 (預設第一個為👑主揪)</h3>
+            <h3>👥 管理金主名單</h3>
             <div class="flex-row" style="align-items: center;">
                 <input type="text" id="newHostName" placeholder="輸入新金主名字" style="width: 200px;"><button onclick="addHost()">➕ 新增金主</button>
             </div>
@@ -580,7 +591,7 @@
     }
 
     function getEmptyData() {
-        return { projectName: "", ownerHost: "", foodItems: [], drinkItems: [], hosts: ['Unique', 'ALin', 'Julie', 'Elma', 'Kate', 'Vicson', 'James', 'Comgan', 'Monica', 'Joyes'], guests: [], paidStatus: {}, allocations: {} };
+        return { projectName: "", ownerHost: "", foodItems: [], drinkItems: [], hosts: [], guests: [], paidStatus: {}, allocations: {} };
     }
 
     let data = getEmptyData();
@@ -724,19 +735,46 @@
     window.openCreateGroupModal = function() {
         document.getElementById('newGroupName').value = '';
         document.getElementById('newGroupPass').value = '';
+        document.getElementById('newGroupHosts').value = '';
+        document.getElementById('newGroupOwnerSelect').innerHTML = '<option value="">(請先在上方輸入金主名字)</option>';
         document.getElementById('createGroupModal').style.display = 'flex';
+    }
+
+    window.updateOwnerSelectOptions = function() {
+        const rawHosts = document.getElementById('newGroupHosts').value;
+        const hosts = rawHosts.split(/[,，\n]/).map(h => h.trim()).filter(h => h !== '');
+        const select = document.getElementById('newGroupOwnerSelect');
+        
+        if (hosts.length === 0) {
+            select.innerHTML = '<option value="">(請先在上方輸入金主名字)</option>';
+            return;
+        }
+
+        let html = '';
+        hosts.forEach(h => {
+            html += `<option value="${h}">👑 ${h}</option>`;
+        });
+        select.innerHTML = html;
     }
 
     window.submitCreateGroup = async function() {
         const name = document.getElementById('newGroupName').value.trim();
         const pass = document.getElementById('newGroupPass').value.trim();
+        const rawHosts = document.getElementById('newGroupHosts').value;
+        const owner = document.getElementById('newGroupOwnerSelect').value;
+
+        const hosts = rawHosts.split(/[,，\n]/).map(h => h.trim()).filter(h => h !== '');
 
         if(!name) return alert('請輸入團體名稱！');
         if(!/^\d{4}$/.exec(pass)) return alert('請設定 4 位數字密碼！');
+        if(hosts.length === 0) return alert('請至少輸入一位金主名字！');
+        if(!owner) return alert('請選擇哪一位為👑主揪！');
 
         const newId = 'grp_' + Date.now();
         data = getEmptyData();
         data.projectName = name;
+        data.hosts = hosts;
+        data.ownerHost = owner;
         currentGroupId = newId;
         currentGroupPassword = pass;
         currentGroupStatus = "進行中";
@@ -809,9 +847,13 @@
         document.getElementById('projectStatusSelect').value = currentGroupStatus;
         document.getElementById('globalPrintTitle').value = data.projectName || "";
         
+        // 生成大顆金主按鈕選單 (主揪按鈕加上 👑 標示)
         const gridContainer = document.getElementById('hostBtnGrid');
         if (data.hosts.length > 0) {
-            gridContainer.innerHTML = data.hosts.map(h => `<button class="host-grid-btn" onclick="window.selectUserDirectly('${h}')">👤 ${h}</button>`).join('');
+            gridContainer.innerHTML = data.hosts.map(h => {
+                const isOwner = (h === data.ownerHost);
+                return `<button class="host-grid-btn ${isOwner ? 'owner-btn' : ''}" onclick="window.selectUserDirectly('${h}')">${isOwner ? '👑' : '👤'} ${h}${isOwner ? ' [主揪]' : ''}</button>`;
+            }).join('');
             document.getElementById('loginUserModal').style.display = 'flex';
         } else {
             window.confirmUserLogin(); 
