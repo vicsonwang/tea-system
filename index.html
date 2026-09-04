@@ -154,6 +154,23 @@
             .main-list th { position: sticky; top: 0; z-index: 5; } /* 確保金主名字列維持在最上方 */
             .main-list th:nth-child(3) { z-index: 6 !important; } /* 確保左上角姓名的格子在最上層 */
 
+            /* === 針對 iOS 斜滑的視覺強化：加深邊界陰影與框線 === */
+            /* 加深上方金主列的邊界 */
+            .main-list th { 
+                box-shadow: 0 3px 6px rgba(0,0,0,0.12) !important; 
+                border-bottom: 2px solid #95a5a6 !important;
+            }
+            /* 加深左側姓名欄的邊界 */
+            .main-list th:nth-child(3), .main-list td:nth-child(3) {
+                box-shadow: 4px 0 8px rgba(0,0,0,0.12) !important;
+                border-right: 2px solid #95a5a6 !important;
+            }
+            /* 左上角（姓名表頭）交界處最深 */
+            .main-list th:nth-child(3) {
+                box-shadow: 4px 3px 8px rgba(0,0,0,0.2) !important;
+                z-index: 6 !important;
+            }
+
             /* 6. 吃喝設定區塊上下堆疊 */
             .section-box { min-width: 100% !important; box-sizing: border-box; padding: 10px; }
             .flex-row { flex-direction: column; align-items: stretch; }
@@ -1196,7 +1213,7 @@
                 return; 
             }
 
-            if(!confirm("這將會覆蓋您目前手動填寫的分配數字，確定要自動預算嗎？\n(系統將套用「大區優先＋口味平均」演算法，保證絕對精準！)")) return;
+            if(!confirm("這將會覆蓋您目前手手動填寫的分配數字，確定要自動預算嗎？\n(系統將套用「大區優先＋口味平均」演算法，保證絕對精準！)")) return;
             
             data.allocations = {}; 
 
@@ -1678,7 +1695,7 @@
         return html;
     }
 
-// ===== 手機版：暴力鎖定單向滑動 (解決原生斜滑問題) =====
+    // ===== 手機版：暴力鎖定單向滑動 (解決原生斜滑問題) =====
     let _stTarget = null;
     let _stAxis = null;
     let _stStartX = 0;
@@ -1687,7 +1704,6 @@
     let _stInitLeft = 0;
     let _stDeciding = false;
 
-    // 1. 手指放上時，記錄當前表格準確的 X 與 Y 座標
     document.addEventListener('touchstart', function(e) {
         let t = e.target.closest('.table-responsive');
         if(!t) { _stTarget = null; return; }
@@ -1700,30 +1716,26 @@
         _stDeciding = true;
     }, {passive: true});
 
-    // 2. 稍微滑動時，立刻判定這次是要「上下(y)」還是「左右(x)」
     document.addEventListener('touchmove', function(e) {
         if (!_stTarget || !_stDeciding) return;
         let dx = Math.abs(e.touches[0].clientX - _stStartX);
         let dy = Math.abs(e.touches[0].clientY - _stStartY);
         if (dx > 5 || dy > 5) {
             _stAxis = dx > dy ? 'x' : 'y';
-            _stDeciding = false; // 判定完畢，這次滑動不准再改方向
+            _stDeciding = false; 
         }
     }, {passive: true});
 
-    // 3. 瀏覽器嘗試滾動畫面時，強制鎖死另一個方向的數值！
     document.addEventListener('scroll', function(e) {
         if (!_stTarget || !_stAxis) return;
         if (e.target !== _stTarget) return;
         
         if (_stAxis === 'x') {
-            // 如果判定是左右滑，強制把「上下座標」拉回初始值
             if (_stTarget.scrollTop !== _stInitTop) _stTarget.scrollTop = _stInitTop;
         } else if (_stAxis === 'y') {
-            // 如果判定是上下滑，強制把「左右座標」拉回初始值
             if (_stTarget.scrollLeft !== _stInitLeft) _stTarget.scrollLeft = _stInitLeft;
         }
-    }, true); // 使用 true 讓攔截層級最高
+    }, true); 
     // ===================================================
 </script>
 
