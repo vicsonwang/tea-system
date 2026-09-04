@@ -176,6 +176,39 @@
             #globalPrintTitle { width: 100% !important; margin-top: 5px; }
         }
         /* ======================================================= */
+        // ===== 手機版：智能鎖定單向滑動 (防止表格斜滑) =====
+    document.addEventListener('touchstart', function(e) {
+        let t = e.target.closest('.table-responsive');
+        if(!t) return;
+        t.dataset.sx = e.touches[0].clientX;
+        t.dataset.sy = e.touches[0].clientY;
+        t.dataset.locked = 'false';
+        t.style.overflowX = 'auto';
+        t.style.overflowY = 'auto';
+    }, {passive: true});
+
+    document.addEventListener('touchmove', function(e) {
+        let t = e.target.closest('.table-responsive');
+        if(!t || t.dataset.locked === 'true') return;
+        let dx = Math.abs(e.touches[0].clientX - parseFloat(t.dataset.sx));
+        let dy = Math.abs(e.touches[0].clientY - parseFloat(t.dataset.sy));
+        if (dx > 5 || dy > 5) {
+            // 如果判定為左右滑，瞬間隱藏上下滾動軸；反之亦然
+            if (dx > dy) {
+                t.style.overflowY = 'hidden';
+            } else {
+                t.style.overflowX = 'hidden';
+            }
+            t.dataset.locked = 'true';
+        }
+    }, {passive: true});
+
+    document.addEventListener('touchend', function(e) {
+        let t = e.target.closest('.table-responsive');
+        // 手指放開後恢復雙向，確保下次依然可以重新判定方向
+        if(t) { t.style.overflowX = 'auto'; t.style.overflowY = 'auto'; }
+    }, {passive: true});
+    // ===================================================
     </style>
 </head>
 <body>
