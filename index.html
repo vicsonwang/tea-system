@@ -264,11 +264,16 @@
         </div>
         <div style="text-align: left; margin-bottom: 20px;">
             <label>密碼：</label>
-            <input type="password" id="adminPass" placeholder="8888" style="padding: 8px;">
+            <!-- 🎯 修改：密碼從寫死改為提示 -->
+            <input type="password" id="adminPass" placeholder="輸入後端設定的密碼" style="padding: 8px;">
         </div>
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
             <button class="success" style="flex: 1; padding: 8px;" onclick="window.verifyAdmin()">登入</button>
             <button class="danger" style="flex: 1; padding: 8px;" onclick="document.getElementById('adminLoginModal').style.display='none'">取消</button>
+        </div>
+        <!-- 🎯 新增：忘記密碼寄信按鈕 -->
+        <div style="text-align: center;">
+            <a href="#" onclick="window.forgotAdminPass()" style="font-size: 13px; color: #7a9eb1; text-decoration: underline;">忘記密碼？寄信給我</a>
         </div>
     </div>
 </div>
@@ -471,7 +476,6 @@
         </div>
     </div>
 
-    <!-- 🎯 頁籤：啟動顯示完整文字，未啟動顯示1.設定 / 2.名單等... -->
     <div class="tabs">
         <button class="tab-btn owner-tab active" id="tabBtn1" onclick="switchTab('tab-setup')">
             <span class="tab-text-short">1.設定</span>
@@ -586,19 +590,7 @@
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #fff; padding: 10px 12px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%;">
                 <select id="deptFilterSelect" onchange="window.switchDeptTab(this.value)" style="flex: 1; min-width: 120px; padding: 6px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc;"></select>
-                
-                <!-- 🎯 分頁 2：我未打勾按鈕 & 全體未打勾改名 -->
-                <button class="success" style="font-weight: bold; font-size: 14px; padding: 6px 10px; background-color: #7a9eb1; border: 1px solid #638596;" onclick="window.switchDeptTab('我已打勾')" title="顯示我已打勾的名單">
-                    ✅我已打勾
-                </button>
-                <button class="warning" style="font-weight: bold; font-size: 14px; padding: 6px 10px; background-color: #d4a373; border: 1px solid #bd8d5d; color: #fff;" onclick="window.switchDeptTab('我未打勾')" title="顯示我尚未打勾的名單">
-                    🔲我未打勾(<span id="myUncheckedCountBadge">0</span>)
-                </button>
-                <button class="danger" style="font-weight: bold; font-size: 14px; padding: 6px 10px; background-color: #c47c7c; border: 1px solid #ad6868; color: #fff;" onclick="window.switchDeptTab('未勾選金主')" title="顯示全體皆未勾選的名單">
-                    ⚠️全體未打勾(<span id="noHostCountBadge">0</span>)
-                </button>
-                
-                <button class="success" style="font-weight: bold; font-size: 14px; background-color: #5c666c; padding: 6px 10px;" onclick="window.toggleMobileColumns()" title="切換展開/精簡欄位">
+                <button class="success" style="font-weight: bold; font-size: 14px; padding: 6px 10px; background-color: #5c666c;" onclick="window.toggleMobileColumns()" title="切換展開/精簡欄位">
                     👁️ <span id="toggleColBtnText" style="display:none;">展開</span>
                 </button>
                 <button class="success" style="font-weight: bold; font-size: 14px; padding: 6px 12px;" onclick="window.openAddGuestModal()" title="快速新增成員">
@@ -728,6 +720,76 @@
         pingInterval = setInterval(() => pingCloud(), 15000);
     }
 
+    // 🎯 新增：忘記密碼寄信功能
+    window.forgotAdminPass = async function() {
+        if(!confirm('系統將把 Admin 密碼寄送到您在後端設定的專屬信箱，確定要寄送嗎？')) return;
+        
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = '⏳ 寄信中...';
+        btn.style.pointerEvents = 'none';
+
+        try {
+            const res = await fetch(`${API_URL}?action=forgot_admin`);
+            const result = await res.json();
+            if(result.status === 'success') {
+                alert('✅ 密碼已寄出！請至您的信箱收信。');
+            } else {
+                alert('❌ 寄信失敗: ' + result.message);
+            }
+        } catch(e) {
+            alert('❌ 連線失敗: ' + e.message);
+        } finally {
+            btn.innerText = originalText;
+            btn.style.pointerEvents = 'auto';
+        }
+    }
+
+    // 🎯 變更：Admin 登入從本地驗證改為呼叫後端 API
+    window.verifyAdmin = async function() {
+        const u = document.getElementById('adminUser').value.trim();
+        const p = document.getElementById('adminPass').value.trim();
+        if (u !== 'admin') return alert('❌ Admin 帳號錯誤！');
+        if (!p) return alert('請輸入密碼！');
+
+        document.getElementById('adminLoginModal').style.display = 'none';
+        document.getElementById('adminDashboardModal').style.display = 'flex';
+        document.getElementById('adminTableBody').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#777;">⏳ 驗證密碼與讀取資料中...</td></tr>`;
+        
+        try {
+            const res = await fetch(`${API_URL}?action=admin_list&pass=${encodeURIComponent(p)}`);
+            const resData = await res.json();
+            
+            if(resData.status === 'error') {
+                alert('❌ ' + resData.message);
+                document.getElementById('adminDashboardModal').style.display = 'none';
+                return;
+            }
+
+            const list = Array.isArray(resData) ? resData : (resData.data || []);
+            
+            let html = '';
+            if (list.length === 0) {
+                html = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#999;">目前無團體資料或後端回傳格式異常</td></tr>`;
+            } else {
+                list.forEach(g => {
+                    html += `<tr>
+                        <td><strong>${g.name || '未命名'}</strong></td>
+                        <td style="font-size:12px; color:#888;">${g.id || '-'}</td>
+                        <td>${g.status === '進行中' ? '<span class="status-badge-active">🟢 進行中</span>' : '<span class="status-badge-ended">已結束</span>'}</td>
+                        <td><strong style="color:#c47c7c; font-size:16px;">${g.pass || '0000'}</strong></td>
+                        <td>${g.hosts || '無'}</td>
+                        <td>${g.guestCount || 0} 人</td>
+                    </tr>`;
+                });
+            }
+            document.getElementById('adminTableBody').innerHTML = html;
+        } catch(e) {
+            alert('Admin 讀取失敗: ' + e.message);
+            document.getElementById('adminDashboardModal').style.display = 'none';
+        }
+    }
+
     window.toggleMobileColumns = function() {
         showAllMobileCols = !showAllMobileCols;
         renderMainTable();
@@ -812,7 +874,6 @@
         }
     }
 
-    // 🎯 判斷過濾邏輯：新增「我未打勾」與「全體未打勾」
     function getFilteredGuests() {
         if (activeDeptTab === '未勾選金主') return data.guests.filter(g => g.status === '正常' && (!g.claimedBy || g.claimedBy.length === 0));
         if (activeDeptTab === '我已打勾') return data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(currentUser));
@@ -851,44 +912,6 @@
         document.getElementById('adminUser').value = '';
         document.getElementById('adminPass').value = '';
         document.getElementById('adminLoginModal').style.display = 'flex';
-    }
-
-    window.verifyAdmin = async function() {
-        const u = document.getElementById('adminUser').value.trim();
-        const p = document.getElementById('adminPass').value.trim();
-        if (u === 'admin' && p === '8888') {
-            document.getElementById('adminLoginModal').style.display = 'none';
-            document.getElementById('adminDashboardModal').style.display = 'flex';
-            document.getElementById('adminTableBody').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#777;">⏳ 讀取全抓雲端資料中...</td></tr>`;
-            
-            try {
-                const res = await fetch(`${API_URL}?action=admin_list`);
-                const resData = await res.json();
-                
-                const list = Array.isArray(resData) ? resData : (resData.data || []);
-                
-                let html = '';
-                if (list.length === 0) {
-                    html = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#999;">目前無團體資料或後端回傳格式異常</td></tr>`;
-                } else {
-                    list.forEach(g => {
-                        html += `<tr>
-                            <td><strong>${g.name || '未命名'}</strong></td>
-                            <td style="font-size:12px; color:#888;">${g.id || '-'}</td>
-                            <td>${g.status === '進行中' ? '<span class="status-badge-active">🟢 進行中</span>' : '<span class="status-badge-ended">已結束</span>'}</td>
-                            <td><strong style="color:#c47c7c; font-size:16px;">${g.pass || '0000'}</strong></td>
-                            <td>${g.hosts || '無'}</td>
-                            <td>${g.guestCount || 0} 人</td>
-                        </tr>`;
-                    });
-                }
-                document.getElementById('adminTableBody').innerHTML = html;
-            } catch(e) {
-                alert('Admin 讀取失敗: ' + e.message);
-            }
-        } else {
-            alert('❌ Admin 帳號或密碼錯誤！');
-        }
     }
 
     window.openChangePassModal = function() {
@@ -1593,62 +1616,28 @@
         }
     }
 
-    // 🎯 升級版篩選選單 & 加入「我已/未打勾」計數邏輯
     function renderDeptFilter() {
         const select = document.getElementById('deptFilterSelect');
-        const depts = [...new Set(data.guests.map(g => g.dept).filter(d => d))].sort();
-        const regions = [...new Set(data.guests.map(g => g.reg).filter(r => r))].sort();
-        
+        const depts = [...new Set(data.guests.map(g => g.dept || '未分類'))].sort();
         const noHostCount = data.guests.filter(g => g.status === '正常' && (!g.claimedBy || g.claimedBy.length === 0)).length;
-        const myCheckedCount = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(currentUser)).length;
-        const myUncheckedCount = data.guests.filter(g => g.status === '正常' && (!g.claimedBy || !g.claimedBy.includes(currentUser))).length;
 
         let badgeEl = document.getElementById('noHostCountBadge');
         if(badgeEl) badgeEl.innerText = noHostCount;
 
-        let myUncheckBadgeEl = document.getElementById('myUncheckedCountBadge');
-        if(myUncheckBadgeEl) myUncheckBadgeEl.innerText = myUncheckedCount;
-
-        let optionsHtml = `<option value="全部">顯示全部名單</option>`;
-        
-        optionsHtml += `<optgroup label="📌 快速篩選">`;
-        optionsHtml += `<option value="我已打勾" style="color:#7a9eb1; font-weight:bold;">✅ 我已打勾 (${myCheckedCount}人)</option>`;
-        optionsHtml += `<option value="我未打勾" style="color:#d4a373; font-weight:bold;">🔲 我未打勾 (${myUncheckedCount}人)</option>`;
+        let optionsHtml = `<option value="全部">顯示全部部門</option>`;
         if (noHostCount > 0) {
-            optionsHtml += `<option value="未勾選金主" style="color:#c47c7c; font-weight:bold;">⚠️ 全體未打勾 (${noHostCount}人)</option>`;
+            optionsHtml += `<option value="未勾選金主" style="color:#c47c7c; font-weight:bold;">⚠️ 僅顯示未勾選金主 (${noHostCount}人)</option>`;
         }
-        optionsHtml += `</optgroup>`;
-
-        if (regions.length > 0) {
-            optionsHtml += `<optgroup label="📍 依區域 (Region)">`;
-            regions.forEach(r => { optionsHtml += `<option value="reg|${r}">${r}</option>`; });
-            optionsHtml += `</optgroup>`;
-        }
-
-        if (depts.length > 0) {
-            optionsHtml += `<optgroup label="💼 依部門 (Dept)">`;
-            depts.forEach(d => { optionsHtml += `<option value="dept|${d}">${d}</option>`; });
-            optionsHtml += `</optgroup>`;
-        }
-
+        depts.forEach(d => { optionsHtml += `<option value="${d}">${d}</option>`; });
         select.innerHTML = optionsHtml;
 
-        const validValues = ['全部', '未勾選金主', '我已打勾', '我未打勾', ...regions.map(r=>'reg|'+r), ...depts.map(d=>'dept|'+d)];
-        if (!validValues.includes(activeDeptTab) && !depts.includes(activeDeptTab)) {
-            activeDeptTab = '全部';
-        }
+        if (!['全部', '未勾選金主', ...depts].includes(activeDeptTab)) activeDeptTab = '全部';
         select.value = activeDeptTab;
     }
 
     window.switchDeptTab = function(dept) {
         activeDeptTab = dept; renderMainTable();
-        
-        let fillDept = '';
-        if (dept.startsWith('dept|')) fillDept = dept.substring(5);
-        else if (dept !== '全部' && dept !== '未分類' && dept !== '未勾選金主' && dept !== '我已打勾' && dept !== '我未打勾' && !dept.startsWith('reg|')) fillDept = dept;
-        
-        let sDeptEl = document.getElementById('sDept');
-        if (sDeptEl) sDeptEl.value = fillDept;
+        document.getElementById('sDept').value = (dept === '全部' || dept === '未分類' || dept === '未勾選金主') ? '' : dept;
     }
 
     window.toggleHostColumn = function(hostName) {
