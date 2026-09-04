@@ -1686,7 +1686,8 @@
         let claimedGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(activeHostTab));
 
         // 關鍵修復：依 (1 / claimedBy.length) 大到小排序 (1/1 優先，其次 1/2, 1/3...)
-        claimedGuests.sort((a, b) => (1 / a.claimedBy.length) - (1 / b.claimedBy.length));
+      // 關鍵修復：b - a 才能讓 1/1 (1.0) 排在最上方，1/9 (0.11) 排在最下方
+        claimedGuests.sort((a, b) => (1 / b.claimedBy.length) - (1 / a.claimedBy.length));
 
         let listHTML = claimedGuests.map(g => {
             let ratioText = g.claimedBy.length === 1 ? '<strong style="color:#c0392b;">全額 (1/1)</strong>' : `平分 (1/${g.claimedBy.length})`;
