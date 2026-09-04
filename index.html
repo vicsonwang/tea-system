@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>下午茶分配系統 (莫蘭迪高質感版)</title>
+    <title>下午茶分配系統 (清爽莫蘭迪版)</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f1ec; color: #4a4a4a; margin: 0; padding: 20px; position: relative; }
+        /* 畫布清空：改回明亮乾淨的淺灰白背景與深色文字 */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; position: relative; }
         .container { max-width: 98%; margin: 0 auto; }
-        h1, h2, h3 { color: #5c666c; margin-top: 0; }
+        h1, h2, h3 { color: #2c3e50; margin-top: 0; }
         
-        /* 電腦版頁籤基本樣式 */
-        .tabs { display: flex; border-bottom: 2px solid #dfdcd7; margin-bottom: 20px; flex-wrap: wrap; gap: 4px; }
-        .tab-btn { background: #eceae5; border: none; border-radius: 8px 8px 0 0; padding: 12px 24px; font-size: 16px; font-weight: bold; cursor: pointer; color: #8c8c8c; transition: 0.3s; }
-        .tab-btn:hover { color: #7a9eb1; background: #e3e0da; }
+        /* 頁籤：乾淨的底色，啟動時帶入莫蘭迪色 */
+        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: wrap; gap: 4px; }
+        .tab-btn { background: #f8f9fa; border: none; border-radius: 8px 8px 0 0; padding: 12px 24px; font-size: 16px; font-weight: bold; cursor: pointer; color: #777; transition: 0.3s; }
+        .tab-btn:hover { color: #7a9eb1; background: #e9ecef; }
         .tab-btn.active { color: #7a9eb1; border-bottom: 3px solid #7a9eb1; background: #fff; margin-bottom: -2px; }
         
-        /* 主揪專屬分頁樣式 (燕麥底色) */
-        .tab-btn.owner-tab { background-color: #f7f2ed; color: #b58372; }
-        .tab-btn.owner-tab:hover { background-color: #eee5dc; color: #a67c76; }
-        .tab-btn.owner-tab.active { color: #b58372; border-bottom: 3px solid #d4a373; background-color: #fbf8f4; margin-bottom: -2px; }
+        .tab-btn.owner-tab { background-color: #fdfdfc; color: #b58372; }
+        .tab-btn.owner-tab:hover { background-color: #f5f0e6; color: #a67c76; }
+        .tab-btn.owner-tab.active { color: #b58372; border-bottom: 3px solid #d4a373; background-color: #fff; margin-bottom: -2px; }
 
-        /* 控制文字顯示 (電腦版隱藏短名，顯示全名) */
         .tab-text-short { display: none; }
         .tab-text-full { display: inline; }
 
-        .tab-content { display: none; background: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        /* 內容區塊：純白背景 */
+        .tab-content { display: none; background: #ffffff; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
         .tab-content.active { display: block; }
 
         .form-group { margin-bottom: 15px; }
-        label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 14px; color: #555; }
-        input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 8px; border: 1px solid #dcdcdc; border-radius: 4px; box-sizing: border-box; background: #faf9f7; color: #4a4a4a; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 14px; color: #444; }
+        input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background: #fff; color: #333; }
         .flex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         
-        /* 按鈕莫蘭迪化 */
+        /* 莫蘭迪點綴色：按鈕群 */
         button { background-color: #7a9eb1; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 14px; }
         button:hover { background-color: #638596; }
         button.success { background-color: #92a68a; }
@@ -42,11 +42,11 @@
         button.warning { background-color: #d4a373; }
         button.warning:hover { background-color: #bd8d5d; }
         
-        .table-responsive { overflow-x: auto; max-height: 600px; overflow-y: auto; border: 1px solid #e0dfdb; margin-top: 10px; border-radius: 6px; }
+        .table-responsive { overflow-x: auto; max-height: 600px; overflow-y: auto; border: 1px solid #ddd; margin-top: 10px; border-radius: 6px; }
         
         table { width: 100%; border-collapse: collapse; white-space: nowrap; user-select: none; }
-        th, td { border: 1px solid #e0dfdb; padding: 4px 6px; text-align: center; transition: background-color 0.2s; color: #555; } 
-        th { background-color: #f4f3ef; position: sticky; top: 0; z-index: 1; padding: 8px 10px; color: #666; font-weight: bold; }
+        th, td { border: 1px solid #dee2e6; padding: 4px 6px; text-align: center; transition: background-color 0.2s; color: #444; } 
+        th { background-color: #f8f9fa; position: sticky; top: 0; z-index: 1; padding: 8px 10px; color: #555; }
         
         .menu-card-table th:nth-child(1), .menu-card-table td:nth-child(1) { width: 25%; }
         .menu-card-table th:nth-child(2), .menu-card-table td:nth-child(2) { width: 45%; }
@@ -54,72 +54,72 @@
         .main-list th:nth-child(1), .main-list td:nth-child(1) { position: sticky; left: 0; background-color: #fff; z-index: 2; }
         .main-list th:nth-child(2), .main-list td:nth-child(2) { position: sticky; left: 60px; background-color: #fff; z-index: 2; }
         .main-list th:nth-child(3), .main-list td:nth-child(3) { position: sticky; left: 140px; background-color: #fff; z-index: 2; }
-        .main-list th:nth-child(1), .main-list th:nth-child(2), .main-list th:nth-child(3) { z-index: 3; background-color: #f4f3ef; }
+        .main-list th:nth-child(1), .main-list th:nth-child(2), .main-list th:nth-child(3) { z-index: 3; background-color: #f8f9fa; }
         
-        .inline-input, .inline-select { width: 100%; box-sizing: border-box; border: 1px solid transparent; background: transparent; padding: 6px 4px; text-align: center; font-family: inherit; font-size: 14px; border-radius: 3px; transition: 0.2s; color: #4a4a4a; }
-        .inline-input:hover, .inline-select:hover { background-color: #f5f4f1; border-color: #dcdcdc; }
+        .inline-input, .inline-select { width: 100%; box-sizing: border-box; border: 1px solid transparent; background: transparent; padding: 6px 4px; text-align: center; font-family: inherit; font-size: 14px; border-radius: 3px; transition: 0.2s; color: #333; }
+        .inline-input:hover, .inline-select:hover { background-color: #f9f9f9; border-color: #ccc; }
         .inline-input:focus, .inline-select:focus { background-color: #fff; border-color: #7a9eb1; outline: none; box-shadow: 0 0 3px rgba(122,158,177,0.4); }
-        .inline-input.bold { font-weight: bold; color: #444; }
+        .inline-input.bold { font-weight: bold; color: #222; }
         
-        .exclude { background-color: #fdfdfc; }
-        .exclude .inline-input, .exclude .inline-select { color: #b0b0b0; text-decoration: line-through; }
+        .exclude { background-color: #fdfdfd; }
+        .exclude .inline-input, .exclude .inline-select { color: #aaa; text-decoration: line-through; }
         .exclude .inline-select { text-decoration: none; color: #c47c7c; } 
-        .no-host-row { background-color: #fbf8f4 !important; border-left: 4px solid #d4a373 !important; }
+        .no-host-row { background-color: #fffcf8 !important; border-left: 4px solid #d4a373 !important; }
 
         .checkbox-cell { cursor: pointer; transition: background 0.1s; }
-        .checkbox-cell:hover { background-color: #eaf0f2; }
+        .checkbox-cell:hover { background-color: #f0f6f8; }
         .checkbox-cell input { cursor: pointer; transform: scale(1.2); pointer-events: none; accent-color: #7a9eb1; }
-        .host-header { cursor: pointer; transition: 0.2s; color: #5c666c; }
-        .host-header:hover { background-color: #dce3e6 !important; }
+        .host-header { cursor: pointer; transition: 0.2s; color: #2c3e50; }
+        .host-header:hover { background-color: #e6edf0 !important; }
 
-        .disabled-cell { background-color: #f0f0f0 !important; opacity: 0.5; cursor: not-allowed !important; pointer-events: none; }
+        .disabled-cell { background-color: #f5f5f5 !important; opacity: 0.5; cursor: not-allowed !important; pointer-events: none; }
         
-        .section-box { border: 1px solid #e0dfdb; padding: 15px; border-radius: 8px; margin-bottom: 20px; background-color: #fcfbfa; }
-        .host-tag { display: inline-block; background: #eaf0f2; border: 1px solid #cbd5da; padding: 5px 10px; border-radius: 20px; margin: 5px; font-size: 14px; color: #638596; font-weight: bold; }
-        .summary-card { background: #f5f0e1; border: 1px solid #e3d6bc; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 16px; display: flex; justify-content: space-between; align-items: center; color: #6e6453;}
+        .section-box { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 20px; background-color: #fafbfc; }
+        .host-tag { display: inline-block; background: #f0f6f8; border: 1px solid #c9d8df; padding: 5px 10px; border-radius: 20px; margin: 5px; font-size: 14px; color: #638596; font-weight: bold; }
+        .summary-card { background: #fdfaf4; border: 1px solid #eedec7; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 16px; display: flex; justify-content: space-between; align-items: center; color: #555;}
         
-        .save-bar { background: #6b7780; color: white; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.15); flex-wrap: wrap; gap: 10px; }
-        .status-badge { background: #f4f3ef; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-left: 15px; display: inline-block; }
+        .save-bar { background: #5c666c; color: white; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.15); flex-wrap: wrap; gap: 10px; }
+        .status-badge { background: #fff; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-left: 15px; display: inline-block; }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(50,55,60,0.6); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal-box { background: #fdfdfc; padding: 25px; border-radius: 12px; width: 440px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; border: 1px solid #eceae5; }
-        .modal-box h3 { margin-top: 0; color: #5c666c; font-size: 22px; margin-bottom: 15px; }
-        .version-text { font-size: 12px; color: #9aa1a6; margin-bottom: 20px; display: block; }
-        #userInfoDisplay { position: absolute; top: 85px; right: 25px; font-weight: bold; color: #5c666c; font-size: 15px; background: white; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none; z-index: 90; border: 1px solid #e0dfdb; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-box { background: #fff; padding: 25px; border-radius: 12px; width: 440px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
+        .modal-box h3 { margin-top: 0; color: #2c3e50; font-size: 22px; margin-bottom: 15px; }
+        .version-text { font-size: 12px; color: #888; margin-bottom: 20px; display: block; }
+        #userInfoDisplay { position: absolute; top: 85px; right: 25px; font-weight: bold; color: #333; font-size: 15px; background: white; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none; z-index: 90; border: 1px solid #ddd; }
         
         .custom-select-wrapper { position: relative; display: inline-block; width: 200px; }
-        .custom-select-header { background: #faf9f7; border: 1px solid #dcdcdc; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; user-select: none; display: flex; justify-content: space-between; align-items: center; }
+        .custom-select-header { background: #fff; border: 1px solid #ccc; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; user-select: none; display: flex; justify-content: space-between; align-items: center; }
         .custom-select-header:hover { border-color: #7a9eb1; }
-        .custom-select-options { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #dcdcdc; border-top: none; border-radius: 0 0 4px 4px; max-height: 350px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .custom-select-options { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px; max-height: 350px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .custom-select-options.show { display: block; }
-        .custom-optgroup { background: #f4f3ef; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #8c8c8c; border-bottom: 1px solid #e0dfdb; }
-        .custom-option { display: block; padding: 6px 15px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f9f9f8; color: #555; }
-        .custom-option:hover { background: #eaf0f2; }
+        .custom-optgroup { background: #f8f9fa; padding: 6px 10px; font-weight: bold; font-size: 12px; color: #777; border-bottom: 1px solid #eee; }
+        .custom-option { display: block; padding: 6px 15px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f9f9f9; color: #444; }
+        .custom-option:hover { background: #f0f6f8; }
         .custom-option input { margin-right: 8px; cursor: pointer; accent-color: #7a9eb1; }
 
-        .host-sub-tabs, .sub-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; border-bottom: 1px solid #e0dfdb; padding-bottom: 15px; }
-        .host-sub-tab-btn, .sub-tab-btn { background: #f0efea; border: 1px solid #dcdcdc; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 15px; transition: 0.2s; font-weight: bold; color: #6b7780; }
-        .host-sub-tab-btn:hover, .sub-tab-btn:hover { background: #e3e0da; color: #4a4a4a; }
+        .host-sub-tabs, .sub-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .host-sub-tab-btn, .sub-tab-btn { background: #f8f9fa; border: 1px solid #ccc; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 15px; transition: 0.2s; font-weight: bold; color: #555; }
+        .host-sub-tab-btn:hover, .sub-tab-btn:hover { background: #e9ecef; color: #222; }
         .host-sub-tab-btn.active { background: #92a68a; color: white; border-color: #7c9174; font-weight: bold; box-shadow: 0 2px 4px rgba(146,166,138,0.3); transform: translateY(-1px); }
         .sub-tab-btn.dept-active { background: #7a9eb1; color: white; border-color: #638596; box-shadow: 0 2px 4px rgba(122,158,177,0.3); transform: translateY(-1px); }
 
-        .paid-row { background-color: #f4f7f4 !important; }
+        .paid-row { background-color: #f7f9f7 !important; }
         .unpaid-row { background-color: #fff; }
         
-        .pivot-container { max-height: 75vh; overflow: auto; border: 1px solid #dcdcdc; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .pivot-container { max-height: 75vh; overflow: auto; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; }
         .pivot-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .pivot-table thead { position: sticky; top: 0; z-index: 20; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .pivot-table th, .pivot-table td { border-right: 1px solid #e0dfdb; border-bottom: 1px solid #e0dfdb; padding: 4px !important; text-align: center; vertical-align: middle; white-space: normal !important; word-wrap: break-word; overflow-wrap: break-word; }
-        .item-col { width: 72px; min-width: 72px; max-width: 72px; font-size: 12px; line-height: 1.2; color: #555;}
-        .pivot-table th:first-child, .pivot-table td:first-child { position: sticky; left: 0; z-index: 10; background-color: #fcfbfa; border-right: 2px solid #ccc; color: #4a4a4a; }
-        .pivot-table thead th:first-child { z-index: 30; background-color: #f4f3ef; }
+        .pivot-table th, .pivot-table td { border-right: 1px solid #dee2e6; border-bottom: 1px solid #dee2e6; padding: 4px !important; text-align: center; vertical-align: middle; white-space: normal !important; word-wrap: break-word; overflow-wrap: break-word; }
+        .item-col { width: 72px; min-width: 72px; max-width: 72px; font-size: 12px; line-height: 1.2; color: #444;}
+        .pivot-table th:first-child, .pivot-table td:first-child { position: sticky; left: 0; z-index: 10; background-color: #fff; border-right: 2px solid #ccc; color: #333; }
+        .pivot-table thead th:first-child { z-index: 30; background-color: #f8f9fa; }
         .wrap-table { white-space: normal !important; word-break: break-word !important; }
 
-        .stepper { display: inline-flex; align-items: center; justify-content: center; border: 1px solid #dcdcdc; border-radius: 4px; background: #fff; overflow: hidden; width: 66px; margin: 0 auto; }
-        .stepper button { flex: 0 0 18px; height: 26px; background: #f0efea; border: none; cursor: pointer; font-weight: bold; color: #666; transition: 0.2s; padding: 0; font-size: 14px; display: flex; align-items: center; justify-content: center; }
-        .stepper button:hover { background: #e3e0da; color: #333; }
-        .stepper input { flex: 1 1 auto; width: 28px; height: 26px; text-align: center; border: none; border-left: 1px solid #dcdcdc; border-right: 1px solid #dcdcdc; font-weight: bold; color: #5c666c; font-size: 13px; -moz-appearance: textfield; padding: 0; }
-        .stepper input:focus { outline: none; background-color: #eaf0f2; }
+        .stepper { display: inline-flex; align-items: center; justify-content: center; border: 1px solid #ccc; border-radius: 4px; background: #fff; overflow: hidden; width: 66px; margin: 0 auto; }
+        .stepper button { flex: 0 0 18px; height: 26px; background: #f4f4f4; border: none; cursor: pointer; font-weight: bold; color: #555; transition: 0.2s; padding: 0; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+        .stepper button:hover { background: #e0e0e0; color: #222; }
+        .stepper input { flex: 1 1 auto; width: 28px; height: 26px; text-align: center; border: none; border-left: 1px solid #ccc; border-right: 1px solid #ccc; font-weight: bold; color: #333; font-size: 13px; -moz-appearance: textfield; padding: 0; }
+        .stepper input:focus { outline: none; background-color: #f0f6f8; }
         .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
         .pulse-btn { background-color: #a093a6; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
@@ -128,30 +128,30 @@
         .focus-input { border: 1px solid #d4a373 !important; box-shadow: 0 0 5px rgba(212,163,115,0.4); }
 
         .host-grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
-        .host-grid-btn { background: #eaf0f2; border: 2px solid #cbd5da; color: #638596; padding: 14px 8px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; box-sizing: border-box; }
+        .host-grid-btn { background: #f0f6f8; border: 2px solid #c9d8df; color: #638596; padding: 14px 8px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; box-sizing: border-box; }
         .host-grid-btn:hover, .host-grid-btn:active { background: #7a9eb1; color: white; border-color: #638596; transform: scale(0.98); }
-        .host-grid-btn.owner-btn { background: #fbf8f4; border-color: #d4a373; color: #b58372; }
+        .host-grid-btn.owner-btn { background: #fffcf8; border-color: #d4a373; color: #b58372; }
 
-        .group-card { background: #fff; border: 1px solid #e0dfdb; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; text-align: left; }
-        .group-card:hover { border-color: #7a9eb1; background: #f5f8fa; transform: translateY(-1px); }
+        .group-card { background: #fff; border: 1px solid #ddd; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; text-align: left; }
+        .group-card:hover { border-color: #7a9eb1; background: #f8fbac; transform: translateY(-1px); }
         .status-badge-active { background: #92a68a; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
         .status-badge-ended { background: #a4abb0; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
 
         .owner-tag { background: #d4a373; color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
 
-        .accordion-header { background: #eaf0f2; padding: 10px 15px; border-radius: 8px; border: 1px solid #cbd5da; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: #5c666c; margin-bottom: 15px; }
-        .accordion-content { display: none; padding: 15px; border: 1px solid #cbd5da; border-top: none; border-radius: 0 0 8px 8px; margin-top: -15px; margin-bottom: 15px; background: #fcfbfa; }
+        .accordion-header { background: #f0f6f8; padding: 10px 15px; border-radius: 8px; border: 1px solid #c9d8df; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: #444; margin-bottom: 15px; }
+        .accordion-content { display: none; padding: 15px; border: 1px solid #c9d8df; border-top: none; border-radius: 0 0 8px 8px; margin-top: -15px; margin-bottom: 15px; background: #fafbfc; }
 
         .menu-inputs-group-desktop { display: flex; gap: 4px; }
 
         /* 分頁 5 下方明細美化樣式 */
-        .dist-detail-block { background: #fff; border-radius: 8px; border: 1px solid #e0dfdb; padding: 12px 15px; margin-bottom: 10px; }
-        .dist-detail-header { font-size: 15px; font-weight: bold; padding-bottom: 6px; margin-bottom: 8px; border-bottom: 2px solid #f0efea; display: flex; justify-content: space-between; align-items: center; }
-        .dist-item-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px dashed #f0efea; font-size: 14px; color: #555;}
+        .dist-detail-block { background: #fff; border-radius: 8px; border: 1px solid #ddd; padding: 12px 15px; margin-bottom: 10px; }
+        .dist-detail-header { font-size: 15px; font-weight: bold; padding-bottom: 6px; margin-bottom: 8px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .dist-item-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px dashed #eee; font-size: 14px; color: #444;}
 
         /* ================= 手機版優化 ================= */
         @media (max-width: 768px) {
-            body { padding: 5px; background-color: #f9f8f6; }
+            body { padding: 5px; background-color: #f4f7f6; }
             .modal-box { width: 95%; padding: 15px; box-sizing: border-box; }
             
             .save-bar { flex-direction: column; padding: 10px; margin-bottom: 10px; gap: 8px; }
@@ -163,17 +163,17 @@
             .save-bar > div:last-child { width: 100%; display: flex; flex-direction: row; gap: 4px; flex-wrap: wrap; margin-top: 0; }
             .save-bar button { flex: 1 1 20%; padding: 6px 0; font-size: 12px !important; text-align: center; border-radius: 4px; }
             
-            #userInfoDisplay { position: static; display: block; margin: 5px auto 10px; text-align: center; box-shadow: none; border: 1px solid #e0dfdb; }
+            #userInfoDisplay { position: static; display: block; margin: 5px auto 10px; text-align: center; box-shadow: none; border: 1px solid #ddd; }
 
-            /* 🎯 手機版頁籤：莫蘭迪色手風琴動態特效，滿版不滑動 */
-            .tabs { display: flex !important; flex-direction: row !important; border-bottom: 2px solid #e0dfdb !important; margin-bottom: 15px !important; overflow: hidden !important; width: 100% !important; justify-content: space-between; gap: 3px; padding: 0; box-sizing: border-box; }
+            /* 🎯 手機版頁籤：手風琴動態特效，滿版不滑動 */
+            .tabs { display: flex !important; flex-direction: row !important; border-bottom: 2px solid #ddd !important; margin-bottom: 15px !important; overflow: hidden !important; width: 100% !important; justify-content: space-between; gap: 3px; padding: 0; box-sizing: border-box; }
             
-            .tab-btn { border: none !important; border-radius: 6px 6px 0 0 !important; padding: 10px 2px !important; font-size: 12px !important; flex: 1; text-align: center !important; min-width: 0; transition: flex 0.3s ease, background 0.3s ease, color 0.3s; white-space: nowrap; overflow: hidden; background: #e8e6e1; color: #8c8c8c; border-bottom: 2px solid #dcdcdc !important; }
+            .tab-btn { border: none !important; border-radius: 6px 6px 0 0 !important; padding: 10px 2px !important; font-size: 12px !important; flex: 1; text-align: center !important; min-width: 0; transition: flex 0.3s ease, background 0.3s ease, color 0.3s; white-space: nowrap; overflow: hidden; background: #eceae5; color: #777; border-bottom: 2px solid #ccc !important; }
             
-            .tab-btn.active { flex: 2.8; font-weight: bold; font-size: 13px !important; background: #eef2f5; border-bottom: 3px solid #7a9eb1 !important; color: #638596; }
+            .tab-btn.active { flex: 2.8; font-weight: bold; font-size: 13px !important; background: #f0f6f8; border-bottom: 3px solid #7a9eb1 !important; color: #638596; }
             
-            .tab-btn.owner-tab { background: #f3ece4; color: #b58372; border-bottom: 2px solid #e3d6bc !important; }
-            .tab-btn.owner-tab.active { background: #fbf8f4; border-bottom: 3px solid #d4a373 !important; color: #a67c76; }
+            .tab-btn.owner-tab { background: #f7f2ed; color: #b58372; border-bottom: 2px solid #eedec7 !important; }
+            .tab-btn.owner-tab.active { background: #fffcf8; border-bottom: 3px solid #d4a373 !important; color: #a67c76; }
             
             .tab-text-short { display: inline-block; vertical-align: middle; }
             .tab-btn.active .tab-text-short { display: none; }
@@ -206,13 +206,13 @@
 
             .menu-card-table, .menu-card-table tbody, .menu-card-table tr { display: block; width: 100%; }
             .menu-card-table thead { display: none; }
-            .menu-card-row { background: #fff; border: 1px solid #dcdcdc; border-radius: 8px; margin-bottom: 10px; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+            .menu-card-row { background: #fff; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
             .menu-card-row td { display: block; border: none; padding: 3px 0; text-align: left; width: 100% !important; }
             .menu-card-row .menu-inputs-group { display: flex; gap: 8px; margin-bottom: 6px; }
-            .menu-card-row .menu-inputs-group input { border: 1px solid #dcdcdc !important; padding: 6px !important; text-align: left !important; border-radius: 4px; font-size: 14px; background: #faf9f7; }
+            .menu-card-row .menu-inputs-group input { border: 1px solid #ccc !important; padding: 6px !important; text-align: left !important; border-radius: 4px; font-size: 14px; }
             .menu-card-row .menu-inputs-group input:nth-child(1) { flex: 1 !important; min-width: 0; }
             .menu-card-row .menu-inputs-group input:nth-child(2) { flex: 2.2 !important; min-width: 0; }
-            .menu-card-row .menu-meta-group { display: flex; justify-content: space-between; align-items: center; background: #f4f3ef; padding: 6px 8px; border-radius: 4px; }
+            .menu-card-row .menu-meta-group { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 6px 8px; border-radius: 4px; }
 
             #tab-distribution > div:first-child { flex-direction: column; align-items: stretch; padding: 10px; }
             #tab-distribution > div:first-child > div { width: 100%; flex-direction: column; font-size: 14px; }
@@ -239,7 +239,7 @@
         <div style="text-align: left; margin-top: 15px;">
             <label style="color: #7a9eb1; font-size: 15px; font-weight: bold; margin-bottom: 10px; display: block;">📂 進入已開的團體：</label>
             <div id="groupListContainer" style="max-height: 280px; overflow-y: auto;">
-                <div style="text-align: center; color: #9aa1a6; padding: 20px;">⏳ 載入雲端清單中...</div>
+                <div style="text-align: center; color: #888; padding: 20px;">⏳ 載入雲端清單中...</div>
             </div>
         </div>
     </div>
@@ -274,7 +274,7 @@
         <div class="table-responsive" style="max-height: 450px;">
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
-                    <tr style="background: #e3d6bc; color: #6e6453;">
+                    <tr style="background: #eedec7; color: #555;">
                         <th>團體名稱</th>
                         <th>專案 ID</th>
                         <th>狀態</th>
@@ -322,7 +322,7 @@
 <div id="passwordModal" class="modal-overlay">
     <div class="modal-box">
         <h3>🔒 請輸入 4 位數通行密碼</h3>
-        <p style="font-size: 13px; color: #8c8c8c; margin-bottom: 15px;">團體：<strong id="passModalGroupName" style="color:#7a9eb1;"></strong><br>(驗證一次後，本手機瀏覽器將會預存免再輸入)</p>
+        <p style="font-size: 13px; color: #777; margin-bottom: 15px;">團體：<strong id="passModalGroupName" style="color:#7a9eb1;"></strong><br>(驗證一次後，本手機瀏覽器將會預存免再輸入)</p>
         <input type="password" id="inputPass" maxlength="4" placeholder="4 位數字" pattern="[0-9]*" inputmode="numeric" style="padding: 12px; font-size: 22px; text-align: center; letter-spacing: 8px; width: 80%; margin-bottom: 20px;">
         <div style="display: flex; gap: 10px;">
             <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.verifyPassword()">✅ 解鎖進入</button>
@@ -335,7 +335,7 @@
 <div id="changePassModal" class="modal-overlay">
     <div class="modal-box" style="width: 320px;">
         <h3>🔑 修改團體通行密碼 (主揪專用)</h3>
-        <p style="font-size: 13px; color: #8c8c8c; margin-bottom: 15px;">修改後將會同步更新至雲端資料庫</p>
+        <p style="font-size: 13px; color: #777; margin-bottom: 15px;">修改後將會同步更新至雲端資料庫</p>
         <input type="password" id="newGroupPassInput" maxlength="4" placeholder="新 4 位數密碼" pattern="[0-9]*" inputmode="numeric" style="padding: 12px; font-size: 22px; text-align: center; letter-spacing: 8px; width: 80%; margin-bottom: 20px;">
         <div style="display: flex; gap: 10px;">
             <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.submitChangePassword()">💾 確定修改</button>
@@ -412,7 +412,7 @@
 <div id="loginUserModal" class="modal-overlay">
     <div class="modal-box">
         <h3>👤 快速選擇金主視角</h3>
-        <p style="font-size: 13px; color: #8c8c8c; margin-bottom: 15px;">點擊您的名字即可快速登入（非您本人的欄位將被🔒鎖定）</p>
+        <p style="font-size: 13px; color: #777; margin-bottom: 15px;">點擊您的名字即可快速登入（非您本人的欄位將被🔒鎖定）</p>
         <div id="hostBtnGrid" class="host-grid-container"></div>
     </div>
 </div>
@@ -421,7 +421,7 @@
 <div id="saveAsModal" class="modal-overlay">
     <div class="modal-box">
         <h3>📂 另存為新團體</h3>
-        <p style="font-size: 14px; color: #8c8c8c; margin-bottom: 20px;">將目前的團體資料複製並另存為一個全新團體。</p>
+        <p style="font-size: 14px; color: #777; margin-bottom: 20px;">將目前的團體資料複製並另存為一個全新團體。</p>
         <div style="text-align: left; margin-bottom: 15px;">
             <label>新團體名稱：</label>
             <input type="text" id="saveAsGroupName" placeholder="例: 備份-10月下午茶" style="padding: 10px;">
@@ -442,15 +442,15 @@
 <div class="container" id="mainContainer" style="display: none;">
     <div class="save-bar">
         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-            <strong style="font-size: 18px; color: #e0c99f; display: flex; align-items: center; gap: 8px;">
+            <strong style="font-size: 18px; color: #eedec7; display: flex; align-items: center; gap: 8px;">
                 📁 專案：
-                <input type="text" id="topProjectName" onchange="window.syncProjectName(this.value)" placeholder="輸入名稱..." style="background: rgba(255,255,255,0.1); border: 1px dashed #e0c99f; color: #e0c99f; font-size: 18px; font-weight: bold; width: 180px; padding: 4px 8px; border-radius: 4px;" class="focus-input">
+                <input type="text" id="topProjectName" onchange="window.syncProjectName(this.value)" placeholder="輸入名稱..." style="background: rgba(255,255,255,0.1); border: 1px dashed #eedec7; color: #eedec7; font-size: 18px; font-weight: bold; width: 180px; padding: 4px 8px; border-radius: 4px;" class="focus-input">
             </strong>
             <select id="projectStatusSelect" onchange="window.changeProjectStatus(this.value)" style="width: 100px; padding: 4px; font-weight: bold; border-radius: 4px; border: none; background: #fff; cursor: pointer;">
                 <option value="進行中" style="color:#7c9174; font-weight:bold;">🟢 進行中</option>
                 <option value="已結束" style="color:#a4abb0; font-weight:bold;">灰色 已結束</option>
             </select>
-            <span id="saveStatusBadge" class="status-badge" style="color: #92a68a;">✅ 已同步至最新狀態</span>
+            <span id="saveStatusBadge" class="status-badge" style="color: #7c9174;">✅ 已同步至最新狀態</span>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px;">
             <button class="success" style="font-size: 14px; font-weight: bold; background-color: #7c9174;" onclick="window.backToHome()">📂 主頁</button>
@@ -461,7 +461,7 @@
         </div>
     </div>
 
-    <!-- 🎯 莫蘭迪頁籤：拔除皇冠，主揪分頁套用淡燕麥黃色區別 -->
+    <!-- 🎯 莫蘭迪頁籤：拔除皇冠，主揪分頁套用淡黃底色區別 -->
     <div class="tabs">
         <button class="tab-btn owner-tab active" id="tabBtn1" onclick="switchTab('tab-setup')">
             <span class="tab-text-short">⚙️1.設定</span>
@@ -487,7 +487,7 @@
 
     <!-- Tab 1 (主揪專區) -->
     <div id="tab-setup" class="tab-content active">
-        <div id="tab1PermissionNotice" style="display:none; background:#f3efe6; border:1px solid #e3d6bc; color:#a68a68; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
+        <div id="tab1PermissionNotice" style="display:none; background:#fdfaf4; border:1px solid #eedec7; color:#a67c76; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
             🔒 提示：您目前的身份為「一般金主/團員」，分頁 1 僅限「主揪 (<span id="ownerNameNotice"></span>)」進行設定與匯入。
         </div>
         <fieldset id="tab1FieldSet" style="border:none; padding:0; margin:0;">
@@ -500,7 +500,7 @@
                     <div class="table-responsive" style="max-height: 350px;">
                         <table class="menu-card-table"><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="foodTableBody"></tbody></table>
                     </div>
-                    <div style="text-align: right; margin-top: 10px; font-weight: bold; color: #666;">吃的總計: $<span id="foodTotalDisplay" style="color: #b58372;">0</span></div>
+                    <div style="text-align: right; margin-top: 10px; font-weight: bold; color: #555;">吃的總計: $<span id="foodTotalDisplay" style="color: #b58372;">0</span></div>
                 </div>
                 <div class="section-box" style="flex: 1; min-width: 450px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -510,22 +510,22 @@
                     <div class="table-responsive" style="max-height: 350px;">
                         <table class="menu-card-table"><thead><tr><th>品項</th><th>口味</th><th>單價</th><th>份數</th><th>小計</th><th>操作</th></tr></thead><tbody id="drinkTableBody"></tbody></table>
                     </div>
-                    <div style="text-align: right; margin-top: 10px; font-weight: bold; color: #666;">喝的總計: $<span id="drinkTotalDisplay" style="color: #7a9eb1;">0</span></div>
+                    <div style="text-align: right; margin-top: 10px; font-weight: bold; color: #555;">喝的總計: $<span id="drinkTotalDisplay" style="color: #7a9eb1;">0</span></div>
                 </div>
             </div>
-            <div class="summary-card" style="background-color: #ebf0e8; border-color: #cdd8ca;">
+            <div class="summary-card" style="background-color: #f7f9f7; border-color: #c9d8df;">
                 <div style="font-size: 20px;">下午茶總金額 (吃+喝)：<strong style="color: #5d7056; font-size: 28px;">$<span id="grandTotalDisplay">0</span></strong></div>
                 <button class="danger" style="height: 40px;" onclick="clearAllData()">🗑️ 清空此專案所有資料</button>
             </div>
-            <hr style="border-top:1px solid #e0dfdb;">
+            <hr style="border-top:1px solid #ddd;">
             <h3>👥 管理金主名單</h3>
             <div class="flex-row" style="align-items: center;">
                 <input type="text" id="newHostName" placeholder="輸入新金主名字" style="width: 200px;"><button onclick="addHost()">➕ 新增金主</button>
             </div>
             <div id="hostTagsContainer" style="margin-top: 15px;"></div>
-            <hr style="border-top:1px solid #e0dfdb;">
+            <hr style="border-top:1px solid #ddd;">
             <h3>📋 批次匯入 Excel 名單 (支援帶勾匯入)</h3>
-            <p style="font-size: 13px; color: #8c8c8c;">格式：<b>區域 | 部門 | 中文名字 | 分工 | 狀態 | 金主1 | 金主2 ... </b></p>
+            <p style="font-size: 13px; color: #777;">格式：<b>區域 | 部門 | 中文名字 | 分工 | 狀態 | 金主1 | 金主2 ... </b></p>
             <textarea id="excelPaste" rows="4" placeholder="B2F	IQC	Lance	James	正常	V		V..."></textarea>
             <div style="margin-top: 10px; display: flex; gap: 10px;">
                 <button onclick="batchImport()">📥 批次匯入名單</button>
@@ -547,21 +547,21 @@
         </div>
         <div class="accordion-content" id="batchAccordionContent">
             <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <strong style="color: #666;">🎯 選擇目標：</strong>
+                <strong style="color: #444;">🎯 選擇目標：</strong>
                 <div class="custom-select-wrapper" id="targetDropdown" style="width: 180px;">
                     <div class="custom-select-header" onclick="window.toggleTargetDropdown(event)" id="dropdownHeader"><span>-- 選擇目標 --</span> <span>🔽</span></div>
                     <div class="custom-select-options" id="targetOptionsContainer"></div>
                 </div>
                 <button class="danger" style="padding: 6px 10px; border-radius: 4px;" onclick="window.clearTargetSelections()">🔄 重設</button>
 
-                <span style="border-left: 2px solid #e0dfdb; height: 24px; margin: 0 5px;"></span>
+                <span style="border-left: 2px solid #ddd; height: 24px; margin: 0 5px;"></span>
 
                 <strong style="color: #7a9eb1;">💰 包場 (鎖定本人)：</strong>
-                <select id="batchHostSelect" style="width: 110px; padding: 6px; border-radius: 4px; border: 1px solid #dcdcdc; background-color: #f5f4f1;" disabled title="防止誤觸，僅能包場在您自己名下"></select>
+                <select id="batchHostSelect" style="width: 110px; padding: 6px; border-radius: 4px; border: 1px solid #ccc; background-color: #f8f9fa;" disabled title="防止誤觸，僅能包場在您自己名下"></select>
                 <button class="success" onclick="window.applyBatchAssign()">✅ 打勾</button>
                 <button class="danger" onclick="window.clearBatchAssign()">❌ 取消</button>
 
-                <span style="border-left: 2px solid #e0dfdb; height: 24px; margin: 0 5px;"></span>
+                <span style="border-left: 2px solid #ddd; height: 24px; margin: 0 5px;"></span>
 
                 <strong style="color: #b58372;">🛠️ 派發：</strong>
                 <div class="custom-select-wrapper" id="distDropdown" style="width: 160px;">
@@ -573,13 +573,13 @@
             </div>
         </div>
 
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #fff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e0dfdb; box-shadow: 0 2px 4px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #fff; padding: 10px 12px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%;">
-                <select id="deptFilterSelect" onchange="window.switchDeptTab(this.value)" style="flex: 1; min-width: 120px; padding: 6px; font-size: 14px; border-radius: 4px; border: 1px solid #dcdcdc;"></select>
+                <select id="deptFilterSelect" onchange="window.switchDeptTab(this.value)" style="flex: 1; min-width: 120px; padding: 6px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc;"></select>
                 <button class="warning" style="font-weight: bold; font-size: 14px; padding: 6px 10px;" onclick="window.switchDeptTab('未勾選金主')" title="顯示未勾選金主名單">
                     🔍未勾選(<span id="noHostCountBadge">0</span>)
                 </button>
-                <button class="success" style="font-weight: bold; font-size: 14px; background-color: #6b7780; padding: 6px 10px;" onclick="window.toggleMobileColumns()" title="切換展開/精簡欄位">
+                <button class="success" style="font-weight: bold; font-size: 14px; background-color: #5c666c; padding: 6px 10px;" onclick="window.toggleMobileColumns()" title="切換展開/精簡欄位">
                     👁️ <span id="toggleColBtnText" style="display:none;">展開</span>
                 </button>
                 <button class="success" style="font-weight: bold; font-size: 14px; padding: 6px 12px;" onclick="window.openAddGuestModal()" title="快速新增成員">
@@ -599,7 +599,7 @@
     <div id="tab-host-summary" class="tab-content">
         <div id="hostSubTabs" class="host-sub-tabs"></div>
         <div id="hostSpecificData" style="display: none;">
-            <div class="summary-card" style="background: #ebf0e8; border-color: #cdd8ca;">
+            <div class="summary-card" style="background: #f7f9f7; border-color: #c9d8df;">
                 <div>
                     金主 <strong id="hViewName" style="font-size: 20px;"></strong> 本次結算：<br>
                     負擔總份數：<strong id="hViewShares">0</strong> 份<br>
@@ -610,7 +610,7 @@
             <h3>📝 被請客成員明細 (按負擔比例高至低排序：1/1 ➔ 1/9)</h3>
             <table style="width: 100%; max-width: 600px;">
                 <thead>
-                    <tr style="background:#f4f3ef;">
+                    <tr style="background:#f8f9fa;">
                         <th>部門</th>
                         <th>姓名</th>
                         <th>負擔比例</th>
@@ -623,10 +623,10 @@
 
     <!-- Tab 4 (主揪專區：非主揪完全反灰) -->
     <div id="tab-billing" class="tab-content">
-        <div id="tab4Notice" style="display:none; background:#f3efe6; border:1px solid #e3d6bc; color:#a68a68; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
+        <div id="tab4Notice" style="display:none; background:#fdfaf4; border:1px solid #eedec7; color:#a67c76; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
             🔒 提示：您目前的身份為「一般金主/團員」，僅「主揪 (<span id="tab4OwnerNotice"></span>)」可切換收款狀態。
         </div>
-        <div class="summary-card" style="background-color: #eaf0f2; border-color: #cbd5da;">
+        <div class="summary-card" style="background-color: #f0f6f8; border-color: #c9d8df;">
             <div style="font-size: 18px;">
                 下午茶總金額：<strong>$<span id="billingGrandTotal">0</span></strong> | 
                 預計總收：<strong>$<span id="billingExpectedTotal">0</span></strong> | 
@@ -635,7 +635,7 @@
         </div>
         
         <h3>💰 金主收款進度表</h3>
-        <p style="font-size: 13px; color: #8c8c8c;">點擊「未收款」格子即可切換為已收款狀態。只有需要付錢的金主會顯示在下方。</p>
+        <p style="font-size: 13px; color: #777;">點擊「未收款」格子即可切換為已收款狀態。只有需要付錢的金主會顯示在下方。</p>
         
         <div class="table-responsive">
             <table id="billingTable" style="max-width: 1000px;">
@@ -655,14 +655,14 @@
 
     <!-- Tab 5 (主揪專區：派發與分餐明細 - 垂直上下排列) -->
     <div id="tab-distribution" class="tab-content">
-        <div id="tab5Notice" style="display:none; background:#f3efe6; border:1px solid #e3d6bc; color:#a68a68; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
+        <div id="tab5Notice" style="display:none; background:#fdfaf4; border:1px solid #eedec7; color:#a67c76; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
             🔒 提示：分頁 5 為主揪發放工具，僅「主揪 (<span id="tab5OwnerNotice"></span>)」可調整數量與一鍵預算。
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f7f2ed; border: 1px solid #e8dcca; padding: 15px; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-            <div style="font-size: 16px; flex: 1; min-width: 300px; color: #555;">
+        <div style="display: flex; justify-content: space-between; align-items: center; background-color: #fdfdfc; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <div style="font-size: 16px; flex: 1; min-width: 300px; color: #444;">
                 💡 <strong>雙向核對模式：</strong> 點擊右側的閃爍按鈕，系統會瞬間打好完美草稿。<br>
                 左側會即時核對 <strong style="color:#b58372;">已分數量</strong> = <strong style="color:#7a9eb1;">總人數</strong>；上方核對 <strong style="color:#92a68a;">剩餘總量</strong> = 0。<br>
-                🏷️ <strong>列印名牌標題：</strong> <input type="text" id="globalPrintTitle" value="" style="width: 250px; padding: 4px; display: inline-block; font-size: 14px; background: #e8e6e1; cursor: not-allowed; border: 1px solid #dcdcdc;" readonly title="請在畫面上方的【專案名稱】修改">
+                🏷️ <strong>列印名牌標題：</strong> <input type="text" id="globalPrintTitle" value="" style="width: 250px; padding: 4px; display: inline-block; font-size: 14px; background: #f8f9fa; cursor: not-allowed; border: 1px solid #ccc;" readonly title="請在畫面上方的【專案名稱】修改">
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="tab5ActionsGroup">
                 <button class="pulse-btn" onclick="autoAllocate()">✨ 點我一鍵自動預算</button>
@@ -804,7 +804,7 @@
         if (u === 'admin' && p === '8888') {
             document.getElementById('adminLoginModal').style.display = 'none';
             document.getElementById('adminDashboardModal').style.display = 'flex';
-            document.getElementById('adminTableBody').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#8c8c8c;">⏳ 讀取全抓雲端資料中...</td></tr>`;
+            document.getElementById('adminTableBody').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#777;">⏳ 讀取全抓雲端資料中...</td></tr>`;
             
             try {
                 const res = await fetch(`${API_URL}?action=admin_list`);
@@ -819,7 +819,7 @@
                     list.forEach(g => {
                         html += `<tr>
                             <td><strong>${g.name || '未命名'}</strong></td>
-                            <td style="font-size:12px; color:#8c8c8c;">${g.id || '-'}</td>
+                            <td style="font-size:12px; color:#888;">${g.id || '-'}</td>
                             <td>${g.status === '進行中' ? '<span class="status-badge-active">🟢 進行中</span>' : '<span class="status-badge-ended">已結束</span>'}</td>
                             <td><strong style="color:#c47c7c; font-size:16px;">${g.pass || '0000'}</strong></td>
                             <td>${g.hosts || '無'}</td>
@@ -969,8 +969,8 @@
             </div>`;
         });
         endedList.forEach(g => {
-            html += `<div class="group-card" style="opacity: 0.7; background:#faf9f7;" onclick="window.tryEnterGroup('${g.id}')">
-                <div style="color:#8c8c8c;">${g.name}</div>
+            html += `<div class="group-card" style="opacity: 0.7; background:#f9f9f9;" onclick="window.tryEnterGroup('${g.id}')">
+                <div style="color:#888;">${g.name}</div>
                 <span class="status-badge-ended">已結束</span>
             </div>`;
         });
@@ -1112,7 +1112,7 @@
         currentUser = selectedUser;
         document.getElementById('loginUserModal').style.display = 'none';
         document.getElementById('userInfoDisplay').style.display = 'block';
-        document.getElementById('userInfoDisplay').innerHTML = `👤 身分: <span style="color:#92a68a;">${currentUser||'未指定'}</span> <a href="#" onclick="document.getElementById('loginUserModal').style.display='flex'" style="font-size:12px; color:#7a9eb1; margin-left:5px; text-decoration:none;">[切換]</a>`;
+        document.getElementById('userInfoDisplay').innerHTML = `👤 身分: <span style="color:#7a9eb1;">${currentUser||'未指定'}</span> <a href="#" onclick="document.getElementById('loginUserModal').style.display='flex'" style="font-size:12px; color:#92a68a; margin-left:5px; text-decoration:none;">[切換]</a>`;
 
         window.populateBatchTargets(); 
         activeHostTab = currentUser;
@@ -1265,7 +1265,7 @@
         const items = (type === 'food' ? data.foodItems : data.drinkItems);
         
         if (items.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#9aa1a6;">尚未新增品項</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#aaa;">尚未新增品項</td></tr>`;
             updateMenuTotals();
             return;
         }
@@ -1281,11 +1281,11 @@
                 <td colspan="4">
                     <div class="menu-meta-group">
                         <div>
-                            單價 $<input type="number" class="inline-input" style="width:55px; border:1px solid #dcdcdc!important; padding:2px 4px!important; border-radius:3px;" value="${i.price}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'price', this.value)" min="0">
-                            × <input type="number" class="inline-input" style="width:45px; border:1px solid #dcdcdc!important; padding:2px 4px!important; border-radius:3px;" value="${i.qty}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'qty', this.value)" min="1"> 份
+                            單價 $<input type="number" class="inline-input" style="width:55px; border:1px solid #ccc!important; padding:2px 4px!important; border-radius:3px;" value="${i.price}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'price', this.value)" min="0">
+                            × <input type="number" class="inline-input" style="width:45px; border:1px solid #ccc!important; padding:2px 4px!important; border-radius:3px;" value="${i.qty}" onchange="window.updateMenuInfo('${type}', ${i.id}, 'qty', this.value)" min="1"> 份
                         </div>
                         <div>
-                            <strong style="color:#b58372; font-size:15px; margin-right:8px;">$${i.subtotal}</strong>
+                            <strong style="color:#d35400; font-size:15px; margin-right:8px;">$${i.subtotal}</strong>
                             <button class="danger" style="padding: 3px 8px; font-size:12px;" onclick="removeMenu('${type}', ${i.id})">刪</button>
                         </div>
                     </div>
@@ -1713,7 +1713,7 @@
 
         let claimedGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(activeHostTab));
 
-        // 關鍵修復：b - a 排序演算法，確保 1/1 (1.0) 永遠在最上方，1/9 (0.11) 在最下方
+        // b - a 排序演算法
         claimedGuests.sort((a, b) => (1 / b.claimedBy.length) - (1 / a.claimedBy.length));
 
         let listHTML = claimedGuests.map(g => {
@@ -1745,7 +1745,6 @@
                 expectedTotal += roundedAmount;
                 if (isPaid) collectedTotal += roundedAmount;
 
-                // 非主揪，儲存格套用 disabled-cell 徹底反灰，點擊事件停用
                 const cellClass = isOwner ? 'checkbox-cell' : 'disabled-cell';
                 const clickAttr = isOwner ? `onclick="window.togglePaidStatus('${host}')"` : '';
 
