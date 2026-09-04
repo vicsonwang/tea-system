@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>下午茶分配系統 (防衝突與線上雷達版)</title>
+    <title>下午茶分配系統 (清爽莫蘭迪版)</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; position: relative; }
         .container { max-width: 98%; margin: 0 auto; }
@@ -74,7 +74,6 @@
         .host-tag { display: inline-block; background: #f0f6f8; border: 1px solid #c9d8df; padding: 5px 10px; border-radius: 20px; margin: 5px; font-size: 14px; color: #638596; font-weight: bold; }
         .summary-card { background: #fdfaf4; border: 1px solid #eedec7; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 16px; display: flex; justify-content: space-between; align-items: center; color: #555;}
         
-        /* 存檔列：加入了線上狀態區塊 */
         .save-bar { background: #5c666c; color: white; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.15); flex-wrap: wrap; gap: 10px; }
         .status-badge { background: #fff; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-left: 15px; display: inline-block; }
         .online-badge { background: rgba(0,0,0,0.2); padding: 4px 10px; border-radius: 6px; font-size: 13px; color: #fdfaf4; }
@@ -222,7 +221,6 @@
 </head>
 <body>
 
-<!-- 首頁入口 Modal -->
 <div id="homeModal" class="modal-overlay" style="display: flex;">
     <div class="modal-box">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -244,7 +242,6 @@
     </div>
 </div>
 
-<!-- Admin 登入 Modal -->
 <div id="adminLoginModal" class="modal-overlay">
     <div class="modal-box" style="width: 320px;">
         <h3>🔑 Admin 超級管理員登入</h3>
@@ -263,7 +260,6 @@
     </div>
 </div>
 
-<!-- Admin 後台儀表板 Modal -->
 <div id="adminDashboardModal" class="modal-overlay">
     <div class="modal-box" style="width: 90%; max-width: 900px; text-align: left;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -288,7 +284,6 @@
     </div>
 </div>
 
-<!-- 動態建團 Modal -->
 <div id="createGroupModal" class="modal-overlay">
     <div class="modal-box">
         <h3>➕ 建立新團體</h3>
@@ -317,7 +312,6 @@
     </div>
 </div>
 
-<!-- 密碼輸入 Modal -->
 <div id="passwordModal" class="modal-overlay">
     <div class="modal-box">
         <h3>🔒 請輸入 4 位數通行密碼</h3>
@@ -330,7 +324,6 @@
     </div>
 </div>
 
-<!-- 修改團密碼 Modal (主揪專用) -->
 <div id="changePassModal" class="modal-overlay">
     <div class="modal-box" style="width: 320px;">
         <h3>🔑 修改團體通行密碼 (主揪專用)</h3>
@@ -343,7 +336,6 @@
     </div>
 </div>
 
-<!-- 彈出視窗：新增品項 Modal (分頁1) -->
 <div id="addMenuModal" class="modal-overlay">
     <div class="modal-box" style="width: 320px; text-align: left;">
         <h3 id="addMenuModalTitle" style="text-align: center; margin-bottom: 15px;">➕ 新增品項</h3>
@@ -371,7 +363,6 @@
     </div>
 </div>
 
-<!-- 彈出視窗：新增名單 Modal (分頁2) -->
 <div id="addGuestModal" class="modal-overlay">
     <div class="modal-box" style="width: 320px; text-align: left;">
         <h3 style="text-align: center; margin-bottom: 15px;">➕ 新增成員名單</h3>
@@ -407,7 +398,6 @@
     </div>
 </div>
 
-<!-- 選擇金主 Modal -->
 <div id="loginUserModal" class="modal-overlay">
     <div class="modal-box">
         <h3>👤 快速選擇金主視角</h3>
@@ -416,7 +406,6 @@
     </div>
 </div>
 
-<!-- 雲端另存新檔 Modal -->
 <div id="saveAsModal" class="modal-overlay">
     <div class="modal-box">
         <h3>📂 另存為新團體</h3>
@@ -461,7 +450,6 @@
         </div>
     </div>
 
-    <!-- 🎯 頁籤：啟動時顯示文字，未啟動只顯示1.設定 / 2.名單，滿版不滑動 -->
     <div class="tabs">
         <button class="tab-btn owner-tab active" id="tabBtn1" onclick="switchTab('tab-setup')">
             <span class="tab-text-short">1.設定</span>
@@ -485,7 +473,6 @@
         </button>
     </div>
 
-    <!-- Tab 1 (主揪專區) -->
     <div id="tab-setup" class="tab-content active">
         <div id="tab1PermissionNotice" style="display:none; background:#fdfaf4; border:1px solid #eedec7; color:#a67c76; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
             🔒 提示：您目前的身份為「一般金主/團員」，分頁 1 僅限「主揪 (<span id="ownerNameNotice"></span>)」進行設定與匯入。
@@ -534,7 +521,6 @@
         </fieldset>
     </div>
 
-    <!-- Tab 2 (團員專區) -->
     <div id="tab-guests" class="tab-content">
         <div class="summary-card" style="display: flex; flex-direction: column; gap: 5px;">
             <div>自動帶入總金額: $<strong id="dispTotal">0</strong> | 有效總份數: <strong id="dispShares">0</strong> 份 | 平均單價: $<strong id="dispAvg">0.00</strong></div>
@@ -595,7 +581,6 @@
         </div>
     </div>
 
-    <!-- Tab 3 (團員專區) -->
     <div id="tab-host-summary" class="tab-content">
         <div id="hostSubTabs" class="host-sub-tabs"></div>
         <div id="hostSpecificData" style="display: none;">
@@ -621,7 +606,6 @@
         </div>
     </div>
 
-    <!-- Tab 4 (主揪專區) -->
     <div id="tab-billing" class="tab-content">
         <div id="tab4Notice" style="display:none; background:#fdfaf4; border:1px solid #eedec7; color:#a67c76; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
             🔒 提示：您目前的身份為「一般金主/團員」，僅「主揪 (<span id="tab4OwnerNotice"></span>)」可切換收款狀態。
@@ -653,7 +637,6 @@
         </div>
     </div>
 
-    <!-- Tab 5 (主揪專區) -->
     <div id="tab-distribution" class="tab-content">
         <div id="tab5Notice" style="display:none; background:#fdfaf4; border:1px solid #eedec7; color:#a67c76; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
             🔒 提示：分頁 5 為主揪發放工具，僅「主揪 (<span id="tab5OwnerNotice"></span>)」可調整數量與一鍵預算。
@@ -974,8 +957,8 @@
             </div>`;
         });
         endedList.forEach(g => {
-            html += `<div class="group-card" style="opacity: 0.7; background:#faf9f7;" onclick="window.tryEnterGroup('${g.id}')">
-                <div style="color:#8c8c8c;">${g.name}</div>
+            html += `<div class="group-card" style="opacity: 0.7; background:#f9f9f9;" onclick="window.tryEnterGroup('${g.id}')">
+                <div style="color:#888;">${g.name}</div>
                 <span class="status-badge-ended">已結束</span>
             </div>`;
         });
@@ -1117,7 +1100,9 @@
         resetSaveStatus();
     }
 
+    // 🎯 修復切換帳號：傳遞 oldUser 給後端直接刪除線上狀態
     window.selectUserDirectly = function(selectedUser) {
+        let oldUser = currentUser;
         currentUser = selectedUser;
         document.getElementById('loginUserModal').style.display = 'none';
         document.getElementById('userInfoDisplay').style.display = 'block';
@@ -1131,8 +1116,8 @@
 
         // 啟動線上雷達 Ping
         if(pingInterval) clearInterval(pingInterval);
-        pingCloud(); // 立即測一次
-        pingInterval = setInterval(pingCloud, 15000); // 每15秒偵測一次
+        pingCloud(oldUser); // 立即測一次，並清除舊身份
+        pingInterval = setInterval(() => pingCloud(), 15000); // 每15秒偵測一次
     }
 
     window.confirmUserLogin = function() {
@@ -1143,25 +1128,36 @@
 
         if(pingInterval) clearInterval(pingInterval);
         pingCloud();
-        pingInterval = setInterval(pingCloud, 15000);
+        pingInterval = setInterval(() => pingCloud(), 15000);
     }
 
+    // 🎯 點擊返回主頁：清除目前的線上狀態
     window.backToHome = function() {
         if (hasUnsavedChanges) {
             if(!confirm("⚠️ 警告：您有未儲存的變動！確定要放棄存檔並返回主頁嗎？")) return;
         }
         if(pingInterval) clearInterval(pingInterval);
+        
+        // 離開時背景呼叫清除線上狀態
+        if (currentUser && currentGroupId) {
+            fetch(`${API_URL}?action=ping&id=${currentGroupId}&leaveUser=${encodeURIComponent(currentUser)}`);
+        }
+
         document.getElementById('mainContainer').style.display = 'none';
         document.getElementById('userInfoDisplay').style.display = 'none';
         document.getElementById('homeModal').style.display = 'flex';
         fetchCloudGroups();
     }
 
-    // 📡 線上雷達與版本偵測
-    async function pingCloud() {
-        if(!currentGroupId || !currentUser) return;
+    // 📡 線上雷達與版本偵測 (加入 oldUser 參數)
+    async function pingCloud(oldUser = null) {
+        if(!currentGroupId) return;
         try {
-            const res = await fetch(`${API_URL}?action=ping&id=${currentGroupId}&user=${encodeURIComponent(currentUser)}`);
+            let url = `${API_URL}?action=ping&id=${currentGroupId}`;
+            if (currentUser) url += `&user=${encodeURIComponent(currentUser)}`;
+            if (oldUser && oldUser !== currentUser) url += `&leaveUser=${encodeURIComponent(oldUser)}`;
+
+            const res = await fetch(url);
             const result = await res.json();
             if(result.status === 'success') {
                 // 1. 更新線上狀態
@@ -1599,7 +1595,7 @@
 
         let bodyHTML = '';
         if (filteredGuests.length === 0) {
-            bodyHTML = `<tr><td colspan="${6 + data.hosts.length}" style="text-align:center; padding: 20px; color: #999;">此分類目前沒有名單</td></tr>`;
+            bodyHTML = `<tr><td colspan="${6 + data.hosts.length}" style="text-align:center; padding: 20px; color: #9aa1a6;">此分類目前沒有名單</td></tr>`;
         } else {
             filteredGuests.forEach((g) => {
                 const isExclude = (g.status !== '正常');
@@ -1804,7 +1800,7 @@
 
         let claimedGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(activeHostTab));
 
-        // b - a 排序演算法
+        // 關鍵修復：b - a 排序演算法
         claimedGuests.sort((a, b) => (1 / b.claimedBy.length) - (1 / a.claimedBy.length));
 
         let listHTML = claimedGuests.map(g => {
