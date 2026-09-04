@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>下午茶分配系統 (清爽莫蘭迪版)</title>
+    <title>下午茶分配系統 (防衝突與線上雷達版)</title>
     <style>
-        /* 畫布清空：改回明亮乾淨的淺灰白背景與深色文字 */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; position: relative; }
         .container { max-width: 98%; margin: 0 auto; }
         h1, h2, h3 { color: #2c3e50; margin-top: 0; }
         
-        /* 頁籤：乾淨的底色，啟動時帶入莫蘭迪色 */
         .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: wrap; gap: 4px; }
         .tab-btn { background: #f8f9fa; border: none; border-radius: 8px 8px 0 0; padding: 12px 24px; font-size: 16px; font-weight: bold; cursor: pointer; color: #777; transition: 0.3s; }
         .tab-btn:hover { color: #7a9eb1; background: #e9ecef; }
@@ -23,7 +21,6 @@
         .tab-text-short { display: none; }
         .tab-text-full { display: inline; }
 
-        /* 內容區塊：純白背景 */
         .tab-content { display: none; background: #ffffff; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
         .tab-content.active { display: block; }
 
@@ -32,7 +29,6 @@
         input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background: #fff; color: #333; }
         .flex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         
-        /* 莫蘭迪點綴色：按鈕群 */
         button { background-color: #7a9eb1; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 14px; }
         button:hover { background-color: #638596; }
         button.success { background-color: #92a68a; }
@@ -78,9 +74,13 @@
         .host-tag { display: inline-block; background: #f0f6f8; border: 1px solid #c9d8df; padding: 5px 10px; border-radius: 20px; margin: 5px; font-size: 14px; color: #638596; font-weight: bold; }
         .summary-card { background: #fdfaf4; border: 1px solid #eedec7; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 16px; display: flex; justify-content: space-between; align-items: center; color: #555;}
         
+        /* 存檔列：加入了線上狀態區塊 */
         .save-bar { background: #5c666c; color: white; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.15); flex-wrap: wrap; gap: 10px; }
         .status-badge { background: #fff; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-left: 15px; display: inline-block; }
-        
+        .online-badge { background: rgba(0,0,0,0.2); padding: 4px 10px; border-radius: 6px; font-size: 13px; color: #fdfaf4; }
+        .online-badge.warning-glow { animation: pulseWarning 1.5s infinite; background: #c47c7c; border:1px solid #fff; }
+        @keyframes pulseWarning { 0% { box-shadow: 0 0 0 0 rgba(196,124,124, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(196,124,124, 0); } 100% { box-shadow: 0 0 0 0 rgba(196,124,124, 0); } }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .modal-box { background: #fff; padding: 25px; border-radius: 12px; width: 440px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
         .modal-box h3 { margin-top: 0; color: #2c3e50; font-size: 22px; margin-bottom: 15px; }
@@ -144,7 +144,6 @@
 
         .menu-inputs-group-desktop { display: flex; gap: 4px; }
 
-        /* 分頁 5 下方明細美化樣式 */
         .dist-detail-block { background: #fff; border-radius: 8px; border: 1px solid #ddd; padding: 12px 15px; margin-bottom: 10px; }
         .dist-detail-header { font-size: 15px; font-weight: bold; padding-bottom: 6px; margin-bottom: 8px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; }
         .dist-item-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px dashed #eee; font-size: 14px; color: #444;}
@@ -155,17 +154,17 @@
             .modal-box { width: 95%; padding: 15px; box-sizing: border-box; }
             
             .save-bar { flex-direction: column; padding: 10px; margin-bottom: 10px; gap: 8px; }
-            .save-bar > div:first-child { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+            .save-bar > div:first-child { width: 100%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 5px; }
             #currentFileDisplay { display: none; }
             #topProjectName { width: 100px !important; font-size: 14px !important; margin: 0; padding: 2px 4px; }
-            #saveStatusBadge { font-size: 12px; padding: 3px 8px; margin: 0; }
+            #saveStatusBadge { font-size: 12px; padding: 3px 8px; margin: 0; width: 100%; text-align: center; }
+            .online-badge { width: 100%; text-align: center; margin-top: 5px; font-size: 12px; }
             
             .save-bar > div:last-child { width: 100%; display: flex; flex-direction: row; gap: 4px; flex-wrap: wrap; margin-top: 0; }
             .save-bar button { flex: 1 1 20%; padding: 6px 0; font-size: 12px !important; text-align: center; border-radius: 4px; }
             
             #userInfoDisplay { position: static; display: block; margin: 5px auto 10px; text-align: center; box-shadow: none; border: 1px solid #ddd; }
 
-            /* 🎯 手機版頁籤：手風琴動態特效，滿版不滑動 */
             .tabs { display: flex !important; flex-direction: row !important; border-bottom: 2px solid #ddd !important; margin-bottom: 15px !important; overflow: hidden !important; width: 100% !important; justify-content: space-between; gap: 3px; padding: 0; box-sizing: border-box; }
             
             .tab-btn { border: none !important; border-radius: 6px 6px 0 0 !important; padding: 10px 2px !important; font-size: 12px !important; flex: 1; text-align: center !important; min-width: 0; transition: flex 0.3s ease, background 0.3s ease, color 0.3s; white-space: nowrap; overflow: hidden; background: #eceae5; color: #777; border-bottom: 2px solid #ccc !important; }
@@ -442,46 +441,47 @@
 <div class="container" id="mainContainer" style="display: none;">
     <div class="save-bar">
         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-            <strong style="font-size: 18px; color: #eedec7; display: flex; align-items: center; gap: 8px;">
+            <strong style="font-size: 18px; color: #e0c99f; display: flex; align-items: center; gap: 8px;">
                 📁 專案：
-                <input type="text" id="topProjectName" onchange="window.syncProjectName(this.value)" placeholder="輸入名稱..." style="background: rgba(255,255,255,0.1); border: 1px dashed #eedec7; color: #eedec7; font-size: 18px; font-weight: bold; width: 180px; padding: 4px 8px; border-radius: 4px;" class="focus-input">
+                <input type="text" id="topProjectName" onchange="window.syncProjectName(this.value)" placeholder="輸入名稱..." style="background: rgba(255,255,255,0.1); border: 1px dashed #e0c99f; color: #e0c99f; font-size: 18px; font-weight: bold; width: 180px; padding: 4px 8px; border-radius: 4px;" class="focus-input">
             </strong>
             <select id="projectStatusSelect" onchange="window.changeProjectStatus(this.value)" style="width: 100px; padding: 4px; font-weight: bold; border-radius: 4px; border: none; background: #fff; cursor: pointer;">
                 <option value="進行中" style="color:#7c9174; font-weight:bold;">🟢 進行中</option>
                 <option value="已結束" style="color:#a4abb0; font-weight:bold;">灰色 已結束</option>
             </select>
             <span id="saveStatusBadge" class="status-badge" style="color: #7c9174;">✅ 已同步至最新狀態</span>
+            <span id="onlineStatusBadge" class="online-badge" style="display:none;">👀 偵測中...</span>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px;">
             <button class="success" style="font-size: 14px; font-weight: bold; background-color: #7c9174;" onclick="window.backToHome()">📂 主頁</button>
             <button id="changePassBtn" class="warning" style="font-size: 14px; font-weight: bold; background-color: #bd8d5d; color: #fff; display:none;" onclick="window.openChangePassModal()">🔑 改密碼</button>
             <button id="deleteGroupBtn" class="danger" style="font-size: 14px; font-weight: bold; display:none;" onclick="window.deleteCurrentGroup()">🗑️ 刪除此團</button>
             <button class="warning" style="font-size: 14px; font-weight: bold; background-color: #d4a373; color: #fff;" onclick="window.openSaveAsModal()">📂 另存</button>
-            <button class="success" style="font-size: 14px; font-weight: bold;" onclick="window.saveCloudFile()">💾 儲存</button>
+            <button id="saveCloudBtn" class="success" style="font-size: 14px; font-weight: bold;" onclick="window.saveCloudFile()">💾 儲存</button>
         </div>
     </div>
 
-    <!-- 🎯 莫蘭迪頁籤：拔除皇冠，主揪分頁套用淡黃底色區別 -->
+    <!-- 🎯 頁籤：啟動時顯示文字，未啟動只顯示1.設定 / 2.名單，滿版不滑動 -->
     <div class="tabs">
         <button class="tab-btn owner-tab active" id="tabBtn1" onclick="switchTab('tab-setup')">
-            <span class="tab-text-short">⚙️1.設定</span>
-            <span class="tab-text-full">⚙️ 1. 設定與匯入名單</span>
+            <span class="tab-text-short">1.設定</span>
+            <span class="tab-text-full">1. 設定與匯入名單</span>
         </button>
         <button class="tab-btn" id="tabBtn2" onclick="switchTab('tab-guests')">
-            <span class="tab-text-short">📋2.名單</span>
-            <span class="tab-text-full">📋 2. 名單與分配打勾</span>
+            <span class="tab-text-short">2.名單</span>
+            <span class="tab-text-full">2. 名單與分配打勾</span>
         </button>
         <button class="tab-btn" id="tabBtn3" onclick="switchTab('tab-host-summary')">
-            <span class="tab-text-short">👤3.確認</span>
-            <span class="tab-text-full">👤 3. 金主專屬確認區</span>
+            <span class="tab-text-short">3.確認</span>
+            <span class="tab-text-full">3. 金主專屬確認區</span>
         </button>
         <button class="tab-btn owner-tab" id="tabBtn4" onclick="switchTab('tab-billing')">
-            <span class="tab-text-short">💰4.收款</span>
-            <span class="tab-text-full">💰 4. 總表與收款</span>
+            <span class="tab-text-short">4.收款</span>
+            <span class="tab-text-full">4. 總表與收款</span>
         </button>
         <button class="tab-btn owner-tab" id="tabBtn5" onclick="switchTab('tab-distribution')">
-            <span class="tab-text-short">📦5.派發</span>
-            <span class="tab-text-full">📦 5. 派發與分餐明細</span>
+            <span class="tab-text-short">5.派發</span>
+            <span class="tab-text-full">5. 派發與分餐明細</span>
         </button>
     </div>
 
@@ -595,7 +595,7 @@
         </div>
     </div>
 
-    <!-- Tab 3 (團員專區：排序修復 b-a -> 1/1 在上) -->
+    <!-- Tab 3 (團員專區) -->
     <div id="tab-host-summary" class="tab-content">
         <div id="hostSubTabs" class="host-sub-tabs"></div>
         <div id="hostSpecificData" style="display: none;">
@@ -621,7 +621,7 @@
         </div>
     </div>
 
-    <!-- Tab 4 (主揪專區：非主揪完全反灰) -->
+    <!-- Tab 4 (主揪專區) -->
     <div id="tab-billing" class="tab-content">
         <div id="tab4Notice" style="display:none; background:#fdfaf4; border:1px solid #eedec7; color:#a67c76; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
             🔒 提示：您目前的身份為「一般金主/團員」，僅「主揪 (<span id="tab4OwnerNotice"></span>)」可切換收款狀態。
@@ -653,7 +653,7 @@
         </div>
     </div>
 
-    <!-- Tab 5 (主揪專區：派發與分餐明細 - 垂直上下排列) -->
+    <!-- Tab 5 (主揪專區) -->
     <div id="tab-distribution" class="tab-content">
         <div id="tab5Notice" style="display:none; background:#fdfaf4; border:1px solid #eedec7; color:#a67c76; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
             🔒 提示：分頁 5 為主揪發放工具，僅「主揪 (<span id="tab5OwnerNotice"></span>)」可調整數量與一鍵預算。
@@ -683,6 +683,11 @@
     let currentGroupId = null;
     let currentGroupPassword = "";
     let currentGroupStatus = "進行中";
+    
+    // 版本控制與防衝突雷達變數
+    let cloudLastMod = 0;
+    let pingInterval = null;
+    let isOutdated = false;
 
     window.toggleMobileColumns = function() {
         showAllMobileCols = !showAllMobileCols;
@@ -969,8 +974,8 @@
             </div>`;
         });
         endedList.forEach(g => {
-            html += `<div class="group-card" style="opacity: 0.7; background:#f9f9f9;" onclick="window.tryEnterGroup('${g.id}')">
-                <div style="color:#888;">${g.name}</div>
+            html += `<div class="group-card" style="opacity: 0.7; background:#faf9f7;" onclick="window.tryEnterGroup('${g.id}')">
+                <div style="color:#8c8c8c;">${g.name}</div>
                 <span class="status-badge-ended">已結束</span>
             </div>`;
         });
@@ -1067,15 +1072,19 @@
         currentGroupId = groupId;
         currentGroupPassword = password;
         currentGroupStatus = status;
+        isOutdated = false;
 
         document.getElementById('homeModal').style.display = 'none';
         document.getElementById('saveStatusBadge').innerHTML = '⏳ 雲端讀取中...';
+        document.getElementById('saveStatusBadge').style.color = '#d4a373';
 
         try {
             const res = await fetch(`${API_URL}?action=load&id=${groupId}`);
             const result = await res.json();
-            if (result.status === 'success' && result.data) {
-                data = JSON.parse(result.data);
+            if (result.status === 'success') {
+                if (result.data) data = JSON.parse(result.data);
+                else data = getEmptyData();
+                cloudLastMod = result.lastMod || 0;
             } else {
                 data = getEmptyData();
             }
@@ -1119,6 +1128,11 @@
         checkPermissions();
         renderMainTable(); 
         if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostTabs(); 
+
+        // 啟動線上雷達 Ping
+        if(pingInterval) clearInterval(pingInterval);
+        pingCloud(); // 立即測一次
+        pingInterval = setInterval(pingCloud, 15000); // 每15秒偵測一次
     }
 
     window.confirmUserLogin = function() {
@@ -1126,16 +1140,54 @@
         window.populateBatchTargets(); 
         checkPermissions();
         renderMainTable(); 
+
+        if(pingInterval) clearInterval(pingInterval);
+        pingCloud();
+        pingInterval = setInterval(pingCloud, 15000);
     }
 
     window.backToHome = function() {
         if (hasUnsavedChanges) {
             if(!confirm("⚠️ 警告：您有未儲存的變動！確定要放棄存檔並返回主頁嗎？")) return;
         }
+        if(pingInterval) clearInterval(pingInterval);
         document.getElementById('mainContainer').style.display = 'none';
         document.getElementById('userInfoDisplay').style.display = 'none';
         document.getElementById('homeModal').style.display = 'flex';
         fetchCloudGroups();
+    }
+
+    // 📡 線上雷達與版本偵測
+    async function pingCloud() {
+        if(!currentGroupId || !currentUser) return;
+        try {
+            const res = await fetch(`${API_URL}?action=ping&id=${currentGroupId}&user=${encodeURIComponent(currentUser)}`);
+            const result = await res.json();
+            if(result.status === 'success') {
+                // 1. 更新線上狀態
+                const badge = document.getElementById('onlineStatusBadge');
+                if(result.online && result.online.length > 0) {
+                    badge.style.display = 'inline-block';
+                    let others = result.online.filter(u => u !== currentUser);
+                    if(others.length > 0) {
+                        badge.innerHTML = `👀 線上: ${others.join(', ')}`;
+                        badge.classList.add('warning-glow');
+                    } else {
+                        badge.innerHTML = `👀 僅您在線`;
+                        badge.classList.remove('warning-glow');
+                    }
+                }
+
+                // 2. 版本偵測落後
+                if(result.lastMod > cloudLastMod && !isOutdated) {
+                    isOutdated = true;
+                    document.getElementById('saveStatusBadge').innerHTML = '⚠️ 雲端已有新版本！(存檔時將自動整併)';
+                    document.getElementById('saveStatusBadge').style.color = '#c47c7c';
+                    document.getElementById('saveCloudBtn').classList.replace('success', 'danger');
+                    document.getElementById('saveCloudBtn').innerHTML = '🔄 雲端有更新 (點擊整併存檔)';
+                }
+            }
+        } catch(e) { console.warn("Ping failed", e); }
     }
 
     window.syncProjectName = function(val) {
@@ -1153,9 +1205,15 @@
         window.syncProjectName(document.getElementById('topProjectName').value); 
         let pName = data.projectName || '未命名專案';
         
-        if(!isSilent && !confirm(`⚠️ 雲端存檔提醒\n\n即將將專案：【 ${pName} 】儲存至雲端資料庫！\n確定要繼續嗎？`)) {
+        // 🛡️ 智慧整併防禦機制
+        if (isOutdated && hasUnsavedChanges) {
+            if(!confirm(`⚠️ 雲端資料已被其他人更新！\n\n系統即將為您進行「智慧整併」：\n將您畫面上的【打勾紀錄】自動補加到最新的雲端資料中。\n\n確認要執行整併並覆蓋存檔嗎？`)) return;
+            document.getElementById('saveStatusBadge').innerHTML = '⏳ 智慧整併中...';
+            await executeSmartMergeAndSave();
             return;
         }
+
+        if(!isSilent && !confirm(`⚠️ 雲端存檔提醒\n\n即將將專案：【 ${pName} 】儲存至雲端資料庫！\n確定要繼續嗎？`)) return;
 
         document.getElementById('saveStatusBadge').innerHTML = '⏳ 同步至雲端中...';
         document.getElementById('saveStatusBadge').style.color = '#d4a373';
@@ -1168,23 +1226,57 @@
                 status: currentGroupStatus,
                 data: JSON.stringify(data)
             };
-            
-            const res = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload)
-            });
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
             const result = await res.json();
             
             if(result.status === 'success') {
+                cloudLastMod = result.lastMod || Date.now();
+                isOutdated = false;
                 resetSaveStatus();
+                document.getElementById('saveCloudBtn').classList.replace('danger', 'success');
+                document.getElementById('saveCloudBtn').innerHTML = '💾 儲存';
                 if(!isSilent) alert(`✅ 成功儲存至雲端！`);
             } else {
                 alert(`❌ 存檔失敗: ${result.message}`);
                 resetSaveStatus();
             }
-        } catch(e) {
-            alert(`❌ 連線錯誤: ${e.message}`);
+        } catch(e) { alert(`❌ 連線錯誤: ${e.message}`); resetSaveStatus(); }
+    }
+
+    // 🛡️ 執行智慧整併 (Smart Merge)
+    async function executeSmartMergeAndSave() {
+        try {
+            // 1. 抓取最新資料
+            const res = await fetch(`${API_URL}?action=load&id=${currentGroupId}`);
+            const result = await res.json();
+            if(result.status !== 'success' || !result.data) throw new Error("無法取得最新雲端資料");
+            
+            let freshData = JSON.parse(result.data);
+
+            // 2. 無痛整併：將我自己(currentUser)在畫面上打的勾勾，套用到 freshData 上
+            data.guests.forEach(localGuest => {
+                let freshGuest = freshData.guests.find(g => g.id === localGuest.id);
+                if (freshGuest) {
+                    const iClaimedLocally = localGuest.claimedBy && localGuest.claimedBy.includes(currentUser);
+                    if (iClaimedLocally && !freshGuest.claimedBy.includes(currentUser)) {
+                        freshGuest.claimedBy.push(currentUser); // 我有勾，但他沒有 -> 補加上去
+                    } else if (!iClaimedLocally && freshGuest.claimedBy.includes(currentUser)) {
+                        freshGuest.claimedBy = freshGuest.claimedBy.filter(h => h !== currentUser); // 我取消勾了 -> 從他那邊移除
+                    }
+                }
+            });
+
+            // 3. 把資料替換為整併後的結果
+            data = freshData;
+            
+            // 4. 正式寫入雲端 (呼叫一般存檔，但設為 silent)
+            isOutdated = false;
+            await window.saveCloudFile(true);
+            
+            alert(`🛡️ 智慧整併成功！已保留您的修改並同步了雲端的最新狀態。`);
+            refreshAllUI();
+        } catch (e) {
+            alert(`❌ 智慧整併失敗: ${e.message}。請備份您的畫面後重新載入。`);
             resetSaveStatus();
         }
     }
@@ -1217,15 +1309,14 @@
 
     function markDataChanged() {
         hasUnsavedChanges = true;
-        document.getElementById('saveStatusBadge').innerHTML = '⚠️ 有資料變動，請記得點擊「儲存至雲端」';
-        document.getElementById('saveStatusBadge').style.color = '#c47c7c';
+        if(!isOutdated) {
+            document.getElementById('saveStatusBadge').innerHTML = '⚠️ 有資料變動，請記得點擊「儲存」';
+            document.getElementById('saveStatusBadge').style.color = '#c47c7c';
+        }
     }
 
     window.addEventListener('beforeunload', function (e) {
-        if (hasUnsavedChanges) {
-            e.preventDefault();
-            e.returnValue = '您有未儲存的變更，確定要離開嗎？';
-        }
+        if (hasUnsavedChanges) { e.preventDefault(); e.returnValue = '您有未儲存的變更，確定要離開嗎？'; }
     });
 
     window.onload = function() {
@@ -1500,7 +1591,7 @@
             let title = isCurrent ? "點擊整欄全選/全取消" : "🔒 非您的專屬欄位，不可編輯";
             let icon = isCurrent ? "↕️" : "🔒";
             let isOwnerMark = (h === data.ownerHost) ? '👑' : '';
-            headHTML += `<th class="${thClass} ${hostHideClass} ${hostActiveClass}" style="background:#eaf0f2;" ${clickAction} title="${title}">${isOwnerMark}${h} ${icon}</th>`; 
+            headHTML += `<th class="${thClass} ${hostHideClass} ${hostActiveClass}" style="background:#f0f6f8;" ${clickAction} title="${title}">${isOwnerMark}${h} ${icon}</th>`; 
         });
         headHTML += `</tr>`; thead.innerHTML = headHTML;
         
@@ -1508,7 +1599,7 @@
 
         let bodyHTML = '';
         if (filteredGuests.length === 0) {
-            bodyHTML = `<tr><td colspan="${6 + data.hosts.length}" style="text-align:center; padding: 20px; color: #9aa1a6;">此分類目前沒有名單</td></tr>`;
+            bodyHTML = `<tr><td colspan="${6 + data.hosts.length}" style="text-align:center; padding: 20px; color: #999;">此分類目前沒有名單</td></tr>`;
         } else {
             filteredGuests.forEach((g) => {
                 const isExclude = (g.status !== '正常');
