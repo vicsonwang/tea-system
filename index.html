@@ -116,20 +116,26 @@
         .host-grid-btn { background: #e8f4f8; border: 2px solid #bce0ee; color: #2980b9; padding: 14px 8px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; box-sizing: border-box; }
         .host-grid-btn:hover, .host-grid-btn:active { background: #3498db; color: white; border-color: #2980b9; transform: scale(0.98); }
 
+        /* 首頁團體列表卡片 */
+        .group-card { background: #fff; border: 1px solid #ddd; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; text-align: left; }
+        .group-card:hover { border-color: #3498db; background: #f0f8ff; transform: translateY(-1px); }
+        .status-badge-active { background: #2ecc71; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .status-badge-ended { background: #95a5a6; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+
         /* ================= 手機版優化 (精簡/展開雙模式完美修復版) ================= */
         @media (max-width: 768px) {
             body { padding: 5px; }
             .modal-box { width: 95%; padding: 15px; box-sizing: border-box; }
             
             .save-bar { flex-direction: column; padding: 10px; margin-bottom: 10px; gap: 8px; }
-            .save-bar > div:first-child { width: 100%; display: flex; justify-content: space-between; align- items: center; }
+            .save-bar > div:first-child { width: 100%; display: flex; justify-content: space-between; align-items: center; }
             #currentFileDisplay { display: none; }
             #topProjectName { width: 120px !important; font-size: 14px !important; margin: 0; padding: 2px 4px; }
             #saveStatusBadge { font-size: 12px; padding: 3px 8px; margin: 0; }
             
             .save-bar > div:last-child { width: 100%; display: flex; flex-direction: row; gap: 5px; flex-wrap: nowrap; margin-top: 0; }
             .save-bar button { flex: 1; padding: 8px 0; font-size: 0 !important; text-align: center; border-radius: 4px; }
-            .save-bar button:nth-child(1)::after { content: "📂 切換"; font-size: 14px; }
+            .save-bar button:nth-child(1)::after { content: "📂 主頁"; font-size: 14px; }
             .save-bar button:nth-child(2)::after { content: "📂 另存"; font-size: 14px; }
             .save-bar button:nth-child(3)::after { content: "💾 儲存"; font-size: 14px; }
             
@@ -141,7 +147,6 @@
 
             .hide-mobile { display: none !important; }
 
-            /* 🛠️ 1. 精簡模式修復：徹底解開位置黏貼，強制 25% + 35% + 40% 滿版黃金比例 */
             .mobile-compact-view { table-layout: fixed !important; width: 100% !important; min-width: 100% !important; }
             .mobile-compact-view th, .mobile-compact-view td { position: static !important; padding: 6px 2px !important; }
             .mobile-compact-view th:nth-child(2), .mobile-compact-view td:nth-child(2) { width: 25% !important; }
@@ -149,7 +154,6 @@
             .mobile-compact-view th.mobile-active-host, .mobile-compact-view td.mobile-active-host { width: 40% !important; }
             .mobile-compact-view .inline-input { border: none !important; background: transparent !important; padding: 0 !important; font-size: 13px !important; }
 
-            /* 🛠️ 2. 展開模式：還原自由延伸與橫向滾動 */
             .mobile-full-view { table-layout: auto !important; width: auto !important; min-width: 100% !important; }
             .mobile-full-view th, .mobile-full-view td { width: auto !important; max-width: none !important; position: static !important; }
 
@@ -173,22 +177,54 @@
 </head>
 <body>
 
-<!-- 載入雲端檔案 Modal -->
-<div id="loadModal" class="modal-overlay" style="display: flex;">
+<!-- 🌟 全新大入口：首頁選擇 Modal -->
+<div id="homeModal" class="modal-overlay" style="display: flex;">
     <div class="modal-box">
-        <h3 style="margin-bottom: 20px;">👋 歡迎進入下午茶系統</h3>
-        <span class="version-text">☁️ 系統狀態: 雲端同步專業版</span>
-        <p style="font-size: 14px; color: #666; margin-bottom: 25px; line-height: 1.5;">系統將即時連線至 Google Sheets 雲端資料庫。<br>請選擇您要讀取哪一個檔位：</p>
+        <h3 style="margin-bottom: 10px;">🧋 下午茶揪團分配系統</h3>
+        <span class="version-text">☁️ 雲端同步安全版</span>
         
-        <div style="text-align: left; margin-bottom: 25px;">
-            <label style="color: #2980b9; font-size: 15px; font-weight: bold;">📁 請選擇要讀取的雲端檔位：</label>
-            <select id="fileSlotSelect" style="width: 100%; padding: 10px; font-size: 15px; border-radius: 4px; border: 1px solid #ccc; margin-top: 8px;">
-                <option>⏳ 讀取雲端清單中...</option>
-            </select>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button class="success" style="flex: 1; padding: 12px; font-weight: bold; font-size: 15px;" onclick="window.openCreateGroupModal()">➕ 建立新團體</button>
         </div>
 
-        <button class="success" style="width: 100%; font-size: 16px; padding: 12px; font-weight: bold;" onclick="window.loadCloudFile()">🚀 從雲端讀取</button>
-        <button id="loadCancelBtn" class="danger" style="width: 100%; font-size: 16px; padding: 12px; margin-top: 10px; display: none;" onclick="document.getElementById('loadModal').style.display='none'">❌ 取消切換</button>
+        <div style="text-align: left; margin-top: 15px;">
+            <label style="color: #2980b9; font-size: 15px; font-weight: bold; margin-bottom: 10px; display: block;">📂 進入已開的團體：</label>
+            <div id="groupListContainer" style="max-height: 280px; overflow-y: auto;">
+                <div style="text-align: center; color: #999; padding: 20px;">⏳ 載入雲端清單中...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新開團 Modal -->
+<div id="createGroupModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>➕ 建立新團體</h3>
+        <div style="text-align: left; margin-bottom: 15px;">
+            <label>團體/專案名稱：</label>
+            <input type="text" id="newGroupName" placeholder="例: 2026 10月壽星下午茶" style="padding: 10px; font-size: 15px;">
+        </div>
+        <div style="text-align: left; margin-bottom: 20px;">
+            <label>設定 4 位數安全密碼 (全團共用)：</label>
+            <input type="password" id="newGroupPass" maxlength="4" placeholder="例如: 1234" pattern="[0-9]*" inputmode="numeric" style="padding: 10px; font-size: 18px; text-align: center; letter-spacing: 5px;">
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.submitCreateGroup()">✅ 建立並進入</button>
+            <button class="danger" style="flex: 1; padding: 10px;" onclick="document.getElementById('createGroupModal').style.display='none'">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- 密碼輸入 Modal -->
+<div id="passwordModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>🔒 請輸入 4 位數通行密碼</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">團體：<strong id="passModalGroupName" style="color:#2980b9;"></strong><br>(驗證一次後，本手機瀏覽器將會預存免再輸入)</p>
+        <input type="password" id="inputPass" maxlength="4" placeholder="4 位數字" pattern="[0-9]*" inputmode="numeric" style="padding: 12px; font-size: 22px; text-align: center; letter-spacing: 8px; width: 80%; margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px;">
+            <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.verifyPassword()">✅ 解鎖進入</button>
+            <button class="danger" style="flex: 1; padding: 10px;" onclick="document.getElementById('passwordModal').style.display='none'">取消</button>
+        </div>
     </div>
 </div>
 
@@ -204,18 +240,18 @@
 <!-- 雲端另存新檔 Modal -->
 <div id="saveAsModal" class="modal-overlay">
     <div class="modal-box">
-        <h3>📂 另存至其他雲端檔位</h3>
-        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">選擇您要把目前的資料備份到雲端的哪一個檔位。</p>
-        
-        <div style="text-align: left; margin-bottom: 20px;">
-            <label style="color: #d35400; font-size: 15px; font-weight: bold;">選擇要另存至哪個雲端檔位：</label>
-            <select id="saveDestSelect" style="width: 100%; padding: 10px; font-size: 15px; border-radius: 4px; border: 1px solid #ccc; margin-top: 8px;">
-                <option>⏳ 讀取雲端清單中...</option>
-            </select>
+        <h3>📂 另存為新團體</h3>
+        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">將目前的團體資料複製並另存為一個全新團體。</p>
+        <div style="text-align: left; margin-bottom: 15px;">
+            <label>新團體名稱：</label>
+            <input type="text" id="saveAsGroupName" placeholder="例: 備份-10月下午茶" style="padding: 10px;">
         </div>
-
+        <div style="text-align: left; margin-bottom: 20px;">
+            <label>設定 4 位數密碼：</label>
+            <input type="password" id="saveAsGroupPass" maxlength="4" placeholder="1234" pattern="[0-9]*" inputmode="numeric" style="padding: 10px; font-size: 18px; text-align: center; letter-spacing: 5px;">
+        </div>
         <div style="display: flex; gap: 10px;">
-            <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.executeSaveAs(document.getElementById('saveDestSelect').value)">💾 另存並覆蓋該檔</button>
+            <button class="success" style="flex: 1; padding: 10px; font-weight: bold;" onclick="window.executeSaveAs()">💾 確定另存</button>
             <button class="danger" style="flex: 1; padding: 10px;" onclick="document.getElementById('saveAsModal').style.display='none'">取消</button>
         </div>
     </div>
@@ -230,12 +266,15 @@
                 📁 專案：
                 <input type="text" id="topProjectName" onchange="window.syncProjectName(this.value)" placeholder="輸入名稱..." style="background: rgba(255,255,255,0.1); border: 1px dashed #f1c40f; color: #f1c40f; font-size: 18px; font-weight: bold; width: 180px; padding: 4px 8px; border-radius: 4px;" class="focus-input">
             </strong>
-            <span id="currentFileDisplay" style="color: #bdc3c7; font-size: 14px;">(雲端檔位: 1)</span>
+            <select id="projectStatusSelect" onchange="window.changeProjectStatus(this.value)" style="width: 100px; padding: 4px; font-weight: bold; border-radius: 4px; border: none; background: #fff; cursor: pointer;">
+                <option value="進行中" style="color:#2ecc71; font-weight:bold;">🟢 進行中</option>
+                <option value="已結束" style="color:#95a5a6; font-weight:bold;">灰色 已結束</option>
+            </select>
             <span id="saveStatusBadge" class="status-badge" style="color: #2ecc71;">✅ 已同步至最新狀態</span>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
-            <button class="success" style="font-size: 14px; font-weight: bold; background-color: #27ae60;" onclick="window.openLoadModal(false)">📂 切換雲端檔案</button>
-            <button class="warning" style="font-size: 14px; font-weight: bold; background-color: #f39c12; color: #fff;" onclick="window.openSaveAsModal()">📂 另存至其他檔位</button>
+            <button class="success" style="font-size: 14px; font-weight: bold; background-color: #27ae60;" onclick="window.backToHome()">📂 返回主頁</button>
+            <button class="warning" style="font-size: 14px; font-weight: bold; background-color: #f39c12; color: #fff;" onclick="window.openSaveAsModal()">📂 另存新團</button>
             <button class="success" style="font-size: 14px; font-weight: bold;" onclick="window.saveCloudFile()">💾 儲存至雲端</button>
         </div>
     </div>
@@ -438,10 +477,13 @@
 </div>
 
 <script>
-    // ======= 核心：您的專屬 Google Sheets API 網址 ======= 
     const API_URL = "https://script.google.com/macros/s/AKfycbxQ7dsY362d07-wakIjerPbW6PM9x91l2zMLGohO1uEfvWvhrqMWuUPYcRdw4o3n449/exec";
 
-    let showAllMobileCols = false; // 是否在手機上展開所有欄位
+    let showAllMobileCols = false;
+    let cloudGroups = []; 
+    let currentGroupId = null;
+    let currentGroupPassword = "";
+    let currentGroupStatus = "進行中";
 
     window.toggleMobileColumns = function() {
         showAllMobileCols = !showAllMobileCols;
@@ -474,7 +516,6 @@
     }
 
     let data = getEmptyData();
-    let currentFileIndex = 1; 
     let activeHostTab = ''; 
     let activeDeptTab = '全部'; 
     let currentUser = ''; 
@@ -482,57 +523,123 @@
     let lastChecked = null;
     window.currentDistRegions = []; 
 
-    // ====== 雲端 API 溝通函式 ======
-    async function fetchCloudList() {
+    // ====== 雲端 API & 首頁入口 ======
+    async function fetchCloudGroups() {
         try {
             const res = await fetch(`${API_URL}?action=list`);
-            const listData = await res.json();
-            let html = '';
-            for(let i=1; i<=10; i++) {
-                let name = listData[i] || "未命名專案 (空)";
-                html += `<option value="${i}">檔位 ${i} - [ ${name} ]</option>`;
-            }
-            const fileSelect = document.getElementById('fileSlotSelect');
-            const saveDestSelect = document.getElementById('saveDestSelect');
-            if (fileSelect) fileSelect.innerHTML = html;
-            if (saveDestSelect) saveDestSelect.innerHTML = html;
+            cloudGroups = await res.json();
+            renderGroupList();
         } catch(e) {
             console.error("API 讀取失敗", e);
-            alert("⚠️ 無法連線至 Google Sheets，請檢查網路或 API 網址設定。");
+            document.getElementById('groupListContainer').innerHTML = `<div style="color:red; text-align:center; padding:10px;">⚠️ 連線失敗，請檢查網路！</div>`;
         }
     }
 
-    window.openLoadModal = async function(isInitial) {
-        document.getElementById('loadModal').style.display = 'flex';
-        document.getElementById('loadCancelBtn').style.display = isInitial ? 'none' : 'block';
-        document.getElementById('fileSlotSelect').innerHTML = '<option>⏳ 讀取雲端清單中...</option>';
-        await fetchCloudList(); 
-    }
-
-    window.loadCloudFile = async function() {
-        if (hasUnsavedChanges && document.getElementById('loadCancelBtn').style.display === 'block') {
-            if(!confirm("⚠️ 警告：您有未儲存的變動！\n切換檔案將會遺失目前進度，確定要放棄存檔並切換嗎？")) {
-                return;
-            }
+    function renderGroupList() {
+        const container = document.getElementById('groupListContainer');
+        if (!cloudGroups || cloudGroups.length === 0) {
+            container.innerHTML = `<div style="text-align:center; color:#999; padding:20px;">目前尚無任何團體，點擊上方按鈕建立第一個團吧！</div>`;
+            return;
         }
 
-        const targetIndex = document.getElementById('fileSlotSelect').value;
-        document.getElementById('loadModal').style.display = 'none';
+        // 進行中排前面，已結束排後面
+        let activeList = cloudGroups.filter(g => g.status === '進行中');
+        let endedList = cloudGroups.filter(g => g.status === '已結束');
+
+        let html = '';
+        activeList.forEach(g => {
+            html += `<div class="group-card" onclick="window.tryEnterGroup('${g.id}')">
+                <div><strong>${g.name}</strong></div>
+                <span class="status-badge-active">🟢 進行中</span>
+            </div>`;
+        });
+        endedList.forEach(g => {
+            html += `<div class="group-card" style="opacity: 0.7; background:#fafafa;" onclick="window.tryEnterGroup('${g.id}')">
+                <div style="color:#555;">${g.name}</div>
+                <span class="status-badge-ended">已結束</span>
+            </div>`;
+        });
+
+        container.innerHTML = html;
+    }
+
+    window.openCreateGroupModal = function() {
+        document.getElementById('newGroupName').value = '';
+        document.getElementById('newGroupPass').value = '';
+        document.getElementById('createGroupModal').style.display = 'flex';
+    }
+
+    window.submitCreateGroup = async function() {
+        const name = document.getElementById('newGroupName').value.trim();
+        const pass = document.getElementById('newGroupPass').value.trim();
+
+        if(!name) return alert('請輸入團體名稱！');
+        if(!/^\d{4}$/.exec(pass)) return alert('請設定 4 位數字密碼！');
+
+        const newId = 'grp_' + Date.now();
+        data = getEmptyData();
+        data.projectName = name;
+        currentGroupId = newId;
+        currentGroupPassword = pass;
+        currentGroupStatus = "進行中";
+
+        // 預存密碼至本機 localStorage
+        localStorage.setItem(`tea_pass_${currentGroupId}`, pass);
+
+        document.getElementById('createGroupModal').style.display = 'none';
+        document.getElementById('homeModal').style.display = 'none';
         
-        document.getElementById('saveStatusBadge').innerHTML = '⏳ 從雲端讀取中...';
-        document.getElementById('saveStatusBadge').style.color = '#f39c12';
+        await window.saveCloudFile(true); // 強制存檔建立新紀錄
+        finishLoadingSetup();
+    }
+
+    let selectedGroupForPass = null;
+    window.tryEnterGroup = function(groupId) {
+        const group = cloudGroups.find(g => g.id === groupId);
+        if(!group) return;
+
+        selectedGroupForPass = group;
+        const savedPass = localStorage.getItem(`tea_pass_${groupId}`);
+
+        // 自動比對本機預存密碼
+        if (savedPass && savedPass === group.pass) {
+            executeLoadGroup(group.id, group.pass, group.status);
+        } else {
+            // 換手機或第一次進入，跳出密碼輸入框
+            document.getElementById('passModalGroupName').innerText = group.name;
+            document.getElementById('inputPass').value = '';
+            document.getElementById('passwordModal').style.display = 'flex';
+        }
+    }
+
+    window.verifyPassword = function() {
+        const inputPass = document.getElementById('inputPass').value.trim();
+        if(inputPass === selectedGroupForPass.pass) {
+            localStorage.setItem(`tea_pass_${selectedGroupForPass.id}`, inputPass); // 驗證成功後預存本機
+            document.getElementById('passwordModal').style.display = 'none';
+            executeLoadGroup(selectedGroupForPass.id, selectedGroupForPass.pass, selectedGroupForPass.status);
+        } else {
+            alert('❌ 密碼錯誤，請重新輸入！');
+            document.getElementById('inputPass').value = '';
+        }
+    }
+
+    async function executeLoadGroup(groupId, password, status) {
+        currentGroupId = groupId;
+        currentGroupPassword = password;
+        currentGroupStatus = status;
+
+        document.getElementById('homeModal').style.display = 'none';
+        document.getElementById('saveStatusBadge').innerHTML = '⏳ 雲端讀取中...';
 
         try {
-            const res = await fetch(`${API_URL}?action=load&slot=${targetIndex}`);
+            const res = await fetch(`${API_URL}?action=load&id=${groupId}`);
             const result = await res.json();
-            
             if (result.status === 'success' && result.data) {
                 data = JSON.parse(result.data);
             } else {
-                console.log(`⚠️ 找不到檔位 ${targetIndex} 的資料，建立空的新專案`);
                 data = getEmptyData();
             }
-            currentFileIndex = targetIndex;
             finishLoadingSetup();
         } catch(e) {
             alert(`❌ 讀取失敗: ${e.message}`);
@@ -543,9 +650,8 @@
 
     function finishLoadingSetup() {
         document.getElementById('mainContainer').style.display = 'block';
-        document.getElementById('currentFileDisplay').innerText = `(雲端檔位: ${currentFileIndex})`;
         document.getElementById('topProjectName').value = data.projectName || "";
-        document.getElementById('topProjectName').classList.remove('focus-input'); 
+        document.getElementById('projectStatusSelect').value = currentGroupStatus;
         document.getElementById('globalPrintTitle').value = data.projectName || "";
         
         const gridContainer = document.getElementById('hostBtnGrid');
@@ -563,13 +669,11 @@
     window.selectUserDirectly = function(selectedUser) {
         currentUser = selectedUser;
         document.getElementById('loginUserModal').style.display = 'none';
-        
         document.getElementById('userInfoDisplay').style.display = 'block';
         document.getElementById('userInfoDisplay').innerHTML = `👤 身分: <span style="color:#27ae60;">${currentUser||'未指定'}</span> <a href="#" onclick="document.getElementById('loginUserModal').style.display='flex'" style="font-size:12px; color:#3498db; margin-left:5px; text-decoration:none;">[切換]</a>`;
 
         window.populateBatchTargets(); 
         activeHostTab = currentUser;
-        
         renderMainTable(); 
         if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostTabs(); 
     }
@@ -580,17 +684,32 @@
         renderMainTable(); 
     }
 
+    window.backToHome = function() {
+        if (hasUnsavedChanges) {
+            if(!confirm("⚠️ 警告：您有未儲存的變動！確定要放棄存檔並返回主頁嗎？")) return;
+        }
+        document.getElementById('mainContainer').style.display = 'none';
+        document.getElementById('userInfoDisplay').style.display = 'none';
+        document.getElementById('homeModal').style.display = 'flex';
+        fetchCloudGroups();
+    }
+
     window.syncProjectName = function(val) {
         data.projectName = val;
         document.getElementById('globalPrintTitle').value = val;
         markDataChanged(); 
     }
 
-    window.saveCloudFile = async function() {
+    window.changeProjectStatus = function(val) {
+        currentGroupStatus = val;
+        markDataChanged();
+    }
+
+    window.saveCloudFile = async function(isSilent = false) {
         window.syncProjectName(document.getElementById('topProjectName').value); 
         let pName = data.projectName || '未命名專案';
         
-        if(!confirm(`⚠️ 雲端存檔提醒\n\n即將將專案：【 ${pName} 】儲存至雲端資料庫（檔位 ${currentFileIndex}）\n這將會覆蓋原本的資料！\n\n確定要繼續嗎？`)) {
+        if(!isSilent && !confirm(`⚠️ 雲端存檔提醒\n\n即將將專案：【 ${pName} 】儲存至雲端資料庫！\n確定要繼續嗎？`)) {
             return;
         }
 
@@ -599,8 +718,10 @@
 
         try {
             const payload = {
-                slot: currentFileIndex,
+                id: currentGroupId,
                 projectName: pName,
+                password: currentGroupPassword,
+                status: currentGroupStatus,
                 data: JSON.stringify(data)
             };
             
@@ -613,7 +734,7 @@
             
             if(result.status === 'success') {
                 resetSaveStatus();
-                alert(`✅ 成功儲存至雲端檔位 ${currentFileIndex}！\n其他同事只要重整網頁並選擇同一個檔位，即可看到最新資料。`);
+                if(!isSilent) alert(`✅ 成功儲存至雲端！`);
             } else {
                 alert(`❌ 存檔失敗: ${result.message}`);
                 resetSaveStatus();
@@ -624,51 +745,30 @@
         }
     }
 
-    window.openSaveAsModal = async function() {
+    window.openSaveAsModal = function() {
+        document.getElementById('saveAsGroupName').value = (data.projectName || '') + ' - 副本';
+        document.getElementById('saveAsGroupPass').value = currentGroupPassword;
         document.getElementById('saveAsModal').style.display = 'flex';
-        document.getElementById('saveDestSelect').innerHTML = '<option>⏳ 讀取雲端清單中...</option>';
-        await fetchCloudList();
-        document.getElementById('saveDestSelect').value = currentFileIndex; 
     }
 
-    window.executeSaveAs = async function(targetIndex) {
-        window.syncProjectName(document.getElementById('topProjectName').value); 
-        let pName = data.projectName || '未命名專案';
+    window.executeSaveAs = async function() {
+        const name = document.getElementById('saveAsGroupName').value.trim();
+        const pass = document.getElementById('saveAsGroupPass').value.trim();
 
-        if(!confirm(`⚠️ 雲端另存提醒\n\n即將將此專案另存至雲端：【 檔位 ${targetIndex} 】\n這將會覆蓋該檔位原本的資料，確定要繼續嗎？`)) {
-            return;
-        }
+        if(!name) return alert('請輸入新團體名稱！');
+        if(!/^\d{4}$/.exec(pass)) return alert('請設定 4 位數字密碼！');
 
-        document.getElementById('saveStatusBadge').innerHTML = '⏳ 儲存中...';
-        document.getElementById('saveStatusBadge').style.color = '#f39c12';
+        currentGroupId = 'grp_' + Date.now();
+        currentGroupPassword = pass;
+        data.projectName = name;
+        currentGroupStatus = "進行中";
 
-        try {
-            const payload = {
-                slot: targetIndex,
-                projectName: pName,
-                data: JSON.stringify(data)
-            };
-            const res = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload)
-            });
-            const result = await res.json();
-            
-            if(result.status === 'success') {
-                currentFileIndex = targetIndex;
-                document.getElementById('currentFileDisplay').innerText = `(雲端檔位: ${currentFileIndex})`;
-                document.getElementById('saveAsModal').style.display = 'none';
-                resetSaveStatus(); 
-                alert(`✅ 成功另存並切換至雲端檔位 ${targetIndex}！`);
-            } else {
-                alert(`❌ 另存失敗: ${result.message}`);
-                resetSaveStatus();
-            }
-        } catch (error) {
-            alert(`❌ 連線錯誤: ${error.message}`);
-            resetSaveStatus();
-        }
+        localStorage.setItem(`tea_pass_${currentGroupId}`, pass);
+        document.getElementById('saveAsModal').style.display = 'none';
+
+        await window.saveCloudFile(true);
+        alert(`✅ 成功另存為全新團體：【 ${name} 】！`);
+        finishLoadingSetup();
     }
 
     function markDataChanged() {
@@ -680,12 +780,12 @@
     window.addEventListener('beforeunload', function (e) {
         if (hasUnsavedChanges) {
             e.preventDefault();
-            e.returnValue = '您有未匯出儲存的變更，直接離開將會遺失進度，確定要離開嗎？';
+            e.returnValue = '您有未儲存的變更，確定要離開嗎？';
         }
     });
 
     window.onload = function() {
-        window.openLoadModal(true); 
+        fetchCloudGroups(); // 啟動直接讀取首頁清單
     };
 
     function switchTab(tabId) {
@@ -760,7 +860,7 @@
     window.removeHost = removeHost;
     
     function clearAllData() {
-        if(confirm("確定要清空此檔位的所有資料嗎？清空後需點擊儲存才會覆蓋雲端檔案！")) {
+        if(confirm("確定要清空此團體的所有資料嗎？")) {
             data = { projectName: data.projectName, foodItems: [], drinkItems: [], hosts: [], guests: [], paidStatus: {}, allocations: {} }; 
             markDataChanged(); refreshAllUI();
         }
