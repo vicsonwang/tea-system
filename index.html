@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>下午茶分配系統 (雲端同步專業版 - 專屬鎖定)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>下午茶分配系統 (雲端同步專業版)</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; position: relative; }
         .container { max-width: 98%; margin: 0 auto; }
@@ -111,7 +111,8 @@
         .pulse-btn:hover { background-color: #8e44ad; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
         
         .focus-input { border: 1px solid #f39c12 !important; box-shadow: 0 0 5px rgba(243,156,18,0.5); }
-        /* ================= 手機版優化 (響應式設計) ================= */
+
+        /* ================= 手機版優化 (響應式設計 V2 終極版) ================= */
         @media (max-width: 768px) {
             body { padding: 5px; }
             
@@ -164,10 +165,13 @@
             #targetDropdown, #batchHostSelect, #distDropdown, #deptFilterSelect { width: 100% !important; }
             .custom-select-wrapper { width: 100%; margin-bottom: 10px; }
 
-            /* 8. 表格字體縮小 */
+            /* 8. 表格字體縮小與「原生防斜滑」 */
             th, td { padding: 4px; font-size: 13px; }
             .inline-input, .inline-select { font-size: 13px; padding: 4px 2px; }
-            .table-responsive { -webkit-overflow-scrolling: touch; }
+            .table-responsive { 
+                -webkit-overflow-scrolling: touch; 
+                touch-action: pan-x pan-y; /* 瀏覽器原生防斜滑：強迫單向滑動 */
+            }
 
             /* 9. 第五頁的排版與按鈕展開 */
             #tab-distribution > div:first-child { flex-direction: column; align-items: stretch; padding: 10px; }
@@ -175,7 +179,7 @@
             #tab-distribution button { width: 100%; margin-top: 5px; padding: 8px; }
             #globalPrintTitle { width: 100% !important; margin-top: 5px; }
         }
-        /* ======================================================= *
+        /* ======================================================= */
     </style>
 </head>
 <body>
@@ -480,8 +484,6 @@
     window.currentDistRegions = []; 
 
     // ====== 雲端 API 溝通函式 ======
-
-    // 1. 抓取雲端所有的專案清單
     async function fetchCloudList() {
         try {
             const res = await fetch(`${API_URL}?action=list`);
@@ -505,10 +507,9 @@
         document.getElementById('loadModal').style.display = 'flex';
         document.getElementById('loadCancelBtn').style.display = isInitial ? 'none' : 'block';
         document.getElementById('fileSlotSelect').innerHTML = '<option>⏳ 讀取雲端清單中...</option>';
-        await fetchCloudList(); // 即時向雲端抓取清單
+        await fetchCloudList(); 
     }
 
-    // 2. 讀取雲端特定檔位資料
     window.loadCloudFile = async function() {
         if (hasUnsavedChanges && document.getElementById('loadCancelBtn').style.display === 'block') {
             if(!confirm("⚠️ 警告：您有未儲存的變動！\n切換檔案將會遺失目前進度，確定要放棄存檔並切換嗎？")) {
@@ -519,7 +520,6 @@
         const targetIndex = document.getElementById('fileSlotSelect').value;
         document.getElementById('loadModal').style.display = 'none';
         
-        // 提示讀取中
         document.getElementById('saveStatusBadge').innerHTML = '⏳ 從雲端讀取中...';
         document.getElementById('saveStatusBadge').style.color = '#f39c12';
 
@@ -585,7 +585,6 @@
         markDataChanged(); 
     }
 
-    // 3. 直接儲存（覆寫當前雲端檔位）
     window.saveCloudFile = async function() {
         window.syncProjectName(document.getElementById('topProjectName').value); 
         let pName = data.projectName || '未命名專案';
@@ -604,7 +603,6 @@
                 data: JSON.stringify(data)
             };
             
-            // 為了避開 CORS preflight 問題，我們使用 text/plain 發送 JSON 字串
             const res = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -632,7 +630,6 @@
         document.getElementById('saveDestSelect').value = currentFileIndex; 
     }
 
-    // 4. 另存新檔（寫入指定的雲端檔位）
     window.executeSaveAs = async function(targetIndex) {
         window.syncProjectName(document.getElementById('topProjectName').value); 
         let pName = data.projectName || '未命名專案';
@@ -1680,7 +1677,8 @@
         html += `</div><script>setTimeout(function() { window.print(); window.close(); }, 500);<\/script></body></html>`;
         return html;
     }
-       // ===== 手機版：智能鎖定單向滑動 (防止表格斜滑) =====
+
+    // ===== 手機版：智能鎖定單向滑動 (防止表格斜滑) =====
     document.addEventListener('touchstart', function(e) {
         let t = e.target.closest('.table-responsive');
         if(!t) return;
@@ -1697,7 +1695,6 @@
         let dx = Math.abs(e.touches[0].clientX - parseFloat(t.dataset.sx));
         let dy = Math.abs(e.touches[0].clientY - parseFloat(t.dataset.sy));
         if (dx > 5 || dy > 5) {
-            // 如果判定為左右滑，瞬間隱藏上下滾動軸；反之亦然
             if (dx > dy) {
                 t.style.overflowY = 'hidden';
             } else {
@@ -1709,7 +1706,6 @@
 
     document.addEventListener('touchend', function(e) {
         let t = e.target.closest('.table-responsive');
-        // 手指放開後恢復雙向，確保下次依然可以重新判定方向
         if(t) { t.style.overflowX = 'auto'; t.style.overflowY = 'auto'; }
     }, {passive: true});
     // ===================================================
