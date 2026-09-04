@@ -111,6 +111,49 @@
         .pulse-btn:hover { background-color: #8e44ad; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
         
         .focus-input { border: 1px solid #f39c12 !important; box-shadow: 0 0 5px rgba(243,156,18,0.5); }
+        /* ================= 手機版優化 (響應式設計) ================= */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            
+            /* 1. 彈出視窗滿版 */
+            .modal-box { width: 90%; padding: 20px; box-sizing: border-box; }
+            
+            /* 2. 上方導覽與儲存列調整 */
+            .save-bar { flex-direction: column; align-items: stretch; text-align: center; }
+            .save-bar > div { flex-direction: column; width: 100%; gap: 10px; }
+            #topProjectName { width: 100% !important; margin-top: 5px; }
+            .save-bar button { width: 100%; padding: 10px; }
+            #saveStatusBadge { margin: 5px 0 0 0; }
+            #userInfoDisplay { position: static; display: block; margin: 10px auto 15px; text-align: center; box-shadow: none; border: 1px solid #ddd; }
+
+            /* 3. 頁籤改為上下堆疊或可滑動 */
+            .tabs { display: flex; flex-direction: column; border-bottom: none; gap: 5px; }
+            .tab-btn { border: 1px solid #ddd; border-radius: 6px; padding: 10px; width: 100%; }
+            .tab-btn.active { border-bottom: 1px solid #3498db; background-color: #e8f4f8; }
+
+            /* 4. 吃喝設定區塊上下堆疊 */
+            .section-box { min-width: 100% !important; box-sizing: border-box; padding: 10px; }
+            .flex-row { flex-direction: column; align-items: stretch; }
+            .flex-row input, .flex-row select, .flex-row button { width: 100% !important; box-sizing: border-box; margin-bottom: 5px; }
+            .summary-card { flex-direction: column; align-items: stretch; text-align: center; gap: 10px; }
+            .summary-card button { width: 100%; height: auto; padding: 10px; }
+
+            /* 5. 批次管理與輸入框填滿 */
+            #targetDropdown, #batchHostSelect, #distDropdown, #deptFilterSelect { width: 100% !important; }
+            .custom-select-wrapper { width: 100%; margin-bottom: 10px; }
+
+            /* 6. 表格字體縮小並確保可滑動 */
+            th, td { padding: 4px; font-size: 13px; }
+            .inline-input, .inline-select { font-size: 13px; }
+            .table-responsive { -webkit-overflow-scrolling: touch; }
+
+            /* 7. 第五頁的排版與按鈕展開 */
+            #tab-distribution > div:first-child { flex-direction: column; align-items: stretch; }
+            #tab-distribution > div:first-child > div { width: 100%; flex-direction: column; }
+            #tab-distribution button { width: 100%; margin-top: 5px; }
+            #globalPrintTitle { width: 100% !important; margin-top: 5px; }
+        }
+        /* ======================================================= */
     </style>
 </head>
 <body>
