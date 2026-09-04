@@ -471,7 +471,7 @@
         </div>
     </div>
 
-    <!-- 🎯 頁籤：電腦版顯示完整，手機版動態伸縮切換 (1.設定 / 2.名單) -->
+    <!-- 🎯 頁籤：啟動顯示完整文字，未啟動顯示1.設定 / 2.名單等... -->
     <div class="tabs">
         <button class="tab-btn owner-tab active" id="tabBtn1" onclick="switchTab('tab-setup')">
             <span class="tab-text-short">1.設定</span>
@@ -586,13 +586,18 @@
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #fff; padding: 10px 12px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%;">
                 <select id="deptFilterSelect" onchange="window.switchDeptTab(this.value)" style="flex: 1; min-width: 120px; padding: 6px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc;"></select>
-                <!-- 🎯 分頁 2：加入「我已打勾」快捷鍵 -->
+                
+                <!-- 🎯 分頁 2：我未打勾按鈕 & 全體未打勾改名 -->
                 <button class="success" style="font-weight: bold; font-size: 14px; padding: 6px 10px; background-color: #7a9eb1; border: 1px solid #638596;" onclick="window.switchDeptTab('我已打勾')" title="顯示我已打勾的名單">
                     ✅我已打勾
                 </button>
-                <button class="warning" style="font-weight: bold; font-size: 14px; padding: 6px 10px;" onclick="window.switchDeptTab('未勾選金主')" title="顯示未勾選金主名單">
-                    ⚠️未打勾(<span id="noHostCountBadge">0</span>)
+                <button class="warning" style="font-weight: bold; font-size: 14px; padding: 6px 10px; background-color: #d4a373; border: 1px solid #bd8d5d; color: #fff;" onclick="window.switchDeptTab('我未打勾')" title="顯示我尚未打勾的名單">
+                    🔲我未打勾(<span id="myUncheckedCountBadge">0</span>)
                 </button>
+                <button class="danger" style="font-weight: bold; font-size: 14px; padding: 6px 10px; background-color: #c47c7c; border: 1px solid #ad6868; color: #fff;" onclick="window.switchDeptTab('未勾選金主')" title="顯示全體皆未勾選的名單">
+                    ⚠️全體未打勾(<span id="noHostCountBadge">0</span>)
+                </button>
+                
                 <button class="success" style="font-weight: bold; font-size: 14px; background-color: #5c666c; padding: 6px 10px;" onclick="window.toggleMobileColumns()" title="切換展開/精簡欄位">
                     👁️ <span id="toggleColBtnText" style="display:none;">展開</span>
                 </button>
@@ -807,10 +812,11 @@
         }
     }
 
-    // 🎯 修復分頁 2 篩選邏輯，加入「我已打勾」
+    // 🎯 判斷過濾邏輯：新增「我未打勾」與「全體未打勾」
     function getFilteredGuests() {
         if (activeDeptTab === '未勾選金主') return data.guests.filter(g => g.status === '正常' && (!g.claimedBy || g.claimedBy.length === 0));
         if (activeDeptTab === '我已打勾') return data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(currentUser));
+        if (activeDeptTab === '我未打勾') return data.guests.filter(g => g.status === '正常' && (!g.claimedBy || !g.claimedBy.includes(currentUser)));
         
         if (activeDeptTab.startsWith('reg|')) {
             const r = activeDeptTab.substring(4);
@@ -1014,7 +1020,7 @@
         });
         endedList.forEach(g => {
             html += `<div class="group-card" style="opacity: 0.7; background:#faf9f7;" onclick="window.tryEnterGroup('${g.id}')">
-                <div style="color:#8c8c8c;">${g.name}</div>
+                <div style="color:#888;">${g.name}</div>
                 <span class="status-badge-ended">已結束</span>
             </div>`;
         });
@@ -1497,7 +1503,6 @@
     }
     window.clearAllData = clearAllData;
 
-    // 🎯 修復 1：加上 applyBatchDist 與 clearBatchDist 函式
     window.applyBatchDist = function() {
         const targets = getSelectedTargets();
         if (targets.reg.length === 0 && targets.dept.length === 0) return alert("請點開下拉選單，勾選至少一個目標！");
@@ -1588,7 +1593,7 @@
         }
     }
 
-    // 🎯 修復 2：更進階的部門與區域下拉選單
+    // 🎯 升級版篩選選單 & 加入「我已/未打勾」計數邏輯
     function renderDeptFilter() {
         const select = document.getElementById('deptFilterSelect');
         const depts = [...new Set(data.guests.map(g => g.dept).filter(d => d))].sort();
@@ -1596,16 +1601,21 @@
         
         const noHostCount = data.guests.filter(g => g.status === '正常' && (!g.claimedBy || g.claimedBy.length === 0)).length;
         const myCheckedCount = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(currentUser)).length;
+        const myUncheckedCount = data.guests.filter(g => g.status === '正常' && (!g.claimedBy || !g.claimedBy.includes(currentUser))).length;
 
         let badgeEl = document.getElementById('noHostCountBadge');
         if(badgeEl) badgeEl.innerText = noHostCount;
+
+        let myUncheckBadgeEl = document.getElementById('myUncheckedCountBadge');
+        if(myUncheckBadgeEl) myUncheckBadgeEl.innerText = myUncheckedCount;
 
         let optionsHtml = `<option value="全部">顯示全部名單</option>`;
         
         optionsHtml += `<optgroup label="📌 快速篩選">`;
         optionsHtml += `<option value="我已打勾" style="color:#7a9eb1; font-weight:bold;">✅ 我已打勾 (${myCheckedCount}人)</option>`;
+        optionsHtml += `<option value="我未打勾" style="color:#d4a373; font-weight:bold;">🔲 我未打勾 (${myUncheckedCount}人)</option>`;
         if (noHostCount > 0) {
-            optionsHtml += `<option value="未勾選金主" style="color:#c47c7c; font-weight:bold;">⚠️ 無人打勾 (${noHostCount}人)</option>`;
+            optionsHtml += `<option value="未勾選金主" style="color:#c47c7c; font-weight:bold;">⚠️ 全體未打勾 (${noHostCount}人)</option>`;
         }
         optionsHtml += `</optgroup>`;
 
@@ -1623,7 +1633,7 @@
 
         select.innerHTML = optionsHtml;
 
-        const validValues = ['全部', '未勾選金主', '我已打勾', ...regions.map(r=>'reg|'+r), ...depts.map(d=>'dept|'+d)];
+        const validValues = ['全部', '未勾選金主', '我已打勾', '我未打勾', ...regions.map(r=>'reg|'+r), ...depts.map(d=>'dept|'+d)];
         if (!validValues.includes(activeDeptTab) && !depts.includes(activeDeptTab)) {
             activeDeptTab = '全部';
         }
@@ -1635,7 +1645,7 @@
         
         let fillDept = '';
         if (dept.startsWith('dept|')) fillDept = dept.substring(5);
-        else if (dept !== '全部' && dept !== '未分類' && dept !== '未勾選金主' && dept !== '我已打勾' && !dept.startsWith('reg|')) fillDept = dept;
+        else if (dept !== '全部' && dept !== '未分類' && dept !== '未勾選金主' && dept !== '我已打勾' && dept !== '我未打勾' && !dept.startsWith('reg|')) fillDept = dept;
         
         let sDeptEl = document.getElementById('sDept');
         if (sDeptEl) sDeptEl.value = fillDept;
@@ -1932,7 +1942,6 @@
 
         let claimedGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(activeHostTab));
 
-        // 🎯 修復 3：b-a 確保 1/1 在最上方
         claimedGuests.sort((a, b) => (1 / b.claimedBy.length) - (1 / a.claimedBy.length));
 
         let listHTML = claimedGuests.map(g => {
