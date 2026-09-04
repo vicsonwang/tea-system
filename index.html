@@ -915,13 +915,29 @@
 
     // ====== 雲端 API & 首頁入口 ======
     async function fetchCloudGroups() {
+        const container = document.getElementById('groupListContainer');
+        
+        // ⚡ 體驗優化：先從本地快取拿舊清單「瞬間顯示」墊檔，不讓畫面卡在 Loading
+        const cachedList = localStorage.getItem('tea_group_list_cache');
+        if (cachedList) {
+            cloudGroups = JSON.parse(cachedList);
+            renderGroupList(); 
+        }
+
         try {
+            // 背景偷偷去雲端抓取最新的
             const res = await fetch(`${API_URL}?action=list`);
-            cloudGroups = await res.json();
+            const newList = await res.json();
+            
+            // 抓回來後，更新畫面並覆蓋本地快取
+            cloudGroups = newList;
+            localStorage.setItem('tea_group_list_cache', JSON.stringify(cloudGroups));
             renderGroupList();
         } catch(e) {
             console.error("API 讀取失敗", e);
-            document.getElementById('groupListContainer').innerHTML = `<div style="color:red; text-align:center; padding:10px;">⚠️ 連線失敗，請檢查網路！</div>`;
+            if (!cachedList) {
+                container.innerHTML = `<div style="color:red; text-align:center; padding:10px;">⚠️ 連線失敗，請檢查網路！</div>`;
+            }
         }
     }
 
