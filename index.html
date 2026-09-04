@@ -112,21 +112,17 @@
         
         .focus-input { border: 1px solid #f39c12 !important; box-shadow: 0 0 5px rgba(243,156,18,0.5); }
 
-        /* ================= 手機版優化 (響應式設計 V2 終極版) ================= */
+        /* ================= 手機版優化 (精簡視角版) ================= */
         @media (max-width: 768px) {
             body { padding: 5px; }
-            
-            /* 1. 彈出視窗滿版 */
             .modal-box { width: 90%; padding: 20px; box-sizing: border-box; }
             
-            /* 2. 上方導覽與儲存列「極致瘦身」 */
             .save-bar { flex-direction: column; padding: 10px; margin-bottom: 10px; gap: 8px; }
             .save-bar > div:first-child { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-            #currentFileDisplay { display: none; } /* 手機版隱藏檔位文字，節省空間 */
+            #currentFileDisplay { display: none; }
             #topProjectName { width: 120px !important; font-size: 14px !important; margin: 0; padding: 2px 4px; }
             #saveStatusBadge { font-size: 12px; padding: 3px 8px; margin: 0; }
             
-            /* 3. 儲存按鈕文字縮短，強制並排同行 */
             .save-bar > div:last-child { width: 100%; display: flex; flex-direction: row; gap: 5px; flex-wrap: nowrap; margin-top: 0; }
             .save-bar button { flex: 1; padding: 8px 0; font-size: 0 !important; text-align: center; border-radius: 4px; }
             .save-bar button:nth-child(1)::after { content: "📂 切換"; font-size: 14px; }
@@ -135,68 +131,31 @@
             
             #userInfoDisplay { position: static; display: block; margin: 5px auto 10px; text-align: center; box-shadow: none; border: 1px solid #ddd; }
 
-            /* 4. 頁籤改為上下堆疊 */
             .tabs { display: flex; flex-direction: column; border-bottom: none; gap: 5px; margin-bottom: 10px; }
             .tab-btn { border: 1px solid #ddd; border-radius: 6px; padding: 8px; width: 100%; font-size: 14px; }
             .tab-btn.active { border-bottom: 1px solid #3498db; background-color: #e8f4f8; }
 
-            /* 5. 表格滑動優化：解開區域與部門，僅凍結「姓名」與「上方金主」 */
-            .main-list th:nth-child(1), .main-list td:nth-child(1),
-            .main-list th:nth-child(2), .main-list td:nth-child(2) {
-                position: static !important; /* 解除區域與部門的凍結 */
-            }
-            .main-list th:nth-child(3), .main-list td:nth-child(3) {
-                position: sticky !important; 
-                left: 0 !important; /* 將姓名緊貼螢幕最左側 */
-                z-index: 4 !important; 
-                box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* 加上陰影產生立體區隔感 */
-            }
-            .main-list th { position: sticky; top: 0; z-index: 5; } /* 確保金主名字列維持在最上方 */
-            .main-list th:nth-child(3) { z-index: 6 !important; } /* 確保左上角姓名的格子在最上層 */
+            /* 預設隱藏非必要欄位，讓表格剛好滿版不必滑動 */
+            .hide-mobile { display: none !important; }
 
-            /* === 針對 iOS 斜滑的視覺強化：加深邊界陰影與框線 === */
-            /* 加深上方金主列的邊界 */
-            .main-list th { 
-                box-shadow: 0 3px 6px rgba(0,0,0,0.12) !important; 
-                border-bottom: 2px solid #95a5a6 !important;
-            }
-            /* 加深左側姓名欄的邊界 */
-            .main-list th:nth-child(3), .main-list td:nth-child(3) {
-                box-shadow: 4px 0 8px rgba(0,0,0,0.12) !important;
-                border-right: 2px solid #95a5a6 !important;
-            }
-            /* 左上角（姓名表頭）交界處最深 */
-            .main-list th:nth-child(3) {
-                box-shadow: 4px 3px 8px rgba(0,0,0,0.2) !important;
-                z-index: 6 !important;
-            }
-
-            /* 6. 吃喝設定區塊上下堆疊 */
             .section-box { min-width: 100% !important; box-sizing: border-box; padding: 10px; }
             .flex-row { flex-direction: column; align-items: stretch; }
             .flex-row input, .flex-row select, .flex-row button { width: 100% !important; box-sizing: border-box; margin-bottom: 5px; }
             .summary-card { flex-direction: column; align-items: stretch; text-align: center; gap: 10px; font-size: 14px; padding: 10px; }
             .summary-card button { width: 100%; height: auto; padding: 8px; }
 
-            /* 7. 批次管理與輸入框填滿 */
             #targetDropdown, #batchHostSelect, #distDropdown, #deptFilterSelect { width: 100% !important; }
             .custom-select-wrapper { width: 100%; margin-bottom: 10px; }
 
-            /* 8. 表格字體縮小與「原生防斜滑」 */
-            th, td { padding: 4px; font-size: 13px; }
-            .inline-input, .inline-select { font-size: 13px; padding: 4px 2px; }
-            .table-responsive { 
-                -webkit-overflow-scrolling: touch; 
-                touch-action: pan-x pan-y; /* 瀏覽器原生防斜滑：強迫單向滑動 */
-            }
+            th, td { padding: 6px 4px; font-size: 14px; }
+            .inline-input, .inline-select { font-size: 14px; padding: 4px 2px; }
+            .table-responsive { -webkit-overflow-scrolling: touch; }
 
-            /* 9. 第五頁的排版與按鈕展開 */
             #tab-distribution > div:first-child { flex-direction: column; align-items: stretch; padding: 10px; }
             #tab-distribution > div:first-child > div { width: 100%; flex-direction: column; font-size: 14px; }
             #tab-distribution button { width: 100%; margin-top: 5px; padding: 8px; }
             #globalPrintTitle { width: 100% !important; margin-top: 5px; }
         }
-        /* ======================================================= */
     </style>
 </head>
 <body>
@@ -369,9 +328,12 @@
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #fff; padding: 12px 15px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <strong style="color: #2c3e50; font-size: 16px;">🏢 依部門檢視名單：</strong>
-                <select id="deptFilterSelect" onchange="window.switchDeptTab(this.value)" style="width: 220px; padding: 6px; font-size: 15px; border-radius: 4px; border: 1px solid #ccc;"></select>
+                <select id="deptFilterSelect" onchange="window.switchDeptTab(this.value)" style="width: 200px; padding: 6px; font-size: 15px; border-radius: 4px; border: 1px solid #ccc;"></select>
                 <button class="warning" style="font-weight: bold; font-size: 14px;" onclick="window.switchDeptTab('未勾選金主')">
-                    ⚠️ 顯示未勾選金主 (<span id="noHostCountBadge">0</span>人)
+                    ⚠️ 未勾選金主 (<span id="noHostCountBadge">0</span>人)
+                </button>
+                <button class="success" style="font-weight: bold; font-size: 14px; background-color: #34495e;" onclick="window.toggleMobileColumns()">
+                    👁️ <span id="toggleColBtnText">展開完整欄位</span>
                 </button>
             </div>
         </div>
@@ -466,6 +428,14 @@
 <script>
     // ======= 核心：您的專屬 Google Sheets API 網址 ======= 
     const API_URL = "https://script.google.com/macros/s/AKfycbxQ7dsY362d07-wakIjerPbW6PM9x91l2zMLGohO1uEfvWvhrqMWuUPYcRdw4o3n449/exec";
+
+    let showAllMobileCols = false; // 是否在手機上展開所有欄位
+
+    window.toggleMobileColumns = function() {
+        showAllMobileCols = !showAllMobileCols;
+        document.getElementById('toggleColBtnText').innerText = showAllMobileCols ? "隱藏非必要欄位" : "展開完整欄位";
+        renderMainTable();
+    }
 
     function resetSaveStatus() {
         hasUnsavedChanges = false;
@@ -916,17 +886,29 @@
         markDataChanged(); renderMainTable(); renderDeptFilter();
     }
 
+    // 🌟 精簡視角渲染邏輯：手機預設隱藏次要欄位，只留下單純欄位
     function renderMainTable() {
         const thead = document.getElementById('mainTableHead'); const tbody = document.getElementById('mainTableBody');
+        const isHide = !showAllMobileCols; // 是否執行隱藏
+
+        let headHTML = `<tr>
+            <th style="min-width:60px;">區域</th>
+            <th class="${isHide ? 'hide-mobile' : ''}" style="min-width:80px;">部門</th>
+            <th style="min-width:90px;">姓名</th>
+            <th class="${isHide ? 'hide-mobile' : ''}" style="min-width:70px;">分工</th>
+            <th class="${isHide ? 'hide-mobile' : ''}" style="min-width:80px;">狀態</th>
+            <th class="${isHide ? 'hide-mobile' : ''}">操作</th>`;
         
-        let headHTML = `<tr><th style="min-width:60px;">區域</th><th style="min-width:80px;">部門</th><th style="min-width:90px;">姓名</th><th style="min-width:70px;">分工</th><th style="min-width:80px;">狀態</th><th>操作</th>`;
         data.hosts.forEach(h => { 
             let isCurrent = (h === currentUser);
+            // 手機上如果不展開，且不是「當前登入者」，就把其他金主欄位隱藏
+            let hostHideClass = (isHide && !isCurrent) ? 'hide-mobile' : '';
+
             let thClass = isCurrent ? "host-header" : "disabled-cell";
             let clickAction = isCurrent ? `onclick="window.toggleHostColumn('${h}')"` : '';
             let title = isCurrent ? "點擊整欄全選/全取消" : "🔒 非您的專屬欄位，不可編輯";
             let icon = isCurrent ? "↕️" : "🔒";
-            headHTML += `<th class="${thClass}" style="background:#e8f4f8;" ${clickAction} title="${title}">${h} ${icon}</th>`; 
+            headHTML += `<th class="${thClass} ${hostHideClass}" style="background:#e8f4f8;" ${clickAction} title="${title}">${h} ${icon}</th>`; 
         });
         headHTML += `</tr>`; thead.innerHTML = headHTML;
         
@@ -943,21 +925,23 @@
 
                 bodyHTML += `<tr class="${rowClass}">
                     <td><input type="text" class="inline-input" value="${g.reg}" onchange="window.updateGuestInfo(${g.id}, 'reg', this.value)"></td>
-                    <td><input type="text" class="inline-input" value="${g.dept}" onchange="window.updateGuestInfo(${g.id}, 'dept', this.value)"></td>
+                    <td class="${isHide ? 'hide-mobile' : ''}"><input type="text" class="inline-input" value="${g.dept}" onchange="window.updateGuestInfo(${g.id}, 'dept', this.value)"></td>
                     <td><input type="text" class="inline-input bold" value="${g.name}" onchange="window.updateGuestInfo(${g.id}, 'name', this.value)"></td>
-                    <td><input type="text" class="inline-input" value="${g.dist}" onchange="window.updateGuestInfo(${g.id}, 'dist', this.value)"></td>
-                    <td><select class="inline-select" style="color:${isExclude ? '#e74c3c' : '#2ecc71'};" onchange="window.updateGuestInfo(${g.id}, 'status', this.value)">
+                    <td class="${isHide ? 'hide-mobile' : ''}"><input type="text" class="inline-input" value="${g.dist}" onchange="window.updateGuestInfo(${g.id}, 'dist', this.value)"></td>
+                    <td class="${isHide ? 'hide-mobile' : ''}"><select class="inline-select" style="color:${isExclude ? '#e74c3c' : '#2ecc71'};" onchange="window.updateGuestInfo(${g.id}, 'status', this.value)">
                             <option value="正常" ${g.status === '正常' ? 'selected' : ''}>正常</option><option value="請假" ${g.status === '請假' ? 'selected' : ''}>請假</option><option value="出差" ${g.status === '出差' ? 'selected' : ''}>出差</option><option value="公假" ${g.status === '公假' ? 'selected' : ''}>公假</option><option value="產假" ${g.status === '產假' ? 'selected' : ''}>產假</option>
                         </select></td>
-                    <td><button class="danger" style="padding:4px 8px; font-size:12px;" onclick="window.removeGuest(${g.id})">刪</button></td>`;
+                    <td class="${isHide ? 'hide-mobile' : ''}"><button class="danger" style="padding:4px 8px; font-size:12px;" onclick="window.removeGuest(${g.id})">刪</button></td>`;
                 
                 data.hosts.forEach(h => {
                     const isChecked = g.claimedBy && g.claimedBy.includes(h);
                     const isCurrent = (h === currentUser);
+                    let hostHideClass = (isHide && !isCurrent) ? 'hide-mobile' : '';
+
                     const cellClass = isCurrent ? 'checkbox-cell' : 'disabled-cell';
                     const clickAttr = (isCurrent && !isExclude) ? `onclick="window.toggleHostCell(this, ${g.id}, '${h}', ${isExclude}, event)"` : '';
                     const disAttr = (isExclude || !isCurrent) ? 'disabled' : '';
-                    bodyHTML += `<td class="${cellClass}" ${clickAttr}><input type="checkbox" ${isChecked ? 'checked' : ''} ${disAttr}></td>`;
+                    bodyHTML += `<td class="${cellClass} ${hostHideClass}" ${clickAttr}><input type="checkbox" ${isChecked ? 'checked' : ''} ${disAttr}></td>`;
                 });
                 bodyHTML += `</tr>`;
             });
@@ -1213,7 +1197,7 @@
                 return; 
             }
 
-            if(!confirm("這將會覆蓋您目前手手動填寫的分配數字，確定要自動預算嗎？\n(系統將套用「大區優先＋口味平均」演算法，保證絕對精準！)")) return;
+            if(!confirm("這將會覆蓋您目前手動填寫的分配數字，確定要自動預算嗎？\n(系統將套用「大區優先＋口味平均」演算法，保證絕對精準！)")) return;
             
             data.allocations = {}; 
 
@@ -1694,59 +1678,6 @@
         html += `</div><script>setTimeout(function() { window.print(); window.close(); }, 500);<\/script></body></html>`;
         return html;
     }
-
-// ===== 手機版：硬體級順暢軌道鎖定 (高效能 render 降頻版) =====
-    let _stTarget = null;
-    let _stAxis = null;
-    let _stStartX = 0;
-    let _stStartY = 0;
-    let _stInitTop = 0;
-    let _stInitLeft = 0;
-    let _stDeciding = false;
-    let _stTicking = false;
-
-    document.addEventListener('touchstart', function(e) {
-        let t = e.target.closest('.table-responsive');
-        if(!t) { _stTarget = null; return; }
-        _stTarget = t;
-        _stStartX = e.touches[0].clientX;
-        _stStartY = e.touches[0].clientY;
-        _stInitTop = t.scrollTop;
-        _stInitLeft = t.scrollLeft;
-        _stAxis = null;
-        _stDeciding = true;
-    }, {passive: true});
-
-    document.addEventListener('touchmove', function(e) {
-        if (!_stTarget || !_stDeciding) return;
-        let dx = Math.abs(e.touches[0].clientX - _stStartX);
-        let dy = Math.abs(e.touches[0].clientY - _stStartY);
-        if (dx > 8 || dy > 8) { // 稍微提高判定門檻至 8px，防止誤判
-            _stAxis = dx > dy ? 'x' : 'y';
-            _stDeciding = false; 
-        }
-    }, {passive: true});
-
-    // 關鍵優化：利用 requestAnimationFrame 與手機螢幕刷新率同步，釋放 CPU 效能
-    document.addEventListener('scroll', function(e) {
-        if (!_stTarget || !_stAxis || _stTicking) return;
-        if (e.target !== _stTarget) return;
-
-        _stTicking = true;
-        requestAnimationFrame(function() {
-            if (_stAxis === 'x') {
-                if (Math.abs(_stTarget.scrollTop - _stInitTop) > 1) {
-                    _stTarget.scrollTop = _stInitTop;
-                }
-            } else if (_stAxis === 'y') {
-                if (Math.abs(_stTarget.scrollLeft - _stInitLeft) > 1) {
-                    _stTarget.scrollLeft = _stInitLeft;
-                }
-            }
-            _stTicking = false;
-        });
-    }, true);
-    // =======================================================
 </script>
 
 </body>
