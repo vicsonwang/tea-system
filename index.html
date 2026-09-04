@@ -153,9 +153,10 @@
             
             #userInfoDisplay { position: static; display: block; margin: 5px auto 10px; text-align: center; box-shadow: none; border: 1px solid #ddd; }
 
+            /* 🎯 1. 手機版極簡頁籤：啟動者顯示完整名，非啟動者僅顯示2字，100% 滿版不用滑動 */
             .tabs { display: flex !important; flex-direction: row !important; border-bottom: 2px solid #ddd !important; margin-bottom: 15px !important; overflow-x: hidden !important; width: 100% !important; justify-content: space-between; }
-            .tab-btn { border: none !important; border-radius: 0 !important; padding: 8px 4px !important; font-size: 13px !important; background: transparent !important; flex: 1 !important; text-align: center !important; }
-            .tab-btn.active { border-bottom: 3px solid #3498db !important; background-color: transparent !important; color: #3498db !important; font-weight: bold; }
+            .tab-btn { border: none !important; border-radius: 0 !important; padding: 8px 1px !important; font-size: 13px !important; background: transparent !important; flex: 1 !important; text-align: center !important; min-width: 0; }
+            .tab-btn.active { border-bottom: 3px solid #3498db !important; background-color: transparent !important; color: #3498db !important; font-weight: bold; font-size: 14px !important; }
             .tab-btn .tab-text-full { display: none; }
             .tab-btn.active .tab-text-full { display: inline; }
             .tab-btn .tab-text-short { display: inline; }
@@ -441,26 +442,26 @@
         </div>
     </div>
 
-    <!-- 頁籤按鈕 (啟動顯示完整文字，未啟動顯示極簡圖示) -->
+    <!-- 頁籤按鈕 (啟動顯示完整文字，未啟動顯示極簡圖示+二字) -->
     <div class="tabs">
         <button class="tab-btn active" id="tabBtn1" onclick="switchTab('tab-setup')">
-            <span class="tab-text-short">👑1.⚙️</span>
+            <span class="tab-text-short">👑1.設定</span>
             <span class="tab-text-full">👑 1. 設定與匯入名單</span>
         </button>
         <button class="tab-btn" id="tabBtn2" onclick="switchTab('tab-guests')">
-            <span class="tab-text-short">2.📋</span>
+            <span class="tab-text-short">2.名單</span>
             <span class="tab-text-full">2. 名單與分配打勾</span>
         </button>
         <button class="tab-btn" id="tabBtn3" onclick="switchTab('tab-host-summary')">
-            <span class="tab-text-short">3.👤</span>
+            <span class="tab-text-short">3.確認</span>
             <span class="tab-text-full">3. 金主專屬確認區</span>
         </button>
         <button class="tab-btn" id="tabBtn4" onclick="switchTab('tab-billing')">
-            <span class="tab-text-short">👑4.💰</span>
+            <span class="tab-text-short">👑4.收款</span>
             <span class="tab-text-full">👑 4. 總表與收款 💰</span>
         </button>
         <button class="tab-btn" id="tabBtn5" style="color:#d35400;" onclick="switchTab('tab-distribution')">
-            <span class="tab-text-short">👑5.📦</span>
+            <span class="tab-text-short">👑5.派發</span>
             <span class="tab-text-full">👑 5. 派發與分餐明細 📦</span>
         </button>
     </div>
@@ -473,7 +474,7 @@
         <fieldset id="tab1FieldSet" style="border:none; padding:0; margin:0;">
             <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                 <div class="section-box" style="flex: 1; min-width: 450px;">
-                    <div style="display: flex; justify-content: space-between; align- baseline; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <h3 style="color: #d35400; margin:0;">🍔 吃的部份</h3>
                         <button class="success" style="font-weight: bold;" onclick="window.openAddMenuModal('food')">➕ 新增品項</button>
                     </div>
@@ -915,29 +916,13 @@
 
     // ====== 雲端 API & 首頁入口 ======
     async function fetchCloudGroups() {
-        const container = document.getElementById('groupListContainer');
-        
-        // ⚡ 體驗優化：先從本地快取拿舊清單「瞬間顯示」墊檔，不讓畫面卡在 Loading
-        const cachedList = localStorage.getItem('tea_group_list_cache');
-        if (cachedList) {
-            cloudGroups = JSON.parse(cachedList);
-            renderGroupList(); 
-        }
-
         try {
-            // 背景偷偷去雲端抓取最新的
             const res = await fetch(`${API_URL}?action=list`);
-            const newList = await res.json();
-            
-            // 抓回來後，更新畫面並覆蓋本地快取
-            cloudGroups = newList;
-            localStorage.setItem('tea_group_list_cache', JSON.stringify(cloudGroups));
+            cloudGroups = await res.json();
             renderGroupList();
         } catch(e) {
             console.error("API 讀取失敗", e);
-            if (!cachedList) {
-                container.innerHTML = `<div style="color:red; text-align:center; padding:10px;">⚠️ 連線失敗，請檢查網路！</div>`;
-            }
+            document.getElementById('groupListContainer').innerHTML = `<div style="color:red; text-align:center; padding:10px;">⚠️ 連線失敗，請檢查網路！</div>`;
         }
     }
 
@@ -1703,7 +1688,7 @@
 
         let claimedGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(activeHostTab));
 
-        // 關鍵修復：b - a 排序演算法，確保 1/1 (1.0) 永遠在最上方，1/9 (0.11) 在最下方
+        // 關鍵修復：b - a 才能讓 1/1 (1.0) 排在最上方，1/9 (0.11) 排在最下方
         claimedGuests.sort((a, b) => (1 / b.claimedBy.length) - (1 / a.claimedBy.length));
 
         let listHTML = claimedGuests.map(g => {
@@ -1735,7 +1720,7 @@
                 expectedTotal += roundedAmount;
                 if (isPaid) collectedTotal += roundedAmount;
 
-                // 非主揪，儲存格與勾選框皆套用反灰鎖定 Class 與停用狀態
+                // 非主揪，儲存格套用 disabled-cell 徹底反灰，點擊事件停用
                 const cellClass = isOwner ? 'checkbox-cell' : 'disabled-cell';
                 const clickAttr = isOwner ? `onclick="window.togglePaidStatus('${host}')"` : '';
 
@@ -1999,7 +1984,6 @@
         }
     }
 
-    // 🎯 渲染分頁 5 下方明細：改為「吃的在上、喝的在下」上下垂直佈局，給予滿版展示空間
     window.renderDetailCard = function(rIdx) {
         let reg = window.currentDistRegions[rIdx];
         if(!reg) return;
@@ -2013,12 +1997,9 @@
             if(data.allocations && data.allocations[reg] && data.allocations[reg][item.id]) {
                 qty = parseInt(data.allocations[reg][item.id], 10);
             }
-            if (qty > 0) { 
-                fHtml += `<div class="dist-item-row"><span>🔹 ${getItemName(item)}</span><strong style="color:#d35400; font-size:16px;">${qty} 份</strong></div>`; 
-                fCount += qty; 
-            }
+            if (qty > 0) { fHtml += `🔹 ${getItemName(item)} ： <strong style="color:#d35400; font-size:16px;">${qty}</strong> 份<br>`; fCount += qty; }
         });
-        if (!fHtml) fHtml = '<div style="color:#999; padding:5px 0;">無餐點分配</div>';
+        if (!fHtml) fHtml = '<span style="color:#999;">無餐點</span>';
 
         let dHtml = ''; let dCount = 0;
         data.drinkItems.forEach(function(item) {
@@ -2026,28 +2007,18 @@
             if(data.allocations && data.allocations[reg] && data.allocations[reg][item.id]) {
                 qty = parseInt(data.allocations[reg][item.id], 10);
             }
-            if (qty > 0) { 
-                dHtml += `<div class="dist-item-row"><span>🔹 ${getItemName(item)}</span><strong style="color:#27ae60; font-size:16px;">${qty} 份</strong></div>`; 
-                dCount += qty; 
-            }
+            if (qty > 0) { dHtml += `🔹 ${getItemName(item)} ： <strong style="color:#27ae60; font-size:16px;">${qty}</strong> 份<br>`; dCount += qty; }
         });
-        if (!dHtml) dHtml = '<div style="color:#999; padding:5px 0;">無飲料分配</div>';
+        if (!dHtml) dHtml = '<span style="color:#999;">無飲料</span>';
+
+        const fTitle = document.getElementById('detail_ftitle_' + rIdx);
+        const dTitle = document.getElementById('detail_dtitle_' + rIdx);
+        if (fTitle) fTitle.innerHTML = `🍔 應拿餐點分配 (共拿 <strong style="color:#d35400;">${fCount}</strong> 份)`;
+        if (dTitle) dTitle.innerHTML = `🥤 應拿飲料分配 (共拿 <strong style="color:#27ae60;">${dCount}</strong> 份)`;
 
         container.innerHTML = `
-            <div class="dist-detail-block" style="background:#fffef8; border-color:#faebcc;">
-                <div class="dist-detail-header" style="color:#d35400;">
-                    <span>🍔 應拿餐點分配</span>
-                    <span style="font-size:14px; color:#666;">共拿 <strong style="color:#d35400; font-size:16px;">${fCount}</strong> 份</span>
-                </div>
-                <div>${fHtml}</div>
-            </div>
-            <div class="dist-detail-block" style="background:#f4fdf8; border-color:#c3e6cb;">
-                <div class="dist-detail-header" style="color:#27ae60;">
-                    <span>🥤 應拿飲料分配</span>
-                    <span style="font-size:14px; color:#666;">共拿 <strong style="color:#27ae60; font-size:16px;">${dCount}</strong> 份</span>
-                </div>
-                <div>${dHtml}</div>
-            </div>
+            <td style="vertical-align: top; text-align: left; padding: 12px; line-height: 1.8;">${fHtml}</td>
+            <td style="vertical-align: top; text-align: left; padding: 12px; line-height: 1.8;">${dHtml}</td>
         `;
     }
 
@@ -2225,14 +2196,25 @@
             detailedHTML += `
                 <div class="section-box" style="background-color: #fff; border-color: #34495e; padding: 0; overflow: hidden; margin-bottom: 25px;">
                     <div style="background-color: #34495e; color: white; margin: 0; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;">
-                        <h3 style="margin: 0; font-size: 18px; color: white;">📍 區域：<span style="color:#f1c40f;">${reg}</span> (負責分派：${distStr})</h3>
+                        <h3 style="margin: 0; font-size: 18px; color: white;">🛠️ 負責分派：${distStr}</h3>
                         <button class="success" style="padding: 4px 10px; font-size: 13px;" onclick="window.printRegionTags(${rIdx})">🖨️ 列印此區名牌</button>
                     </div>
                     <div style="padding: 15px;">
-                        <div id="detail_alloc_${rIdx}"></div>
-                        <div style="text-align: left; font-size: 13px; color: #555; padding: 10px 12px; background:#f9f9f9; border-radius:6px; border:1px solid #eee; margin-top:10px;">
-                            <strong style="color: #2c3e50;">📝 本區發放名單 (${totalPeople}人)：</strong><br>${guests.map(function(g) { return g.name; }).join('、')}
-                        </div>
+                        <table class="wrap-table" style="width: 100%; margin-bottom: 15px; border: 1px solid #dee2e6;">
+                            <thead>
+                                <tr>
+                                    <th colspan="2" style="background-color: #e8f4f8; text-align: left; font-size: 16px; border-bottom: 2px solid #bce0ee;">📍 區域：<span style="color:#e74c3c; font-size: 18px;">${reg}</span></th>
+                                </tr>
+                                <tr>
+                                    <th id="detail_ftitle_${rIdx}" style="width: 50%; background-color: #fdf5e6;">🍔 應拿餐點分配</th>
+                                    <th id="detail_dtitle_${rIdx}" style="width: 50%; background-color: #eafaf1;">🥤 應拿飲料分配</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="detail_alloc_${rIdx}"></tr>
+                                <tr style="background:#f9f9f9;"><td colspan="2" style="text-align: left; font-size: 13px; color: #555; padding: 10px 12px; border-top: 1px solid #eee;"><strong style="color: #2c3e50;">📝 本區發放名單 (${totalPeople}人)：</strong><br>${guests.map(function(g) { return g.name; }).join('、')}</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             `;
