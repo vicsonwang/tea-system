@@ -127,7 +127,7 @@
         .accordion-header { background: #e8f4f8; padding: 10px 15px; border-radius: 8px; border: 1px solid #bce0ee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: #2c3e50; margin-bottom: 15px; }
         .accordion-content { display: none; padding: 15px; border: 1px solid #bce0ee; border-top: none; border-radius: 0 0 8px 8px; margin-top: -15px; margin-bottom: 15px; background: #fafbfc; }
 
-        /* ================= 手機版優化 (含卡片化品項修復) ================= */
+        /* ================= 手機版優化 (含大長度口味欄位修復) ================= */
         @media (max-width: 768px) {
             body { padding: 5px; }
             .modal-box { width: 95%; padding: 15px; box-sizing: border-box; }
@@ -170,13 +170,15 @@
 
             .table-responsive { -webkit-overflow-scrolling: touch; }
 
-            /* 🎯 關鍵修復：分頁 1 吃的/喝的表格在手機版轉為「寬敞卡片」 */
+            /* 🎯 關鍵優化：品項 1 : 口味 2.2，給予口味超大寬敞展示空間 */
             .menu-card-table, .menu-card-table tbody, .menu-card-table tr { display: block; width: 100%; }
-            .menu-card-table thead { display: none; } /* 隱藏壓迫感標題列 */
+            .menu-card-table thead { display: none; }
             .menu-card-row { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
             .menu-card-row td { display: block; border: none; padding: 3px 0; text-align: left; }
             .menu-card-row .menu-inputs-group { display: flex; gap: 8px; margin-bottom: 6px; }
             .menu-card-row .menu-inputs-group input { border: 1px solid #ccc !important; padding: 6px !important; text-align: left !important; border-radius: 4px; font-size: 14px; }
+            .menu-card-row .menu-inputs-group input:nth-child(1) { flex: 1 !important; min-width: 0; } /* 品項(店家) 佔 1 */
+            .menu-card-row .menu-inputs-group input:nth-child(2) { flex: 2.2 !important; min-width: 0; } /* 口味(長名字) 佔 2.2 大空間 */
             .menu-card-row .menu-meta-group { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 6px 8px; border-radius: 4px; }
 
             #tab-distribution > div:first-child { flex-direction: column; align-items: stretch; padding: 10px; }
@@ -315,11 +317,11 @@
         <h3 id="addMenuModalTitle" style="text-align: center; margin-bottom: 15px;">➕ 新增品項</h3>
         <input type="hidden" id="addMenuType">
         <div style="margin-bottom: 10px;">
-            <label>品項 (例: 雙層牛肉堡)：</label>
+            <label>品項/店家 (例: 八曜和茶/雙層堡)：</label>
             <input type="text" id="popItem" placeholder="必填" style="padding: 8px;">
         </div>
         <div style="margin-bottom: 10px;">
-            <label>口味 (例: 辣味/去冰)：</label>
+            <label>口味/細節 (例: 牧場覺醒微糖去冰)：</label>
             <input type="text" id="popFlavor" placeholder="選填" style="padding: 8px;">
         </div>
         <div style="margin-bottom: 10px;">
@@ -1158,7 +1160,6 @@
         if (document.getElementById('tab-distribution').classList.contains('active')) { renderDistributionTab(); }
     }
 
-    // 🎯 渲染品項表格（含手機版寬敞卡片轉化）
     function renderMenuTable(type) {
         const tbody = document.getElementById(type === 'food' ? 'foodTableBody' : 'drinkTableBody');
         const items = (type === 'food' ? data.foodItems : data.drinkItems);
@@ -1173,8 +1174,8 @@
             <tr class="menu-card-row">
                 <td colspan="2">
                     <div class="menu-inputs-group">
-                        <input type="text" class="inline-input" value="${i.item}" placeholder="品項名稱" onchange="window.updateMenuInfo('${type}', ${i.id}, 'item', this.value)" style="flex:2;">
-                        <input type="text" class="inline-input" value="${i.flavor}" placeholder="口味" onchange="window.updateMenuInfo('${type}', ${i.id}, 'flavor', this.value)" style="flex:1;">
+                        <input type="text" class="inline-input" value="${i.item}" placeholder="品項/店家" onchange="window.updateMenuInfo('${type}', ${i.id}, 'item', this.value)">
+                        <input type="text" class="inline-input" value="${i.flavor}" placeholder="口味/細節" onchange="window.updateMenuInfo('${type}', ${i.id}, 'flavor', this.value)">
                     </div>
                 </td>
                 <td colspan="4">
