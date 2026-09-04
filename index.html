@@ -9,8 +9,8 @@
         .container { max-width: 98%; margin: 0 auto; }
         h1, h2, h3 { color: #2c3e50; margin-top: 0; }
         
-        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn { background: none; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; cursor: pointer; color: #777; transition: 0.3s; }
+        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .tab-btn { background: none; border: none; padding: 12px 20px; font-size: 15px; font-weight: bold; cursor: pointer; color: #777; transition: 0.3s; white-space: nowrap; flex-shrink: 0; }
         .tab-btn:hover { color: #3498db; }
         .tab-btn.active { color: #3498db; border-bottom: 3px solid #3498db; margin-bottom: -2px; }
         .tab-content { display: none; background: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -36,7 +36,6 @@
         th, td { border: 1px solid #dee2e6; padding: 4px 6px; text-align: center; transition: background-color 0.2s; } 
         th { background-color: #f8f9fa; position: sticky; top: 0; z-index: 1; padding: 8px 10px; }
         
-        /* 電腦版品項表格比例：品項 25%、口味 45% (超寬空間)、單價/份數/小計/操作分剩餘 */
         .menu-card-table th:nth-child(1), .menu-card-table td:nth-child(1) { width: 25%; }
         .menu-card-table th:nth-child(2), .menu-card-table td:nth-child(2) { width: 45%; }
         
@@ -131,10 +130,9 @@
         .accordion-header { background: #e8f4f8; padding: 10px 15px; border-radius: 8px; border: 1px solid #bce0ee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: #2c3e50; margin-bottom: 15px; }
         .accordion-content { display: none; padding: 15px; border: 1px solid #bce0ee; border-top: none; border-radius: 0 0 8px 8px; margin-top: -15px; margin-bottom: 15px; background: #fafbfc; }
 
-        /* 電腦版表格橫向容器 */
         .menu-inputs-group-desktop { display: flex; gap: 4px; }
 
-        /* ================= 手機版優化 (嚴格封裝在 media 內部) ================= */
+        /* ================= 手機版優化 ================= */
         @media (max-width: 768px) {
             body { padding: 5px; }
             .modal-box { width: 95%; padding: 15px; box-sizing: border-box; }
@@ -150,9 +148,10 @@
             
             #userInfoDisplay { position: static; display: block; margin: 5px auto 10px; text-align: center; box-shadow: none; border: 1px solid #ddd; }
 
-            .tabs { display: flex; flex-direction: column; border-bottom: none; gap: 5px; margin-bottom: 10px; }
-            .tab-btn { border: 1px solid #ddd; border-radius: 6px; padding: 8px; width: 100%; font-size: 14px; }
-            .tab-btn.active { border-bottom: 1px solid #3498db; background-color: #e8f4f8; }
+            /* 🎯 手機版頁籤維持跟電腦版一樣「橫向左右滾動」 */
+            .tabs { display: flex !important; flex-direction: row !important; border-bottom: 2px solid #ddd !important; gap: 0 !important; margin-bottom: 15px !important; overflow-x: auto !important; }
+            .tab-btn { border: none !important; border-radius: 0 !important; padding: 8px 12px !important; width: auto !important; font-size: 13px !important; background: transparent !important; }
+            .tab-btn.active { border-bottom: 3px solid #3498db !important; background-color: transparent !important; color: #3498db !important; }
 
             .hide-mobile { display: none !important; }
 
@@ -177,7 +176,6 @@
 
             .table-responsive { -webkit-overflow-scrolling: touch; }
 
-            /* 🎯 僅在手機版將品項轉為卡片，品項 1 : 口味 2.2 */
             .menu-card-table, .menu-card-table tbody, .menu-card-table tr { display: block; width: 100%; }
             .menu-card-table thead { display: none; }
             .menu-card-row { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -435,16 +433,16 @@
         </div>
     </div>
 
-    <!-- 頁籤按鈕 -->
+    <!-- 頁籤按鈕 (區分主揪與團員專區) -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-setup')">1. 設定與匯入名單</button>
-        <button class="tab-btn" onclick="switchTab('tab-guests')">2. 名單與分配打勾</button>
-        <button class="tab-btn" onclick="switchTab('tab-host-summary')">3. 金主專屬確認區</button>
-        <button class="tab-btn" onclick="switchTab('tab-billing')">4. 總表與收款 💰</button>
-        <button class="tab-btn" style="color:#d35400;" onclick="switchTab('tab-distribution')">5. 派發與分餐明細 📦</button>
+        <button class="tab-btn active" id="tabBtn1" onclick="switchTab('tab-setup')">👑 1. 設定與匯入名單</button>
+        <button class="tab-btn" id="tabBtn2" onclick="switchTab('tab-guests')">2. 名單與分配打勾</button>
+        <button class="tab-btn" id="tabBtn3" onclick="switchTab('tab-host-summary')">3. 金主專屬確認區</button>
+        <button class="tab-btn" id="tabBtn4" onclick="switchTab('tab-billing')">👑 4. 總表與收款 💰</button>
+        <button class="tab-btn" id="tabBtn5" style="color:#d35400;" onclick="switchTab('tab-distribution')">👑 5. 派發與分餐明細 📦</button>
     </div>
 
-    <!-- Tab 1 -->
+    <!-- Tab 1 (主揪專區) -->
     <div id="tab-setup" class="tab-content active">
         <div id="tab1PermissionNotice" style="display:none; background:#fcf8e3; border:1px solid #faebcc; color:#8a6d3b; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
             🔒 提示：您目前的身份為「一般金主/團員」，分頁 1 僅限「主揪 (<span id="ownerNameNotice"></span>)」進行設定與匯入。
@@ -493,7 +491,7 @@
         </fieldset>
     </div>
 
-    <!-- Tab 2 -->
+    <!-- Tab 2 (團員專區) -->
     <div id="tab-guests" class="tab-content">
         <div class="summary-card" style="display: flex; flex-direction: column; gap: 5px;">
             <div>自動帶入總金額: $<strong id="dispTotal">0</strong> | 有效總份數: <strong id="dispShares">0</strong> 份 | 平均單價: $<strong id="dispAvg">0.00</strong></div>
@@ -554,7 +552,7 @@
         </div>
     </div>
 
-    <!-- Tab 3 -->
+    <!-- Tab 3 (團員專區：精簡版金主認領明細) -->
     <div id="tab-host-summary" class="tab-content">
         <div id="hostSubTabs" class="host-sub-tabs"></div>
         <div id="hostSpecificData" style="display: none;">
@@ -566,16 +564,25 @@
                     實收金額 (四捨五入)：<strong style="color: #c0392b; font-size: 24px;">$<span id="hViewRounded">0</span></strong>
                 </div>
             </div>
-            <h3>📝 認領名單明細</h3>
-            <table style="width: 100%; max-width: 800px;">
-                <thead><tr><th>區域</th><th>部門</th><th>分工</th><th>姓名</th><th>共同請客人數</th><th>負擔比例</th></tr></thead>
+            <h3>📝 被請客成員明細 (按負擔比例高至低排序)</h3>
+            <table style="width: 100%; max-width: 600px;">
+                <thead>
+                    <tr style="background:#f8f9fa;">
+                        <th>部門</th>
+                        <th>姓名</th>
+                        <th>負擔比例</th>
+                    </tr>
+                </thead>
                 <tbody id="hostGuestList"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- Tab 4 -->
+    <!-- Tab 4 (主揪專區：總表與收款) -->
     <div id="tab-billing" class="tab-content">
+        <div id="tab4Notice" style="display:none; background:#fcf8e3; border:1px solid #faebcc; color:#8a6d3b; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
+            🔒 提示：您目前的身份為「一般金主/團員」，僅「主揪 (<span id="tab4OwnerNotice"></span>)」可切換收款狀態。
+        </div>
         <div class="summary-card" style="background-color: #e8f4f8; border-color: #bce0ee;">
             <div style="font-size: 18px;">
                 下午茶總金額：<strong>$<span id="billingGrandTotal">0</span></strong> | 
@@ -603,15 +610,18 @@
         </div>
     </div>
 
-    <!-- Tab 5 -->
+    <!-- Tab 5 (主揪專區：派發與分餐明細) -->
     <div id="tab-distribution" class="tab-content">
+        <div id="tab5Notice" style="display:none; background:#fcf8e3; border:1px solid #faebcc; color:#8a6d3b; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
+            🔒 提示：分頁 5 為主揪發放工具，僅「主揪 (<span id="tab5OwnerNotice"></span>)」可調整數量與一鍵預算。
+        </div>
         <div style="display: flex; justify-content: space-between; align-items: center; background-color: #fdf5e6; border: 1px solid #faebcc; padding: 15px; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
             <div style="font-size: 16px; flex: 1; min-width: 300px;">
                 💡 <strong>雙向核對模式：</strong> 點擊右側的閃爍按鈕，系統會瞬間打好完美草稿。<br>
                 左側會即時核對 <strong style="color:#d35400;">已分數量</strong> = <strong style="color:#2980b9;">總人數</strong>；上方核對 <strong style="color:#27ae60;">剩餘總量</strong> = 0。<br>
                 🏷️ <strong>列印名牌標題：</strong> <input type="text" id="globalPrintTitle" value="" style="width: 250px; padding: 4px; display: inline-block; font-size: 14px; background: #eee; cursor: not-allowed;" readonly title="請在畫面上方的【專案名稱】修改">
             </div>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="tab5ActionsGroup">
                 <button class="pulse-btn" onclick="autoAllocate()">✨ 點我一鍵自動預算</button>
                 <button class="danger" onclick="clearAllocations()" style="font-size: 14px; font-weight: bold; padding: 10px 15px;">🗑️ 清空重填</button>
                 <button class="success" onclick="printAllTags()" style="font-size: 14px; font-weight: bold; padding: 10px 15px;">🖨️ 一鍵列印全部名牌</button>
@@ -783,7 +793,7 @@
         }
     }
 
-    // ====== 主揪權限與密碼/刪團管理 ======
+    // ====== 主揪權限控制中心 ======
     window.openChangePassModal = function() {
         document.getElementById('newGroupPassInput').value = currentGroupPassword;
         document.getElementById('changePassModal').style.display = 'flex';
@@ -828,31 +838,53 @@
         data.ownerHost = hostName;
         markDataChanged();
         renderHostsManager();
-        checkTab1Permission();
+        checkPermissions();
     }
 
-    function checkTab1Permission() {
+    function checkPermissions() {
         if (!data.ownerHost && data.hosts.length > 0) data.ownerHost = data.hosts[0]; 
         const isOwner = (currentUser === data.ownerHost);
         
-        const fieldset = document.getElementById('tab1FieldSet');
-        const notice = document.getElementById('tab1PermissionNotice');
+        // 1. 分頁 1 權限控制
+        const fieldset1 = document.getElementById('tab1FieldSet');
+        const notice1 = document.getElementById('tab1PermissionNotice');
         const changePassBtn = document.getElementById('changePassBtn');
         const deleteGroupBtn = document.getElementById('deleteGroupBtn');
 
         if (isOwner) {
-            fieldset.disabled = false;
-            fieldset.style.opacity = '1';
-            notice.style.display = 'none';
+            fieldset1.disabled = false;
+            fieldset1.style.opacity = '1';
+            notice1.style.display = 'none';
             if (changePassBtn) changePassBtn.style.display = 'inline-block'; 
             if (deleteGroupBtn) deleteGroupBtn.style.display = 'inline-block'; 
         } else {
-            fieldset.disabled = true;
-            fieldset.style.opacity = '0.6';
-            notice.style.display = 'block';
+            fieldset1.disabled = true;
+            fieldset1.style.opacity = '0.6';
+            notice1.style.display = 'block';
             document.getElementById('ownerNameNotice').innerText = data.ownerHost || "未指定";
             if (changePassBtn) changePassBtn.style.display = 'none'; 
             if (deleteGroupBtn) deleteGroupBtn.style.display = 'none'; 
+        }
+
+        // 2. 分頁 4 權限控制 (非主揪不能勾選收款)
+        const tab4Notice = document.getElementById('tab4Notice');
+        if (!isOwner) {
+            tab4Notice.style.display = 'block';
+            document.getElementById('tab4OwnerNotice').innerText = data.ownerHost || "未指定";
+        } else {
+            tab4Notice.style.display = 'none';
+        }
+
+        // 3. 分頁 5 權限控制
+        const tab5Notice = document.getElementById('tab5Notice');
+        const tab5Actions = document.getElementById('tab5ActionsGroup');
+        if (!isOwner) {
+            tab5Notice.style.display = 'block';
+            document.getElementById('tab5OwnerNotice').innerText = data.ownerHost || "未指定";
+            if (tab5Actions) tab5Actions.style.display = 'none';
+        } else {
+            tab5Notice.style.display = 'none';
+            if (tab5Actions) tab5Actions.style.display = 'flex';
         }
     }
 
@@ -1033,7 +1065,7 @@
 
         window.populateBatchTargets(); 
         activeHostTab = currentUser;
-        checkTab1Permission();
+        checkPermissions();
         renderMainTable(); 
         if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostTabs(); 
     }
@@ -1041,7 +1073,7 @@
     window.confirmUserLogin = function() {
         document.getElementById('loginUserModal').style.display = 'none';
         window.populateBatchTargets(); 
-        checkTab1Permission();
+        checkPermissions();
         renderMainTable(); 
     }
 
@@ -1152,7 +1184,8 @@
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active'); event.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active'); 
+        if(event && event.target) event.target.classList.add('active');
         if(tabId === 'tab-guests') { renderDeptFilter(); renderMainTable(); window.populateBatchTargets(); }
         if(tabId === 'tab-host-summary') renderHostTabs(); 
         if(tabId === 'tab-billing') renderBillingTable(); 
@@ -1161,7 +1194,7 @@
 
     function refreshAllUI() {
         renderMenuTable('food'); renderMenuTable('drink'); updateMenuTotals();
-        renderHostsManager(); renderDeptFilter(); renderMainTable(); window.populateBatchTargets(); checkTab1Permission();
+        renderHostsManager(); renderDeptFilter(); renderMainTable(); window.populateBatchTargets(); checkPermissions();
         if (document.getElementById('tab-host-summary').classList.contains('active')) renderHostTabs(); 
         if (document.getElementById('tab-billing').classList.contains('active')) renderBillingTable(); 
         if (document.getElementById('tab-distribution').classList.contains('active')) { renderDistributionTab(); }
@@ -1607,6 +1640,7 @@
 
     window.switchHostTab = function(hostName) { activeHostTab = hostName; renderHostTabs(); }
 
+    // 🎯 渲染分頁 3：被請客成員明細 (按負擔比例從高到低排序，預設隱藏區域與分工)
     function renderHostView(passedTotal) {
         passedTotal = getPassedTotal(passedTotal); 
         const displayDiv = document.getElementById('hostSpecificData');
@@ -1618,15 +1652,29 @@
         document.getElementById('hViewName').innerText = activeHostTab; document.getElementById('hViewShares').innerText = shares.toFixed(2);
         document.getElementById('hViewExact').innerText = exactAmount.toFixed(2); document.getElementById('hViewRounded').innerText = Math.round(exactAmount).toLocaleString();
 
-        let listHTML = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(activeHostTab))
-            .map(g => `<tr><td>${g.reg || '-'}</td><td>${g.dept || '-'}</td><td>${g.dist || '-'}</td><td><strong>${g.name}</strong></td><td>${g.claimedBy.length} 人 (${g.claimedBy.join(', ')})</td><td>${g.claimedBy.length === 1 ? '全額 (1/1)' : `平分 (1/${g.claimedBy.length})`}</td></tr>`).join('');
-        document.getElementById('hostGuestList').innerHTML = listHTML !== '' ? listHTML : `<tr><td colspan="6" style="text-align:center; color:#999;">目前沒有認領任何名單喔！</td></tr>`;
+        let claimedGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(activeHostTab));
+
+        // 依負擔比率 (1 / claimedBy.length) 由高至低排序
+        claimedGuests.sort((a, b) => (1 / a.claimedBy.length) - (1 / b.claimedBy.length));
+
+        let listHTML = claimedGuests.map(g => {
+            let ratioText = g.claimedBy.length === 1 ? '<strong style="color:#c0392b;">全額 (1/1)</strong>' : `平分 (1/${g.claimedBy.length})`;
+            return `<tr>
+                <td>${g.dept || '-'}</td>
+                <td><strong>${g.name}</strong></td>
+                <td>${ratioText}</td>
+            </tr>`;
+        }).join('');
+
+        document.getElementById('hostGuestList').innerHTML = listHTML !== '' ? listHTML : `<tr><td colspan="3" style="text-align:center; color:#999; padding:15px;">目前沒有認領任何名單喔！</td></tr>`;
     }
 
+    // 🎯 渲染分頁 4：金主收款表（僅限主揪可勾選切換）
     function renderBillingTable(passedTotal) {
         passedTotal = getPassedTotal(passedTotal); 
         const stats = getCalcStats(passedTotal);
         const tbody = document.getElementById('billingTableBody');
+        const isOwner = (currentUser === data.ownerHost); // 檢查是否為主揪
         let html = ''; let expectedTotal = 0; let collectedTotal = 0;
 
         data.hosts.forEach(host => {
@@ -1639,11 +1687,14 @@
                 expectedTotal += roundedAmount;
                 if (isPaid) collectedTotal += roundedAmount;
 
+                // 只有主揪可點擊切換，非主揪會被禁發點擊
+                const clickAttr = isOwner ? `onclick="window.togglePaidStatus('${host}')"` : 'style="cursor:not-allowed;" title="僅主揪可切換收款狀態"';
+
                 html += `<tr class="${isPaid ? 'paid-row' : 'unpaid-row'}">
                     <td><strong style="font-size: 16px;">${host}</strong></td><td>${shares.toFixed(2)}</td><td>$${exactAmount.toFixed(2)}</td>
                     <td style="color: #c0392b; font-weight: bold; font-size: 18px;">$${roundedAmount.toLocaleString()}</td>
-                    <td class="checkbox-cell" onclick="window.togglePaidStatus('${host}')">
-                        <input type="checkbox" style="transform: scale(1.5); pointer-events: none;" ${isPaid ? 'checked' : ''}> 
+                    <td class="checkbox-cell" ${clickAttr}>
+                        <input type="checkbox" style="transform: scale(1.5); pointer-events: none;" ${isPaid ? 'checked' : ''} ${isOwner ? '' : 'disabled'}> 
                         ${isPaid ? '<span style="color:#2ecc71; margin-left:5px; font-weight:bold;">已收款</span>' : '<span style="color:#e74c3c; margin-left:5px; font-weight:bold;">未收款</span>'}
                     </td>
                 </tr>`;
@@ -1658,6 +1709,7 @@
     }
 
     window.togglePaidStatus = function(hostName) {
+        if (currentUser !== data.ownerHost) return alert('🔒 權限限制：只有主揪可以勾選收款進度！');
         data.paidStatus[hostName] = !data.paidStatus[hostName];
         markDataChanged(); renderBillingTable();
     }
@@ -1665,6 +1717,7 @@
     function getItemName(i) { return `${i.item}${i.flavor ? ' (' + i.flavor + ')' : ''}`; }
 
     window.autoAllocate = function() {
+        if (currentUser !== data.ownerHost) return alert('🔒 權限限制：只有主揪可以執行自動預算！');
         try {
             const validGuests = data.guests.filter(function(g) { return g.status === '正常' && g.claimedBy && g.claimedBy.length > 0; });
             const totalPeopleAll = validGuests.length;
@@ -1777,6 +1830,7 @@
     }
 
     window.clearAllocations = function() {
+        if (currentUser !== data.ownerHost) return alert('🔒 權限限制：只有主揪可以清空分配！');
         if(!confirm("確定要清空所有已填寫的分配數字嗎？")) return;
         data.allocations = {};
         markDataChanged();
@@ -1784,6 +1838,7 @@
     }
     
     window.stepAlloc = function(rIdx, type, iIdx, step) {
+        if (currentUser !== data.ownerHost) return alert('🔒 權限限制：只有主揪可以調整分配數量！');
         let typePrefix = type === 'food' ? 'f' : 'd';
         let input = document.getElementById('input_r' + rIdx + '_' + typePrefix + iIdx);
         if(!input) return;
@@ -2136,7 +2191,7 @@
         window.currentDistRegions.forEach(function(reg, rIdx) { window.renderDetailCard(rIdx); });
     }
 
-    // 🎯 補齊：名牌列印函式組
+    // 🎯 名牌列印函式組
     window.printAllTags = function() {
         const validGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.length > 0);
         if (validGuests.length === 0) return alert('目前沒有被請客且正常出席的人員可列印！');
