@@ -608,19 +608,26 @@
             
             try {
                 const res = await fetch(`${API_URL}?action=admin_list`);
-                const list = await res.json();
+                const resData = await res.json();
+                
+                const list = Array.isArray(resData) ? resData : (resData.data || []);
+                
                 let html = '';
-                list.forEach(g => {
-                    html += `<tr>
-                        <td><strong>${g.name}</strong></td>
-                        <td style="font-size:12px; color:#666;">${g.id}</td>
-                        <td>${g.status === '進行中' ? '<span class="status-badge-active">🟢 進行中</span>' : '<span class="status-badge-ended">已結束</span>'}</td>
-                        <td><strong style="color:#c0392b; font-size:16px;">${g.pass}</strong></td>
-                        <td>${g.hosts}</td>
-                        <td>${g.guestCount} 人</td>
-                    </tr>`;
-                });
-                document.getElementById('adminTableBody').innerHTML = html || `<tr><td colspan="6" style="text-align:center;">目前無團體資料</td></tr>`;
+                if (list.length === 0) {
+                    html = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#999;">目前無團體資料或後端回傳格式異常</td></tr>`;
+                } else {
+                    list.forEach(g => {
+                        html += `<tr>
+                            <td><strong>${g.name || '未命名'}</strong></td>
+                            <td style="font-size:12px; color:#666;">${g.id || '-'}</td>
+                            <td>${g.status === '進行中' ? '<span class="status-badge-active">🟢 進行中</span>' : '<span class="status-badge-ended">已結束</span>'}</td>
+                            <td><strong style="color:#c0392b; font-size:16px;">${g.pass || '0000'}</strong></td>
+                            <td>${g.hosts || '無'}</td>
+                            <td>${g.guestCount || 0} 人</td>
+                        </tr>`;
+                    });
+                }
+                document.getElementById('adminTableBody').innerHTML = html;
             } catch(e) {
                 alert('Admin 讀取失敗: ' + e.message);
             }
