@@ -1695,7 +1695,7 @@
         return html;
     }
 
-    // ===== 手機版：暴力鎖定單向滑動 (解決原生斜滑問題) =====
+// ===== 手機版：硬體級順暢軌道鎖定 (高效能 render 降頻版) =====
     let _stTarget = null;
     let _stAxis = null;
     let _stStartX = 0;
@@ -1703,6 +1703,7 @@
     let _stInitTop = 0;
     let _stInitLeft = 0;
     let _stDeciding = false;
+    let _stTicking = false;
 
     document.addEventListener('touchstart', function(e) {
         let t = e.target.closest('.table-responsive');
@@ -1720,23 +1721,32 @@
         if (!_stTarget || !_stDeciding) return;
         let dx = Math.abs(e.touches[0].clientX - _stStartX);
         let dy = Math.abs(e.touches[0].clientY - _stStartY);
-        if (dx > 5 || dy > 5) {
+        if (dx > 8 || dy > 8) { // 稍微提高判定門檻至 8px，防止誤判
             _stAxis = dx > dy ? 'x' : 'y';
             _stDeciding = false; 
         }
     }, {passive: true});
 
+    // 關鍵優化：利用 requestAnimationFrame 與手機螢幕刷新率同步，釋放 CPU 效能
     document.addEventListener('scroll', function(e) {
-        if (!_stTarget || !_stAxis) return;
+        if (!_stTarget || !_stAxis || _stTicking) return;
         if (e.target !== _stTarget) return;
-        
-        if (_stAxis === 'x') {
-            if (_stTarget.scrollTop !== _stInitTop) _stTarget.scrollTop = _stInitTop;
-        } else if (_stAxis === 'y') {
-            if (_stTarget.scrollLeft !== _stInitLeft) _stTarget.scrollLeft = _stInitLeft;
-        }
-    }, true); 
-    // ===================================================
+
+        _stTicking = true;
+        requestAnimationFrame(function() {
+            if (_stAxis === 'x') {
+                if (Math.abs(_stTarget.scrollTop - _stInitTop) > 1) {
+                    _stTarget.scrollTop = _stInitTop;
+                }
+            } else if (_stAxis === 'y') {
+                if (Math.abs(_stTarget.scrollLeft - _stInitLeft) > 1) {
+                    _stTarget.scrollLeft = _stInitLeft;
+                }
+            }
+            _stTicking = false;
+        });
+    }, true);
+    // =======================================================
 </script>
 
 </body>
