@@ -112,18 +112,17 @@
         
         .focus-input { border: 1px solid #f39c12 !important; box-shadow: 0 0 5px rgba(243,156,18,0.5); }
 
-        /* 金主選擇大按鈕容器 */
         .host-grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
         .host-grid-btn { background: #e8f4f8; border: 2px solid #bce0ee; color: #2980b9; padding: 14px 8px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; box-sizing: border-box; }
         .host-grid-btn:hover, .host-grid-btn:active { background: #3498db; color: white; border-color: #2980b9; transform: scale(0.98); }
 
-        /* ================= 手機版優化 (精簡/展開雙模式修復版) ================= */
+        /* ================= 手機版優化 (精簡/展開雙模式完美修復版) ================= */
         @media (max-width: 768px) {
             body { padding: 5px; }
             .modal-box { width: 95%; padding: 15px; box-sizing: border-box; }
             
             .save-bar { flex-direction: column; padding: 10px; margin-bottom: 10px; gap: 8px; }
-            .save-bar > div:first-child { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+            .save-bar > div:first-child { width: 100%; display: flex; justify-content: space-between; align- items: center; }
             #currentFileDisplay { display: none; }
             #topProjectName { width: 120px !important; font-size: 14px !important; margin: 0; padding: 2px 4px; }
             #saveStatusBadge { font-size: 12px; padding: 3px 8px; margin: 0; }
@@ -142,18 +141,17 @@
 
             .hide-mobile { display: none !important; }
 
-            /* 🎯 1. 隱藏模式 (精簡視角)：固定寬度 50%/50% 滿版不用滑動 */
-            .mobile-compact-view { table-layout: fixed !important; width: 100% !important; }
-            .mobile-compact-view th:nth-child(2), .mobile-compact-view td:nth-child(2) { width: 22% !important; }
-            .mobile-compact-view th:nth-child(3), .mobile-compact-view td:nth-child(3) { width: 28% !important; }
-            .mobile-compact-view th.mobile-active-host, .mobile-compact-view td.mobile-active-host { width: 50% !important; }
+            /* 🛠️ 1. 精簡模式修復：徹底解開位置黏貼，強制 25% + 35% + 40% 滿版黃金比例 */
+            .mobile-compact-view { table-layout: fixed !important; width: 100% !important; min-width: 100% !important; }
+            .mobile-compact-view th, .mobile-compact-view td { position: static !important; padding: 6px 2px !important; }
+            .mobile-compact-view th:nth-child(2), .mobile-compact-view td:nth-child(2) { width: 25% !important; }
+            .mobile-compact-view th:nth-child(3), .mobile-compact-view td:nth-child(3) { width: 35% !important; }
+            .mobile-compact-view th.mobile-active-host, .mobile-compact-view td.mobile-active-host { width: 40% !important; }
+            .mobile-compact-view .inline-input { border: none !important; background: transparent !important; padding: 0 !important; font-size: 13px !important; }
 
-            /* 🎯 2. 展開模式 (完全顯示)：取消 fixed，還原自由延伸與橫向滾動 */
+            /* 🛠️ 2. 展開模式：還原自由延伸與橫向滾動 */
             .mobile-full-view { table-layout: auto !important; width: auto !important; min-width: 100% !important; }
-            .mobile-full-view th, .mobile-full-view td { width: auto !important; max-width: none !important; }
-            .mobile-full-view th:nth-child(1), .mobile-full-view td:nth-child(1),
-            .mobile-full-view th:nth-child(2), .mobile-full-view td:nth-child(2),
-            .mobile-full-view th:nth-child(3), .mobile-full-view td:nth-child(3) { position: static !important; } /* 展開時解開強行固定，防止蓋住打勾區 */
+            .mobile-full-view th, .mobile-full-view td { width: auto !important; max-width: none !important; position: static !important; }
 
             .section-box { min-width: 100% !important; box-sizing: border-box; padding: 10px; }
             .flex-row { flex-direction: column; align-items: stretch; }
@@ -164,8 +162,6 @@
             #targetDropdown, #batchHostSelect, #distDropdown, #deptFilterSelect { width: 100% !important; }
             .custom-select-wrapper { width: 100%; margin-bottom: 10px; }
 
-            th, td { padding: 6px 4px; font-size: 13px; }
-            .inline-input, .inline-select { font-size: 13px; padding: 4px 1px; }
             .table-responsive { -webkit-overflow-scrolling: touch; }
 
             #tab-distribution > div:first-child { flex-direction: column; align-items: stretch; padding: 10px; }
@@ -552,7 +548,6 @@
         document.getElementById('topProjectName').classList.remove('focus-input'); 
         document.getElementById('globalPrintTitle').value = data.projectName || "";
         
-        // 生成大顆金主按鈕選單
         const gridContainer = document.getElementById('hostBtnGrid');
         if (data.hosts.length > 0) {
             gridContainer.innerHTML = data.hosts.map(h => `<button class="host-grid-btn" onclick="window.selectUserDirectly('${h}')">👤 ${h}</button>`).join('');
@@ -565,7 +560,6 @@
         resetSaveStatus();
     }
 
-    // 點擊大按鈕直接登入
     window.selectUserDirectly = function(selectedUser) {
         currentUser = selectedUser;
         document.getElementById('loginUserModal').style.display = 'none';
@@ -906,7 +900,6 @@
         markDataChanged(); renderMainTable(); renderDeptFilter();
     }
 
-    // 🌟 修復核心：根據 showAllMobileCols 切換 mobile-compact-view / mobile-full-view
     function renderMainTable() {
         const thead = document.getElementById('mainTableHead'); const tbody = document.getElementById('mainTableBody');
         const mainTable = document.getElementById('mainTable');
