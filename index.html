@@ -9,10 +9,21 @@
         .container { max-width: 98%; margin: 0 auto; }
         h1, h2, h3 { color: #2c3e50; margin-top: 0; }
         
-        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: hidden; width: 100%; }
-        .tab-btn { background: none; border: none; padding: 12px 16px; font-size: 15px; font-weight: bold; cursor: pointer; color: #777; transition: 0.3s; white-space: nowrap; flex: 1; text-align: center; }
-        .tab-btn:hover { color: #3498db; }
-        .tab-btn.active { color: #3498db; border-bottom: 3px solid #3498db; margin-bottom: -2px; }
+        /* 電腦版頁籤基本樣式 */
+        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: wrap; gap: 4px; }
+        .tab-btn { background: #f8f9fa; border: none; border-radius: 8px 8px 0 0; padding: 12px 24px; font-size: 16px; font-weight: bold; cursor: pointer; color: #777; transition: 0.3s; }
+        .tab-btn:hover { color: #3498db; background: #e9ecef; }
+        .tab-btn.active { color: #3498db; border-bottom: 3px solid #3498db; background: #fff; margin-bottom: -2px; }
+        
+        /* 主揪專屬分頁樣式 (黃底) */
+        .tab-btn.owner-tab { background-color: #fffdf2; color: #d35400; }
+        .tab-btn.owner-tab:hover { background-color: #fcf3cf; color: #e67e22; }
+        .tab-btn.owner-tab.active { color: #d35400; border-bottom: 3px solid #f39c12; background-color: #fef5d9; margin-bottom: -2px; }
+
+        /* 控制文字顯示 (電腦版隱藏短名，顯示全名) */
+        .tab-text-short { display: none; }
+        .tab-text-full { display: inline; }
+
         .tab-content { display: none; background: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .tab-content.active { display: block; }
 
@@ -153,14 +164,21 @@
             
             #userInfoDisplay { position: static; display: block; margin: 5px auto 10px; text-align: center; box-shadow: none; border: 1px solid #ddd; }
 
-            /* 🎯 1. 手機版極簡頁籤：啟動者顯示完整名，非啟動者僅顯示2字，100% 滿版不用滑動 */
-            .tabs { display: flex !important; flex-direction: row !important; border-bottom: 2px solid #ddd !important; margin-bottom: 15px !important; overflow-x: hidden !important; width: 100% !important; justify-content: space-between; }
-            .tab-btn { border: none !important; border-radius: 0 !important; padding: 8px 1px !important; font-size: 13px !important; background: transparent !important; flex: 1 !important; text-align: center !important; min-width: 0; }
-            .tab-btn.active { border-bottom: 3px solid #3498db !important; background-color: transparent !important; color: #3498db !important; font-weight: bold; font-size: 14px !important; }
-            .tab-btn .tab-text-full { display: none; }
-            .tab-btn.active .tab-text-full { display: inline; }
-            .tab-btn .tab-text-short { display: inline; }
+            /* 🎯 手機版頁籤：手風琴動態特效，啟動變長，未啟動縮短 */
+            .tabs { display: flex !important; flex-direction: row !important; border-bottom: 2px solid #ddd !important; margin-bottom: 15px !important; overflow: hidden !important; width: 100% !important; justify-content: space-between; gap: 4px; padding: 0 2px; box-sizing: border-box; }
+            
+            .tab-btn { border: none !important; border-radius: 6px 6px 0 0 !important; padding: 10px 2px !important; font-size: 12px !important; flex: 1; text-align: center !important; min-width: 0; transition: flex 0.3s ease, background 0.3s ease; white-space: nowrap; overflow: hidden; background: #f1f2f6; color: #7f8c8d; border-bottom: 2px solid #ddd !important; }
+            
+            .tab-btn.active { flex: 2.8; font-weight: bold; font-size: 13px !important; background: #e8f4f8; border-bottom: 3px solid #3498db !important; color: #3498db; }
+            
+            .tab-btn.owner-tab { background: #fffde7; color: #d35400; border-bottom: 2px solid #f9e79f !important; }
+            .tab-btn.owner-tab.active { background: #fef5d9; border-bottom: 3px solid #f39c12 !important; color: #d35400; }
+            
+            .tab-text-short { display: inline-block; vertical-align: middle; }
             .tab-btn.active .tab-text-short { display: none; }
+            
+            .tab-text-full { display: none; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+            .tab-btn.active .tab-text-full { display: inline-block; }
 
             .hide-mobile { display: none !important; }
 
@@ -442,27 +460,27 @@
         </div>
     </div>
 
-    <!-- 頁籤按鈕 (啟動顯示完整文字，未啟動顯示極簡圖示+二字) -->
+    <!-- 🎯 頁籤：拔除皇冠，主揪分頁套用黃底 (owner-tab)，手機版動態伸縮 -->
     <div class="tabs">
-        <button class="tab-btn active" id="tabBtn1" onclick="switchTab('tab-setup')">
-            <span class="tab-text-short">👑1.設定</span>
-            <span class="tab-text-full">👑 1. 設定與匯入名單</span>
+        <button class="tab-btn owner-tab active" id="tabBtn1" onclick="switchTab('tab-setup')">
+            <span class="tab-text-short">⚙️1.設定</span>
+            <span class="tab-text-full">⚙️ 1. 設定與匯入名單</span>
         </button>
         <button class="tab-btn" id="tabBtn2" onclick="switchTab('tab-guests')">
-            <span class="tab-text-short">2.名單</span>
-            <span class="tab-text-full">2. 名單與分配打勾</span>
+            <span class="tab-text-short">📋2.名單</span>
+            <span class="tab-text-full">📋 2. 名單與分配打勾</span>
         </button>
         <button class="tab-btn" id="tabBtn3" onclick="switchTab('tab-host-summary')">
-            <span class="tab-text-short">3.確認</span>
-            <span class="tab-text-full">3. 金主專屬確認區</span>
+            <span class="tab-text-short">👤3.確認</span>
+            <span class="tab-text-full">👤 3. 金主專屬確認區</span>
         </button>
-        <button class="tab-btn" id="tabBtn4" onclick="switchTab('tab-billing')">
-            <span class="tab-text-short">👑4.收款</span>
-            <span class="tab-text-full">👑 4. 總表與收款 💰</span>
+        <button class="tab-btn owner-tab" id="tabBtn4" onclick="switchTab('tab-billing')">
+            <span class="tab-text-short">💰4.收款</span>
+            <span class="tab-text-full">💰 4. 總表與收款</span>
         </button>
-        <button class="tab-btn" id="tabBtn5" style="color:#d35400;" onclick="switchTab('tab-distribution')">
-            <span class="tab-text-short">👑5.派發</span>
-            <span class="tab-text-full">👑 5. 派發與分餐明細 📦</span>
+        <button class="tab-btn owner-tab" id="tabBtn5" onclick="switchTab('tab-distribution')">
+            <span class="tab-text-short">📦5.派發</span>
+            <span class="tab-text-full">📦 5. 派發與分餐明細</span>
         </button>
     </div>
 
@@ -576,7 +594,7 @@
         </div>
     </div>
 
-    <!-- Tab 3 (團員專區：排序修復 1/1 -> 1/9 高至低) -->
+    <!-- Tab 3 (團員專區：排序修復 b-a -> 1/1 在上) -->
     <div id="tab-host-summary" class="tab-content">
         <div id="hostSubTabs" class="host-sub-tabs"></div>
         <div id="hostSpecificData" style="display: none;">
@@ -916,13 +934,19 @@
 
     // ====== 雲端 API & 首頁入口 ======
     async function fetchCloudGroups() {
+        const container = document.getElementById('groupListContainer');
+        const cachedList = localStorage.getItem('tea_group_list_cache');
+        if (cachedList) { cloudGroups = JSON.parse(cachedList); renderGroupList(); }
+        
         try {
             const res = await fetch(`${API_URL}?action=list`);
-            cloudGroups = await res.json();
+            const newList = await res.json();
+            cloudGroups = newList;
+            localStorage.setItem('tea_group_list_cache', JSON.stringify(cloudGroups));
             renderGroupList();
         } catch(e) {
             console.error("API 讀取失敗", e);
-            document.getElementById('groupListContainer').innerHTML = `<div style="color:red; text-align:center; padding:10px;">⚠️ 連線失敗，請檢查網路！</div>`;
+            if (!cachedList) container.innerHTML = `<div style="color:red; text-align:center; padding:10px;">⚠️ 連線失敗，請檢查網路！</div>`;
         }
     }
 
@@ -1675,6 +1699,7 @@
 
     window.switchHostTab = function(hostName) { activeHostTab = hostName; renderHostTabs(); }
 
+    // 🎯 渲染分頁 3：修正排序邏輯 (b - a)，讓 1/1 排最上面，1/9 排最下面
     function renderHostView(passedTotal) {
         passedTotal = getPassedTotal(passedTotal); 
         const displayDiv = document.getElementById('hostSpecificData');
@@ -1703,6 +1728,7 @@
         document.getElementById('hostGuestList').innerHTML = listHTML !== '' ? listHTML : `<tr><td colspan="3" style="text-align:center; color:#999; padding:15px;">目前沒有認領任何名單喔！</td></tr>`;
     }
 
+    // 🎯 渲染分頁 4：非主揪徹底反灰鎖定
     function renderBillingTable(passedTotal) {
         passedTotal = getPassedTotal(passedTotal); 
         const stats = getCalcStats(passedTotal);
