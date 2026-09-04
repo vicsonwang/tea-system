@@ -9,8 +9,8 @@
         .container { max-width: 98%; margin: 0 auto; }
         h1, h2, h3 { color: #2c3e50; margin-top: 0; }
         
-        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .tab-btn { background: none; border: none; padding: 12px 20px; font-size: 15px; font-weight: bold; cursor: pointer; color: #777; transition: 0.3s; white-space: nowrap; flex-shrink: 0; }
+        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: hidden; width: 100%; }
+        .tab-btn { background: none; border: none; padding: 12px 16px; font-size: 15px; font-weight: bold; cursor: pointer; color: #777; transition: 0.3s; white-space: nowrap; flex: 1; text-align: center; }
         .tab-btn:hover { color: #3498db; }
         .tab-btn.active { color: #3498db; border-bottom: 3px solid #3498db; margin-bottom: -2px; }
         .tab-content { display: none; background: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -148,10 +148,14 @@
             
             #userInfoDisplay { position: static; display: block; margin: 5px auto 10px; text-align: center; box-shadow: none; border: 1px solid #ddd; }
 
-            /* 🎯 手機版頁籤維持跟電腦版一樣「橫向左右滾動」 */
-            .tabs { display: flex !important; flex-direction: row !important; border-bottom: 2px solid #ddd !important; gap: 0 !important; margin-bottom: 15px !important; overflow-x: auto !important; }
-            .tab-btn { border: none !important; border-radius: 0 !important; padding: 8px 12px !important; width: auto !important; font-size: 13px !important; background: transparent !important; }
-            .tab-btn.active { border-bottom: 3px solid #3498db !important; background-color: transparent !important; color: #3498db !important; }
+            /* 🎯 1. 手機版極簡頁籤：啟動者顯示完整名，非啟動者僅顯示簡短圖示，100% 滿版不用滑動 */
+            .tabs { display: flex !important; flex-direction: row !important; border-bottom: 2px solid #ddd !important; margin-bottom: 15px !important; overflow-x: hidden !important; width: 100% !important; justify-content: space-between; }
+            .tab-btn { border: none !important; border-radius: 0 !important; padding: 8px 4px !important; font-size: 13px !important; background: transparent !important; flex: 1 !important; text-align: center !important; }
+            .tab-btn.active { border-bottom: 3px solid #3498db !important; background-color: transparent !important; color: #3498db !important; font-weight: bold; }
+            .tab-btn .tab-text-full { display: none; }
+            .tab-btn.active .tab-text-full { display: inline; }
+            .tab-btn .tab-text-short { display: inline; }
+            .tab-btn.active .tab-text-short { display: none; }
 
             .hide-mobile { display: none !important; }
 
@@ -433,13 +437,28 @@
         </div>
     </div>
 
-    <!-- 頁籤按鈕 (區分主揪與團員專區) -->
+    <!-- 🎯 頁籤：啟動時展開文字，非啟動時呈現極簡圖示，滿版不滑動 -->
     <div class="tabs">
-        <button class="tab-btn active" id="tabBtn1" onclick="switchTab('tab-setup')">👑 1. 設定與匯入名單</button>
-        <button class="tab-btn" id="tabBtn2" onclick="switchTab('tab-guests')">2. 名單與分配打勾</button>
-        <button class="tab-btn" id="tabBtn3" onclick="switchTab('tab-host-summary')">3. 金主專屬確認區</button>
-        <button class="tab-btn" id="tabBtn4" onclick="switchTab('tab-billing')">👑 4. 總表與收款 💰</button>
-        <button class="tab-btn" id="tabBtn5" style="color:#d35400;" onclick="switchTab('tab-distribution')">👑 5. 派發與分餐明細 📦</button>
+        <button class="tab-btn active" id="tabBtn1" onclick="switchTab('tab-setup')">
+            <span class="tab-text-short">👑1.⚙️</span>
+            <span class="tab-text-full">👑 1. 設定與匯入名單</span>
+        </button>
+        <button class="tab-btn" id="tabBtn2" onclick="switchTab('tab-guests')">
+            <span class="tab-text-short">2.📋</span>
+            <span class="tab-text-full">2. 名單與分配打勾</span>
+        </button>
+        <button class="tab-btn" id="tabBtn3" onclick="switchTab('tab-host-summary')">
+            <span class="tab-text-short">3.👤</span>
+            <span class="tab-text-full">3. 金主專屬確認區</span>
+        </button>
+        <button class="tab-btn" id="tabBtn4" onclick="switchTab('tab-billing')">
+            <span class="tab-text-short">👑4.💰</span>
+            <span class="tab-text-full">👑 4. 總表與收款 💰</span>
+        </button>
+        <button class="tab-btn" id="tabBtn5" style="color:#d35400;" onclick="switchTab('tab-distribution')">
+            <span class="tab-text-short">👑5.📦</span>
+            <span class="tab-text-full">👑 5. 派發與分餐明細 📦</span>
+        </button>
     </div>
 
     <!-- Tab 1 (主揪專區) -->
@@ -552,7 +571,7 @@
         </div>
     </div>
 
-    <!-- Tab 3 (團員專區：精簡版金主認領明細) -->
+    <!-- Tab 3 (團員專區：排序修復由全額至平分 1/1 -> 1/9) -->
     <div id="tab-host-summary" class="tab-content">
         <div id="hostSubTabs" class="host-sub-tabs"></div>
         <div id="hostSpecificData" style="display: none;">
@@ -564,7 +583,7 @@
                     實收金額 (四捨五入)：<strong style="color: #c0392b; font-size: 24px;">$<span id="hViewRounded">0</span></strong>
                 </div>
             </div>
-            <h3>📝 被請客成員明細 (按負擔比例高至低排序)</h3>
+            <h3>📝 被請客成員明細 (按負擔比例高至低排序：1/1 ➔ 1/9)</h3>
             <table style="width: 100%; max-width: 600px;">
                 <thead>
                     <tr style="background:#f8f9fa;">
@@ -578,7 +597,7 @@
         </div>
     </div>
 
-    <!-- Tab 4 (主揪專區：總表與收款) -->
+    <!-- Tab 4 (主揪專區：非主揪徹底反灰) -->
     <div id="tab-billing" class="tab-content">
         <div id="tab4Notice" style="display:none; background:#fcf8e3; border:1px solid #faebcc; color:#8a6d3b; padding:10px; border-radius:5px; margin-bottom:15px; font-weight:bold;">
             🔒 提示：您目前的身份為「一般金主/團員」，僅「主揪 (<span id="tab4OwnerNotice"></span>)」可切換收款狀態。
@@ -886,6 +905,8 @@
             tab5Notice.style.display = 'none';
             if (tab5Actions) tab5Actions.style.display = 'flex';
         }
+
+        renderBillingTable(); // 重新觸發收款表的反灰鎖定
     }
 
     // ====== 雲端 API & 首頁入口 ======
@@ -1185,7 +1206,17 @@
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active'); 
-        if(event && event.target) event.target.classList.add('active');
+        
+        // 觸發頁籤按鈕高亮
+        const tabBtnMap = {
+            'tab-setup': 'tabBtn1',
+            'tab-guests': 'tabBtn2',
+            'tab-host-summary': 'tabBtn3',
+            'tab-billing': 'tabBtn4',
+            'tab-distribution': 'tabBtn5'
+        };
+        if(tabBtnMap[tabId]) document.getElementById(tabBtnMap[tabId]).classList.add('active');
+
         if(tabId === 'tab-guests') { renderDeptFilter(); renderMainTable(); window.populateBatchTargets(); }
         if(tabId === 'tab-host-summary') renderHostTabs(); 
         if(tabId === 'tab-billing') renderBillingTable(); 
@@ -1640,7 +1671,7 @@
 
     window.switchHostTab = function(hostName) { activeHostTab = hostName; renderHostTabs(); }
 
-    // 🎯 渲染分頁 3：被請客成員明細 (按負擔比例從高到低排序，預設隱藏區域與分工)
+    // 🎯 渲染分頁 3：修正排序邏輯，由 1/1 到 1/9 (從大至小) 排序
     function renderHostView(passedTotal) {
         passedTotal = getPassedTotal(passedTotal); 
         const displayDiv = document.getElementById('hostSpecificData');
@@ -1654,7 +1685,7 @@
 
         let claimedGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.includes(activeHostTab));
 
-        // 依負擔比率 (1 / claimedBy.length) 由高至低排序
+        // 關鍵修復：依 (1 / claimedBy.length) 大到小排序 (1/1 優先，其次 1/2, 1/3...)
         claimedGuests.sort((a, b) => (1 / a.claimedBy.length) - (1 / b.claimedBy.length));
 
         let listHTML = claimedGuests.map(g => {
@@ -1669,7 +1700,7 @@
         document.getElementById('hostGuestList').innerHTML = listHTML !== '' ? listHTML : `<tr><td colspan="3" style="text-align:center; color:#999; padding:15px;">目前沒有認領任何名單喔！</td></tr>`;
     }
 
-    // 🎯 渲染分頁 4：金主收款表（僅限主揪可勾選切換）
+    // 🎯 渲染分頁 4：金主收款表（非主揪完全鎖定與反灰）
     function renderBillingTable(passedTotal) {
         passedTotal = getPassedTotal(passedTotal); 
         const stats = getCalcStats(passedTotal);
@@ -1687,13 +1718,14 @@
                 expectedTotal += roundedAmount;
                 if (isPaid) collectedTotal += roundedAmount;
 
-                // 只有主揪可點擊切換，非主揪會被禁發點擊
-                const clickAttr = isOwner ? `onclick="window.togglePaidStatus('${host}')"` : 'style="cursor:not-allowed;" title="僅主揪可切換收款狀態"';
+                // 非主揪，儲存格與核取方框強制套用反灰鎖定 Class 與事件禁發
+                const cellClass = isOwner ? 'checkbox-cell' : 'disabled-cell';
+                const clickAttr = isOwner ? `onclick="window.togglePaidStatus('${host}')"` : '';
 
                 html += `<tr class="${isPaid ? 'paid-row' : 'unpaid-row'}">
                     <td><strong style="font-size: 16px;">${host}</strong></td><td>${shares.toFixed(2)}</td><td>$${exactAmount.toFixed(2)}</td>
                     <td style="color: #c0392b; font-weight: bold; font-size: 18px;">$${roundedAmount.toLocaleString()}</td>
-                    <td class="checkbox-cell" ${clickAttr}>
+                    <td class="${cellClass}" ${clickAttr}>
                         <input type="checkbox" style="transform: scale(1.5); pointer-events: none;" ${isPaid ? 'checked' : ''} ${isOwner ? '' : 'disabled'}> 
                         ${isPaid ? '<span style="color:#2ecc71; margin-left:5px; font-weight:bold;">已收款</span>' : '<span style="color:#e74c3c; margin-left:5px; font-weight:bold;">未收款</span>'}
                     </td>
@@ -2191,7 +2223,7 @@
         window.currentDistRegions.forEach(function(reg, rIdx) { window.renderDetailCard(rIdx); });
     }
 
-    // 🎯 名牌列印函式組
+    // 名牌列印函式組
     window.printAllTags = function() {
         const validGuests = data.guests.filter(g => g.status === '正常' && g.claimedBy && g.claimedBy.length > 0);
         if (validGuests.length === 0) return alert('目前沒有被請客且正常出席的人員可列印！');
